@@ -1,5 +1,5 @@
 package usuario;
 
-public class Usuario {
+public abstract class Usuario {
 
 }
