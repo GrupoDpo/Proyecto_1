@@ -1,5 +1,5 @@
 package tiquete;
 
-public class Tiquete {
+public abstract class Tiquete {
 
 }
