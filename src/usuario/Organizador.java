@@ -9,12 +9,12 @@ import Evento.Venue;
 import Finanzas.Oferta;
 import tiquete.Tiquete;
 
-public class Organizador extends Usuario {
+public class Organizador extends Usuario implements IDuenoTiquetes {
 	private double saldo;
 	private ArrayList<Tiquete> tiquetes;
 
-	public Organizador(String login, String password, double saldo) {
-		super(login, password);
+	public Organizador(String login, String password, double saldo, String tipoUsuario) {
+		super(login, password, tipoUsuario);
 		this.saldo = saldo;
 	}
 	
@@ -22,13 +22,20 @@ public class Organizador extends Usuario {
 		return this.tiquetes;
 	}
 	
+	public void agregarTiquete(Tiquete tiquete) {
+        tiquetes.add(tiquete);
+    }
+	public void eliminarTiquete(Tiquete tiquete) {
+        tiquetes.remove(tiquete);
+    }
+	
 	public double getSaldo() {
 		return this.saldo;
 	}
 	
 	public Evento crearEvento(String Entrada, String fecha, String hora, 
-			HashMap<Tiquete, Integer> tiquetesDisponibles) {
-		Evento newEvento = new Evento(Entrada, fecha, hora, tiquetesDisponibles);
+			HashMap<String, Tiquete> tiquetesDisponibles, Venue venueAsociado) {
+		Evento newEvento = new Evento(Entrada, fecha, hora, tiquetesDisponibles,venueAsociado);
 		return newEvento;
 	}
 	
@@ -37,13 +44,12 @@ public class Organizador extends Usuario {
     }
 	
 	public void definirHoraEvento(Evento evento, String nuevaHora) {
-	        
-	     evento.hora = nuevaHora;
+	       evento.setHora(nuevaHora);
 	}
 	
 	public void definirFechaEvento(Evento evento, String nuevaFecha) {
         
-	     evento.fecha = nuevaFecha;
+	     evento.setFecha(nuevaFecha);
 	}
 	
 	public Oferta generarOferta(int id, double porcentaje, String fechaInicio,
@@ -58,6 +64,12 @@ public class Organizador extends Usuario {
 	public String getTipoUsuario() {
 		// TODO Auto-generated method stub
 		return "ORGANIZADOR";
+	}
+
+	@Override
+	public void actualizarSaldo(double precioNuevo) {
+		this.saldo = precioNuevo;
+		
 	}
 	
 	

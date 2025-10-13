@@ -7,16 +7,14 @@ import tiquete.Tiquete;
 
 public class Administrador extends Usuario {
 
-	private double saldo;
 	
-	public Administrador(String login, String password, double saldo) {
-		super(login, password);
-		this.saldo = saldo;
+	
+	public Administrador(String login, String password, double saldo, String tipoUsuario) {
+		super(login, password,tipoUsuario);
+		
 	}
 	
-	public double getSaldo() {
-		return this.saldo;
-	}
+	
 	
 	public void cobrarPorcentajeAdicional() {
 		

@@ -13,22 +13,18 @@ public class Evento {
 	private Venue venueAsociado;
 	
 	
-	public Evento(String entrada,String fecha, String hora, Venue venueAsociado) {
+	public Evento(String entrada,String fecha, String hora, HashMap<String, Tiquete> tiquetesDisponibles2, Venue venueAsociado) {
 		this.setEntrada(entrada);
-		this.fecha = fecha;
-		this.hora = hora;
+		this.setFecha(fecha);
+		this.setHora(hora);
 		this.venueAsociado = venueAsociado;
 		tiquetesDisponibles = new HashMap<String, Tiquete>();
 	
 		
 	}
-	public String getFecha() {
-		return fecha;
-	}
 	
-	public String getHora() {
-		return hora;
-	}
+	
+	
 	
 	
 	public String getEntrada() {
@@ -57,6 +53,28 @@ public class Evento {
     }
 	public Venue getVenueAsociado() {
 		return venueAsociado;
+	}
+	public String getHora() {
+		return hora;
+	}
+	public void setHora(String hora) {
+		this.hora = hora;
+	}
+
+
+
+
+
+	public String getFecha() {
+		return fecha;
+	}
+
+
+
+
+
+	public void setFecha(String fecha) {
+		this.fecha = fecha;
 	}
 
 	

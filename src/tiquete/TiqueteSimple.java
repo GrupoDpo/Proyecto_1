@@ -4,8 +4,9 @@ public class TiqueteSimple extends Tiquete {
 	
 	
 	
-	public TiqueteSimple(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, String fechaExpiracion, int precio, String nombre) {
-		super("SIMPLE",cargoPorcentual,cuotaAdicional,identificador,fechaExpiracion,precio,nombre);
+	public TiqueteSimple(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, 
+			String fechaExpiracion, int precio, String nombre,boolean transferido) {
+		super("SIMPLE",cargoPorcentual,cuotaAdicional,identificador,fechaExpiracion,precio,nombre, transferido);
 		
 	}
 

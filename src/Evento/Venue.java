@@ -5,7 +5,7 @@ public class Venue {
 	private int capacidadMax;
 	private boolean aprobado;
 	
-	public Venue(String ubicacion, int capacidadMax) {
+	public Venue(String ubicacion, int capacidadMax, boolean aprobado) {
 		this.ubicacion = ubicacion;
 	    this.capacidadMax = capacidadMax;
 	    this.aprobado = false;

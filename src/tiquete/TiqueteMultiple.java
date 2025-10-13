@@ -3,12 +3,15 @@ package tiquete;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import Evento.Evento;
+
 public class TiqueteMultiple extends Tiquete{
-	private ArrayList<Tiquete> tiquetesInternos;
+	private ArrayList<TiqueteSimple> tiquetesInternos;
+	private ArrayList<Evento> eventosAsociados;
 
 	public TiqueteMultiple(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador,
-			String fechaExpiracion, int precio, String nombre) {
-		super("MULTIPLE", cargoPorcentual, cuotaAdicional, identificador, fechaExpiracion, precio, nombre);
+			String fechaExpiracion, int precio, String nombre, boolean transferido) {
+		super("MULTIPLE", cargoPorcentual, cuotaAdicional, identificador, fechaExpiracion, precio, nombre, transferido);
 		this.tiquetesInternos = new ArrayList<>();
 	}
 
@@ -25,14 +28,44 @@ public class TiqueteMultiple extends Tiquete{
 		return  (precioAgrupado + (precioAgrupado * cargoPorcentual/100) + cuotaAdicional);
 	}
 	
-	public Collection<Tiquete> getTiquetes( )
+	public Collection<TiqueteSimple> getTiquetes( )
     {
         return tiquetesInternos;
 	
 	
     }
 	
-	public void agregarTiquete(Tiquete tiquete) {
+	public void agregarTiquete(TiqueteSimple tiquete) {
 		tiquetesInternos.add(tiquete);
     }
+	
+	
+	 public boolean puedeTransferirseCompleto(String fechaActual) {
+	        for (Tiquete t : tiquetesInternos) {
+	            if (!t.esVigente(fechaActual)|| t.isTransferido()) {
+	                return false;
+	            }
+	        }
+	        return true;
+	    }
+
+
+
+	 public ArrayList<Evento> getEventosAsociados() {
+		return eventosAsociados;
+	 }
+	 
+	 public int getCantidadEventos() {
+	        return eventosAsociados.size();
+	    }
+	 
+	 public boolean esParaVariosEventos() {
+	        return getCantidadEventos() > 1;
+	    }
+
+	 public void setEventosAsociados(ArrayList<Evento> eventosAsociados) {
+		this.eventosAsociados = eventosAsociados;
+	 }
+	
+
 }
