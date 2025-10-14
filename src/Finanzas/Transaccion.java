@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Scanner;
 
 import Evento.Evento;
+import tiquete.PaqueteDeluxe;
 import tiquete.Tiquete;
 import tiquete.TiqueteMultiple;
 import tiquete.TiqueteSimple;
@@ -175,7 +176,102 @@ public class Transaccion {
 	}
 	
 	
-	
+	public ArrayList<Tiquete> comprarPaqueteDeluxe(PaqueteDeluxe paquete,
+            Usuario comprador, int cantidad, Evento eventoAsociado ) {
+        ArrayList<Tiquete> tiquetesComprados = new ArrayList<>();
+
+       
+        if (paquete == null || comprador == null || eventoAsociado == null) {
+            System.out.println("ERROR: Datos incompletos para comprar paquete Deluxe.");
+            return tiquetesComprados;
+        }
+        if (cantidad <= 0) {
+            System.out.println("ERROR: La cantidad debe ser mayor que cero.");
+            return tiquetesComprados;
+        }
+        if (cantidad > numeroMaxTransaccion) {
+            System.out.println("ERROR: Supera el número máximo de paquetes por transacción.");
+            return tiquetesComprados;
+        }
+
+        if (cantidad != 1) {
+            System.out.println("ERROR: Por ahora solo se soporta comprar 1 Paquete Deluxe por transacción con el paquete recibido.");
+            return tiquetesComprados;
+        }
+        
+        ArrayList<Tiquete> tiqsPaquete = new ArrayList<>();
+        if (paquete.getTiquetes() != null) {
+            for (Tiquete t : paquete.getTiquetes()) {
+                if (t != null) {
+                	tiqsPaquete.add(t);
+                }
+                	
+            }
+        }
+        if (paquete.getTiquetesAdicionales() != null) {
+            for (Tiquete t : paquete.getTiquetesAdicionales()) {
+                if (t != null) {
+                	tiqsPaquete.add(t);
+            }
+        }
+        }
+
+        if (tiqsPaquete.isEmpty()) {
+            System.out.println("ERROR: El paquete Deluxe no contiene tiquetes.");
+            return tiquetesComprados;
+        }
+
+        for (Tiquete t : tiqsPaquete) {
+            Tiquete enEvento = eventoAsociado.getTiquetePorId(t.getId());
+            if (enEvento == null) {
+                System.out.println("ERROR: Tiquete no disponible en el evento: " + t.getId());
+                return tiquetesComprados;
+            }
+        }
+
+        double total = paquete.getPrecioPaquete();
+
+    
+        boolean esCortesiaOrganizador = "ORGANIZADOR".equalsIgnoreCase(comprador.getTipoUsuario());
+        if (esCortesiaOrganizador) {
+            total = 0.0;
+        }
+
+      
+        if (comprador instanceof IDuenoTiquetes) {
+            IDuenoTiquetes dueno = (IDuenoTiquetes) comprador;
+            double saldo = dueno.getSaldo();
+
+            if (total > saldo) {
+                System.out.println("ERROR: Saldo insuficiente para comprar el paquete Deluxe.");
+                return tiquetesComprados;
+            }
+            
+            if (total > 0) {
+                saldo -= total;
+                dueno.actualizarSaldo(saldo);
+            }
+        } else {
+            System.out.println("ERROR: El comprador no puede poseer tiquetes (no implementa IDuenoTiquetes).");
+            return tiquetesComprados;
+        }
+
+        
+        for (Tiquete t : tiqsPaquete) {
+            
+            t.setTransferido(true); 
+        }
+
+  
+        IDuenoTiquetes dueno = (IDuenoTiquetes) comprador;
+        for (Tiquete t : tiqsPaquete) {
+            dueno.agregarTiquete(t);
+            eventoAsociado.venderTiquete(t.getId());
+            tiquetesComprados.add(t);
+        }
+
+        return tiquetesComprados;
+	}
 	
 	
 	public Tiquete getTiquete() {
