@@ -34,6 +34,20 @@ public abstract class Usuario {
 	
 	public abstract String getTipoUsuario();
 	
+	public String formatear(Usuario newUsuario) {
+		String formatJson = String.format("  {\n    \"login\": \"%s\",\n    \"password\": \"%s\",\n    \"tipo\": \"%s\"\n  }"
+				, escape(newUsuario.getLogin()), escape(this.password), escape(newUsuario.getTipoUsuario()));
+		
+		return formatJson;
+		
+	}
+	
+	private static String escape(String texto) {
+        return texto.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+	
+	
+	
 	
 	
 	

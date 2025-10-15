@@ -9,7 +9,7 @@ public class Administrador extends Usuario {
 
 	
 	
-	public Administrador(String login, String password, double saldo, String tipoUsuario) {
+	public Administrador(String login, String password, String tipoUsuario) {
 		super(login, password,tipoUsuario);
 		
 	}
