@@ -1,8 +1,10 @@
 package usuario;
 
+import Persistencia.IFormateo;
+import Persistencia.TextoUtils;
 import tiquete.Tiquete;
 
-public abstract class Usuario {
+public abstract class Usuario implements IFormateo {
 	
 	private String login;
 	private String password;
@@ -34,17 +36,14 @@ public abstract class Usuario {
 	
 	public abstract String getTipoUsuario();
 	
-	public String formatear(Usuario newUsuario) {
+	public String formatear() {
 		String formatJson = String.format("  {\n    \"login\": \"%s\",\n    \"password\": \"%s\",\n    \"tipo\": \"%s\"\n  }"
-				, escape(newUsuario.getLogin()), escape(this.password), escape(newUsuario.getTipoUsuario()));
+				, TextoUtils.escape(this.login), TextoUtils.escape(this.password), TextoUtils.escape(this.tipoUsuario));
 		
 		return formatJson;
 		
 	}
 	
-	private static String escape(String texto) {
-        return texto.replace("\\", "\\\\").replace("\"", "\\\"");
-    }
 	
 	
 	

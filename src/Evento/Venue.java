@@ -33,9 +33,7 @@ public class Venue {
 		this.setAprobado(true);
 	}
 
-	public boolean isAprobado() {
-		return aprobado;
-	}
+	
 
 	public void setAprobado(boolean aprobado) {
 		this.aprobado = aprobado;

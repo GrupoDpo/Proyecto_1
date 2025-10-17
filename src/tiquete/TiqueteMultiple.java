@@ -11,7 +11,7 @@ public class TiqueteMultiple extends Tiquete{
 
 	public TiqueteMultiple(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador,
 			String fechaExpiracion, int precio, String nombre, boolean transferido) {
-		super("MULTIPLE", cargoPorcentual, cuotaAdicional, identificador, fechaExpiracion, precio, nombre, transferido);
+		super(tipoTiquete, cargoPorcentual, cuotaAdicional, identificador, fechaExpiracion, precio, nombre, transferido);
 		this.tiquetesInternos = new ArrayList<>();
 	}
 
@@ -65,6 +65,13 @@ public class TiqueteMultiple extends Tiquete{
 
 	 public void setEventosAsociados(ArrayList<Evento> eventosAsociados) {
 		this.eventosAsociados = eventosAsociados;
+	 }
+
+
+
+	 @Override
+	 public String getTipoTiquete() {
+		return "MULTIPLE";
 	 }
 	
 

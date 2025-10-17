@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import tiquete.Tiquete;
+import Finanzas.EstadosFinancieros;
 
-public class PersistenciaTiquetesJson implements IPersistencia<Tiquete> {
+public class PersistenciaEstadosFinan implements IPersistencia<EstadosFinancieros>  {
 
-	private static final String RUTA = "data/Tiquetes.json";
+	private static final String RUTA = "data/estadosFinancieros.json";
 
 	@Override
 	public void crearArchivo() {
@@ -22,7 +22,7 @@ public class PersistenciaTiquetesJson implements IPersistencia<Tiquete> {
 	}
 	
 	@Override
-	public void cargar(Tiquete newObjeto) {
+	public void cargar(EstadosFinancieros newObjeto) {
 		String format = newObjeto.formatear();
 		String info = "";
 		try {
@@ -68,5 +68,6 @@ public class PersistenciaTiquetesJson implements IPersistencia<Tiquete> {
     }
 
 	
+
 
 }

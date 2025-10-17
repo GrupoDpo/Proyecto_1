@@ -1,11 +1,11 @@
 package Persistencia;
 import java.io.*;
 import java.nio.file.*;
-import java.util.*;
+
 
 import usuario.Usuario;
 
-public class PersistenciaUsuariosJson implements IPersistenciaUsuarios {
+public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
 	
 	private static final String RUTA = "data/usuarios.json";
     
@@ -19,8 +19,8 @@ public class PersistenciaUsuariosJson implements IPersistenciaUsuarios {
 		
 	}
 	
-	public void cargarUsuario(Usuario newUsuario) {
-		String format = newUsuario.formatear(newUsuario);
+	public void cargar(Usuario newUsuario) {
+		String format = newUsuario.formatear();
 		String info = "";
 		try {
 			if (Files.exists(Path.of(RUTA))) {
@@ -50,12 +50,12 @@ public class PersistenciaUsuariosJson implements IPersistenciaUsuarios {
 				}
 			
 			}
-			salvarUsuario(newJson);
+			salvar(newJson);
 		
 		}
 		
 	@Override
-	public void salvarUsuario(String jsonFormatted) {
+	public void salvar(String jsonFormatted) {
 		try (BufferedWriter writer = Files.newBufferedWriter(Path.of(RUTA))) {
             writer.write(jsonFormatted);
             System.out.println("\n Usuario registrado correctamente en " + RUTA);

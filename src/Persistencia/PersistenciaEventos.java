@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import tiquete.Tiquete;
+import Evento.Evento;
 
-public class PersistenciaTiquetesJson implements IPersistencia<Tiquete> {
+public class PersistenciaEventos implements IPersistencia<Evento>  {
 
 	private static final String RUTA = "data/Tiquetes.json";
 
@@ -22,7 +22,7 @@ public class PersistenciaTiquetesJson implements IPersistencia<Tiquete> {
 	}
 	
 	@Override
-	public void cargar(Tiquete newObjeto) {
+	public void cargar(Evento newObjeto) {
 		String format = newObjeto.formatear();
 		String info = "";
 		try {
@@ -66,7 +66,5 @@ public class PersistenciaTiquetesJson implements IPersistencia<Tiquete> {
             System.out.println(" Error al guardar el archivo: " + e.getMessage());
         }
     }
-
-	
 
 }

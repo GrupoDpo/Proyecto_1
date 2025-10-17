@@ -8,12 +8,13 @@ import java.util.Collection;
 import java.util.Scanner;
 
 import Evento.Evento;
+import Persistencia.IFormateo;
 import tiquete.PaqueteDeluxe;
 import tiquete.Tiquete;
 import tiquete.TiqueteMultiple;
 import tiquete.TiqueteSimple;
 
-public class Transaccion {
+public class Transaccion implements IFormateo {
 	
 	Tiquete tiquete;
 	int numeroMaxTransaccion;
@@ -290,6 +291,12 @@ public class Transaccion {
 		
 	
 	
+	}
+
+	@Override
+	public String formatear() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
