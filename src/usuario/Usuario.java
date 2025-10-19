@@ -20,8 +20,8 @@ public abstract class Usuario implements IFormateo {
 		return this.login;
 	}
 	
-	public boolean IsPasswordTrue(String password_try) {
-		if (password_try == this.password) {
+	public boolean IsPasswordTrue(String passwordTry) {
+		if (passwordTry == this.password) {
 			return true;
 		}
 		else {

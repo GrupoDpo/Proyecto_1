@@ -7,6 +7,7 @@ import usuario.Cliente;
 import usuario.Organizador;
 import usuario.Promotor;
 import usuario.Usuario;
+import Persistencia.PersistenciaUsuariosJson;
 
 public class ConsolaAplicacion {
     
@@ -75,7 +76,7 @@ public class ConsolaAplicacion {
             			 
             		} else if (tipo.equals("4")) {
             			 tipoUsuario = "ADMINISTRADOR";
-            			 Usuario newUser = new Administrador(nuevoLogin, nuevaPassword,tipoUsuario);
+            			 Usuario newUser = new Administrador(nuevoLogin, nuevaPassword, tipoUsuario);
             			 
             		} else {
             			 tipoUsuario = "NA";
@@ -85,6 +86,8 @@ public class ConsolaAplicacion {
                     	System.out.println("ERROR: tipo no valido");
                     	break;
                     }
+                    
+                    
                     
                     
                     
