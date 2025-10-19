@@ -3,12 +3,15 @@ package Finanzas;
 import usuario.IDuenoTiquetes;
 import usuario.Usuario;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Scanner;
 
 import Evento.Evento;
 import Persistencia.IFormateo;
+import Persistencia.PersistenciaTransacciones;
+import Persistencia.TextoUtils;
 import tiquete.PaqueteDeluxe;
 import tiquete.Tiquete;
 import tiquete.TiqueteMultiple;
@@ -18,14 +21,27 @@ public class Transaccion implements IFormateo {
 	
 	Tiquete tiquete;
 	int numeroMaxTransaccion;
-	String  metodoPago;
+	Usuario dueno;
+	LocalDateTime fecha;
+	private static final double NUMERO_MAX_TRANSACCION = 10;
+	String tipoTransaccion;
+	double valorTransaccion;
+	Registro registro;
 	
 	
 	
-	public Transaccion(Tiquete tiquete, int numeroMaxTransaccion, String metodoPago) {
+	public Transaccion(String tipoTransaccion, Tiquete tiquete, Usuario dueno, LocalDateTime localDateTime, Registro registro,
+			double valorTransaccion) {
 		this.tiquete = tiquete;
-		this.numeroMaxTransaccion = numeroMaxTransaccion;
-		this.metodoPago = metodoPago;
+		this.dueno = dueno;
+		this.fecha = localDateTime;
+		this.registro = registro;
+		this.tipoTransaccion = tipoTransaccion;
+		this.valorTransaccion = valorTransaccion;
+	}
+	
+	public Usuario getDueno() {
+		return this.dueno;
 	}
 	
 	public void transferirTiquete(Tiquete tiquete, Usuario dueno, Usuario usuarioDestino, String fechaActual) {
@@ -116,11 +132,21 @@ public class Transaccion implements IFormateo {
 				        }
 				            	
 				       }
+		
+		
+		Registro registro = new Registro(dueno, tiquete, usuarioDestino);
+	    Transaccion trans = new Transaccion("TRANSFERENCIA", tiquete, dueno, LocalDateTime.now(), registro, 0);
+
+	    PersistenciaTransacciones persist = new PersistenciaTransacciones();
+	    persist.cargar(trans);
+		
+		
 					     
 			}
 	
 	
 	public ArrayList<Tiquete> comprarTiquete(Tiquete tiqueteComprar, Usuario comprador,int cantidad, Evento eventoAsociado) {
+		double precioTotal = 0;
 		ArrayList<Tiquete> tiquetesComprados = new ArrayList<>();
 		Collection<Tiquete> tiquetes = eventoAsociado.getTiquetesDisponibles();
 		if (tiquetes.isEmpty()) {
@@ -137,8 +163,6 @@ public class Transaccion implements IFormateo {
 		
 		if(comprador instanceof IDuenoTiquetes) {
 			double saldo =((IDuenoTiquetes) comprador).getSaldo();
-			double precioTotal = 0;
-			
 			
 
 			if (tiqueteComprar instanceof TiqueteMultiple) {
@@ -172,6 +196,12 @@ public class Transaccion implements IFormateo {
 			}
 			
 		}
+		
+	    Registro registro = new Registro(comprador, tiqueteComprar, null);
+	    Transaccion trans = new Transaccion("TRANSFERENCIA", tiquete, dueno, LocalDateTime.now(), registro, precioTotal);
+
+	    PersistenciaTransacciones persist = new PersistenciaTransacciones();
+	    persist.cargar(trans);
 	
 		return tiquetesComprados;
 	}
@@ -287,15 +317,21 @@ public class Transaccion implements IFormateo {
 
 	public void setNumeroMaxTransaccion(int numeroMaxTransaccion) {
 			this.numeroMaxTransaccion = numeroMaxTransaccion;
-		
-		
 	
 	
+	}
+	
+	public Usuario getReceptor(Usuario UsuarioReceptor) {
+		return UsuarioReceptor;
 	}
 
 	@Override
 	public String formatear() {
-		// TODO Auto-generated method stub
+		String formatJson = String.format("  {\n    \"tiquete\": \"%s\",\n    \"dueno\": \"%s\",\n    \"receptor\": \"%s\"\n  }"
+				, TextoUtils.escape(getDueno()), TextoUtils.escape(getReceptor()), TextoUtils.escape(getTiquete()));
+		
+		return formatJson;
+		
 		return null;
 	}
 	
