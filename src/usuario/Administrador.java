@@ -43,7 +43,7 @@ public class Administrador extends Usuario {
         }
 
         evento.setCancelado(true); 
-        ArrayList<Tiquete> tiquetes = new ArrayList<>(evento.getTiquetesDisponibles().values());
+        ArrayList<Tiquete> tiquetes = new ArrayList<>(evento.getTiquetesDisponibles());
 
         for (Tiquete t : tiquetes) {
             t.setAnulado(true); 

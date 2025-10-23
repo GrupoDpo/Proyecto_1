@@ -153,9 +153,11 @@ public class ConsolaAplicacion {
     public void menuCliente(Cliente cliente) {
     	int op;
         do {
+        	Scanner sc = new Scanner(System.in);
             imprimirMenuCliente();
             System.out.print("Elige una opción: ");
-            op = leerEntero(sc.nextLine());
+            int opcion = Integer.parseInt(sc.nextLine());
+            
             switch (op) {
                 case 1:
                 	// Despliegue de todos los eventos disponibles
@@ -182,13 +184,19 @@ public class ConsolaAplicacion {
         
         int op;
         do {
-            imprimirMenuCliente();
+        	
+        	
+        	imprimirMenuCliente();
             System.out.println("4. Crear evento");
         	System.out.println("----------------------------------");
             System.out.println("0. Salir");
             System.out.println("==================================");
             System.out.print("Elige una opción: ");
-            op = leerEntero(sc.nextLine());
+            
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Elige una opción: ");
+            int opcion = Integer.parseInt(sc.nextLine());
+        
             switch (op) {
                 case 1:
                 	// Despliegue de todos los eventos disponibles
@@ -210,9 +218,6 @@ public class ConsolaAplicacion {
                     System.out.print("Ingrese la hora del evento (HH:MM): ");
                     String hora = sc.nextLine();
 
-                    System.out.println("\n--- DATOS DEL VENUE ASOCIADO ---");
-                    System.out.print("Ingrese la ubicación del venue: ");
-                    String ubicacion = sc.nextLine();
 
                     System.out.print("Ingrese la capacidad máxima del venue: ");
                     int capacidadMax = 0;
@@ -233,31 +238,6 @@ public class ConsolaAplicacion {
             }
         } while (op != 0);
     	
-        
-        int op;
-        do {
-            imprimirMenuCliente();
-            System.out.print("Elige una opción: ");
-            op = leerEntero(sc.nextLine());
-            switch (op) {
-                case 1:
-                	// Despliegue de todos los eventos disponibles
-                	cliente.comprarTiquete();
-                case 2:
-                	// Despliegue de los tiquetes del usuario en cuestion
-                	cliente.transferirTiquete();
-                case 3:
-                	// Comunicarme con el administador para el rembolso 
-                	cliente.solicitarReembolso();
-                case 0:
-                	System.out.println("Cerrando sesión ...");
-                default: 
-                	System.out.println("Opción no válida.");
-            }
-            if (op != 0) {
-            	break;
-            }
-        } while (op != 0);
     	
     	
     }
@@ -279,8 +259,7 @@ public class ConsolaAplicacion {
         System.out.println("----------------------------------");
         System.out.println("0. Salir");
         System.out.println("==================================");
-        
-        Venue newVenue = new Venue(ubicacion, capacidadMax, aprobado)
+
     }
 }
 
