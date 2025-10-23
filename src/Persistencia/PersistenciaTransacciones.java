@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import Finanzas.Transaccion;
-import tiquete.Tiquete;
 
 public class PersistenciaTransacciones implements IPersistencia<Transaccion>  {
 	
