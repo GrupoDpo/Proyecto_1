@@ -25,7 +25,7 @@ public class TiqueteMultiple extends Tiquete{
 			cantidadTiquetes += t.calcularPrecio();
 		}
 		double precioAgrupado = cantidadTiquetes * 0.9;  
-		return  (precioAgrupado + (precioAgrupado * cargoPorcentual/100) + cuotaAdicional);
+		return  (precioAgrupado + (precioAgrupado * (cargoPorcentual)/100) + cuotaAdicional);
 	}
 	
 	public Collection<TiqueteSimple> getTiquetes( )

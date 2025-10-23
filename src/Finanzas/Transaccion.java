@@ -20,7 +20,6 @@ import tiquete.TiqueteSimple;
 public class Transaccion implements IFormateo {
 	
 	Tiquete tiquete;
-	int numeroMaxTransaccion;
 	Usuario dueno;
 	LocalDateTime fecha;
 	private static final double NUMERO_MAX_TRANSACCION = 10;
@@ -156,7 +155,7 @@ public class Transaccion implements IFormateo {
 		
 			
 		
-		if (cantidad > numeroMaxTransaccion) {
+		if (cantidad > NUMERO_MAX_TRANSACCION) {
 		   System.out.println("ERROR: Supera el número máximo de tiquetes por transacción.");
 		    return tiquetesComprados;
 		    }
@@ -220,7 +219,7 @@ public class Transaccion implements IFormateo {
             System.out.println("ERROR: La cantidad debe ser mayor que cero.");
             return tiquetesComprados;
         }
-        if (cantidad > numeroMaxTransaccion) {
+        if (cantidad > NUMERO_MAX_TRANSACCION) {
             System.out.println("ERROR: Supera el número máximo de paquetes por transacción.");
             return tiquetesComprados;
         }
@@ -309,30 +308,21 @@ public class Transaccion implements IFormateo {
 		return this.tiquete;
 		}
 
-	public int getNumeroMaxTransaccion() {
-			return this.numeroMaxTransaccion;
-	}
-
-	
-
-	public void setNumeroMaxTransaccion(int numeroMaxTransaccion) {
-			this.numeroMaxTransaccion = numeroMaxTransaccion;
-	
-	
-	}
 	
 	public Usuario getReceptor(Usuario UsuarioReceptor) {
 		return UsuarioReceptor;
 	}
 
 	@Override
-	public String formatear() {
-		String formatJson = String.format("  {\n    \"tiquete\": \"%s\",\n    \"dueno\": \"%s\",\n    \"receptor\": \"%s\"\n  }"
-				, TextoUtils.escape(getDueno()), TextoUtils.escape(getReceptor()), TextoUtils.escape(getTiquete()));
-		
-		return formatJson;
-		
-		return null;
+	 public String formatear() {
+        return String.format(
+            "{\n  \"tipoTransaccion\": \"%s\",\n  \"valor\": %.2f,\n  \"fecha\": \"%s\",\n  \"registro\": %s\n}",
+            TextoUtils.escape(this.tipoTransaccion),
+            TextoUtils.escape(this.valorTransaccion),
+            TextoUtils.escape(this.fecha),
+            this.registro.formatear()
+        );
+    
 	}
 	
 }

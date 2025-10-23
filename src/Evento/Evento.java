@@ -93,6 +93,15 @@ public class Evento implements IFormateo {
 		return formatJson;
 	}
 
+
+
+
+
+	public void setCancelado(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 	
 	
