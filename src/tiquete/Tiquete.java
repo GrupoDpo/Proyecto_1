@@ -15,9 +15,10 @@ public abstract class Tiquete implements IFormateo  {
 	protected double precio;
 	private String nombre;
 	private boolean transferido;
+	private boolean anulado;
 	
 	public Tiquete(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, String fechaExpiracion, 
-			int precio, String nombre, boolean transferido){
+			int precio, String nombre, boolean transferido, boolean anulado){
 		this.tipoTiquete = tipoTiquete;
 		this.cargoPorcentual = cargoPorcentual;
 		this.cuotaAdicional = cuotaAdicional;
@@ -26,6 +27,15 @@ public abstract class Tiquete implements IFormateo  {
 		this.precio = precio;
 		this.nombre = nombre;
 		this.transferido = true;
+		this.anulado = false;
+	}
+	
+	public boolean isAnulado() {
+	    return anulado;
+	}
+
+	public void setAnulado(boolean anulado) {
+	    this.anulado = anulado;
 	}
 	
 	public abstract String getTipoTiquete();

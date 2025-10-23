@@ -11,13 +11,15 @@ public class PaqueteDeluxe {
 	private double precioPaquete;
 	private ArrayList<Tiquete> tiquetes;
 	private ArrayList<Tiquete> tiquetesAdicionales;
+	private boolean anulado;
 
 	
-	public PaqueteDeluxe(String mercanciaYBeneficios) {
+	public PaqueteDeluxe(String mercanciaYBeneficios, boolean anulado) {
 		this.setMercanciaYBeneficios(mercanciaYBeneficios);
 		this.setPrecioPaquete(precioPaquete);
 		tiquetes = new ArrayList<Tiquete>();
 		tiquetesAdicionales =  new ArrayList<Tiquete>();
+		this.anulado = false;
 		
 	}
 	
