@@ -19,13 +19,13 @@ import tiquete.TiqueteSimple;
 
 public class Transaccion implements IFormateo {
 	
-	Tiquete tiquete;
-	Usuario dueno;
-	LocalDateTime fecha;
+	private Tiquete tiquete;
+	private Usuario dueno;
+	private LocalDateTime fecha;
 	private static final double NUMERO_MAX_TRANSACCION = 10;
-	String tipoTransaccion;
-	double valorTransaccion;
-	Registro registro;
+	private String tipoTransaccion;
+	private double valorTransaccion;
+	private Registro registro;
 	
 	
 	
