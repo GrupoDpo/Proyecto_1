@@ -197,7 +197,7 @@ public class Transaccion implements IFormateo {
 		}
 		
 	    Registro registro = new Registro(comprador, tiqueteComprar, null);
-	    Transaccion trans = new Transaccion("TRANSFERENCIA", tiquete, dueno, LocalDateTime.now(), registro, precioTotal);
+	    Transaccion trans = new Transaccion("COMPRA", tiquete, dueno, LocalDateTime.now(), registro, precioTotal);
 
 	    PersistenciaTransacciones persist = new PersistenciaTransacciones();
 	    persist.cargar(trans);

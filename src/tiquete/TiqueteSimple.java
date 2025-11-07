@@ -1,12 +1,13 @@
 package tiquete;
 
+
 public class TiqueteSimple extends Tiquete {
 	
 	
 	
 	public TiqueteSimple(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, 
-			String fechaExpiracion, int precio, String nombre,boolean transferido, boolean anulado) {
-		super(tipoTiquete,cargoPorcentual,cuotaAdicional,identificador,fechaExpiracion,precio,nombre, transferido, anulado);
+			String localDate, double d, String nombre,boolean transferido, boolean anulado) {
+		super(tipoTiquete,cargoPorcentual,cuotaAdicional,identificador,localDate,d,nombre, transferido, anulado);
 		
 	}
 

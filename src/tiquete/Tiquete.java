@@ -18,7 +18,7 @@ public abstract class Tiquete implements IFormateo  {
 	private boolean anulado;
 	
 	public Tiquete(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, String fechaExpiracion, 
-			int precio, String nombre, boolean transferido, boolean anulado){
+			double precio, String nombre, boolean transferido, boolean anulado){
 		this.tipoTiquete = tipoTiquete;
 		this.cargoPorcentual = cargoPorcentual;
 		this.cuotaAdicional = cuotaAdicional;
