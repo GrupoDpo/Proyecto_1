@@ -53,6 +53,46 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
 			salvar(newJson);
 		
 		}
+	
+	public static boolean existeUsuario(String login, String password) {
+    	boolean condicion = false;
+    	String ruta = "datos/usuarios.json";
+        StringBuilder contenido = new StringBuilder();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                contenido.append(linea);
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo: " + e.getMessage());
+            return condicion;
+        }
+
+        
+        String json = contenido.toString();
+        String patronPassword = "\"password\":\"";
+        String patronLogin = "\"login\":\"" + login + "\"";
+        int indiceLogin = json.indexOf(patronLogin);
+        int indicePassword = json.indexOf(indiceLogin);
+        if (indicePassword == -1) {
+            return condicion;
+        }
+        
+        int start = indicePassword + "\"password\":\"".length();
+        int end = json.indexOf("\"", start);
+        
+        String passwordAct = json.substring(start, end);
+        
+        if (passwordAct.equals(password)) {
+        	
+        	condicion = true;
+        } else {
+        	return condicion;
+        }
+        
+        return condicion;
+    }
 		
 	@Override
 	public void salvar(String jsonFormatted) {

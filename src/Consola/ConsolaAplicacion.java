@@ -2,6 +2,7 @@ package Consola;
 
 import java.util.Scanner;
 
+
 import usuario.Administrador;
 import usuario.Cliente;
 import usuario.Organizador;
@@ -19,6 +20,8 @@ public class ConsolaAplicacion {
         System.out.println("        -- BOLETAMASTER --");
         System.out.println("=====================================");
         System.out.println();
+        
+        
 
         do {
             System.out.println("===== MENÚ PRINCIPAL =====");
@@ -41,8 +44,10 @@ public class ConsolaAplicacion {
                     System.out.print("Ingrese su contraseña: ");
                     String password = sc.nextLine();
                     
+                    existeUsuario(login, password)
+                    
                     // POR AHORA ASUMIMOS QUE LA CONTRASENA ES CORRECTA
-                    Usuario usuarioEnUso = // persistencia...
+                   
                     
                     menuParaUsuarios(usuarioEnUso);
                    
@@ -65,21 +70,29 @@ public class ConsolaAplicacion {
                     String tipo = sc.nextLine();
                     
                     String tipoUsuario = "";
+                    PersistenciaUsuariosJson persistenciaUsuariosJson = new PersistenciaUsuariosJson();
+                    
                     
                     if (tipo.equals("1")) {
             			 tipoUsuario = "CLIENTE";
             			 Usuario newUser = new Cliente(nuevoLogin, nuevaPassword, 0, tipoUsuario);
+						 persistenciaUsuariosJson.cargar(newUser);
+
+            			 
             		} else if (tipo.equals("2")) {
             			 tipoUsuario =  "PROMOTOR";
             			 Usuario newUser = new Promotor(nuevoLogin, nuevaPassword, 0, tipoUsuario);
+            			 persistenciaUsuariosJson.cargar(newUser);
             			 
             		} else if (tipo.equals("3")) {
             			 tipoUsuario = "ORGANIZADOR";
             			 Usuario newUser = new Organizador(nuevoLogin, nuevaPassword, 0, tipoUsuario);
+            			 persistenciaUsuariosJson.cargar(newUser);
             			 
             		} else if (tipo.equals("4")) {
             			 tipoUsuario = "ADMINISTRADOR";
             			 Usuario newUser = new Administrador(nuevoLogin, nuevaPassword, tipoUsuario);
+            			 persistenciaUsuariosJson.cargar(newUser);
             			 
             		} else {
             			 tipoUsuario = "NA";
@@ -90,16 +103,13 @@ public class ConsolaAplicacion {
                     	break;
                     }
                     
-                    
-                    
-                    
+                  
                     
 
                     System.out.println("\nRegistrando usuario...");
                     System.out.println("Login: " + nuevoLogin);
                     System.out.println("Tipo seleccionado: " + tipo);
-                    System.out.println("(Por ahora solo imprime, no guarda el usuario)");
-                    System.out.println();
+
                     break;
 
                 case 3:
