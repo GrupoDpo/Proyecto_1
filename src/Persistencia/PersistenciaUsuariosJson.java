@@ -1,7 +1,8 @@
 package Persistencia;
 import java.io.*;
 import java.nio.file.*;
-
+import java.util.ArrayList;
+import java.util.List;
 
 import usuario.Usuario;
 
@@ -54,7 +55,7 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
 		
 		}
 	
-	public static boolean existeUsuario(String login, String password) {
+	public boolean existeUsuario(String login, String password) {
     	boolean condicion = false;
     	String ruta = "datos/usuarios.json";
         StringBuilder contenido = new StringBuilder();
@@ -79,7 +80,7 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
             return condicion;
         }
         
-        int start = indicePassword + "\"password\":\"".length();
+        int start = indicePassword + patronPassword.length();
         int end = json.indexOf("\"", start);
         
         String passwordAct = json.substring(start, end);
@@ -102,6 +103,57 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
         } catch (IOException e) {
             System.out.println(" Error al guardar el archivo: " + e.getMessage());
         }
+    }
+	
+	
+	private static final String ARCHIVO_USUARIOS = "usuarios.dat";
+
+    @SuppressWarnings("unchecked")
+    public static List<Usuario> cargarUsuarios() {
+        File archivo = new File(ARCHIVO_USUARIOS);
+
+        // Si el archivo no existe, devolvemos lista vacía
+        if (!archivo.exists()) {
+            return new ArrayList<>();
+        }
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+            return (List<Usuario>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            // Si algo sale mal, devolvemos lista vacía para no romper la app
+            return new ArrayList<>();
+        }
+    }
+
+    public static void guardarUsuarios(List<Usuario> usuarios) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_USUARIOS))) {
+            oos.writeObject(usuarios);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método útil: agrega un usuario nuevo al archivo sin borrar los anteriores
+    public void agregarUsuario(Usuario nuevo) {
+        List<Usuario> usuarios = cargarUsuarios(); // leo lo que ya existe
+        usuarios.add(nuevo);                       // agrego el nuevo
+        guardarUsuarios(usuarios);                 // sobreescribo el archivo con la lista completa
+    }
+    
+    public Usuario buscarUsuario(String login) {
+		List<Usuario> listaUsuarios = cargarUsuarios();
+		
+		for (Usuario user: listaUsuarios) {
+			String x = user.getLogin();
+			if (x.equals(login)) {
+				return user;
+			}
+			
+		}
+		
+		return null;
+    	
     }
 
 

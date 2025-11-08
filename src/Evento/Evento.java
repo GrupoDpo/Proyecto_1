@@ -21,6 +21,9 @@ public class Evento implements IFormateo {
 		this.setHora(hora);
 		this.venueAsociado = venueAsociado;
 		tiquetesDisponibles = new HashMap<String, Tiquete>();
+		
+		
+		
 	
 		
 	}

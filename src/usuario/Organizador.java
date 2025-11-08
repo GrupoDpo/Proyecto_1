@@ -1,5 +1,6 @@
 package usuario;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,14 +9,17 @@ import Evento.Evento;
 import Evento.Venue;
 import Finanzas.Oferta;
 import tiquete.Tiquete;
+import Evento.RegistroEventos;
 
 public class Organizador extends Usuario implements IDuenoTiquetes {
 	private double saldo;
-	private ArrayList<Tiquete> tiquetes;
+	private List<Tiquete> tiquetes;
+	private List<Evento> eventos;
 
 	public Organizador(String login, String password, double saldo, String tipoUsuario) {
 		super(login, password, tipoUsuario);
 		this.saldo = saldo;
+		this.eventos = new ArrayList<>();
 	}
 	
 	public Collection<Tiquete> getTiquetes() {
@@ -36,6 +40,10 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 	public Evento crearEvento(String Entrada, String fecha, String hora, 
 			HashMap<String, Tiquete> tiquetesDisponibles, Venue venueAsociado) {
 		Evento newEvento = new Evento(Entrada, fecha, hora, tiquetesDisponibles,venueAsociado);
+		eventos.add(newEvento);
+		RegistroEventos.agregarEventoGlobal(newEvento);
+		
+		
 		return newEvento;
 	}
 	

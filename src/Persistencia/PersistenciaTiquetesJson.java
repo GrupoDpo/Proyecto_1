@@ -66,6 +66,10 @@ public class PersistenciaTiquetesJson implements IPersistencia<Tiquete> {
             System.out.println(" Error al guardar el archivo: " + e.getMessage());
         }
     }
+	
+	
+	
+	
 
 	
 

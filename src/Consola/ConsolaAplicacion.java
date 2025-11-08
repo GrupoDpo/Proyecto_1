@@ -9,6 +9,8 @@ import usuario.Organizador;
 import usuario.Promotor;
 import usuario.Usuario;
 import Persistencia.PersistenciaUsuariosJson;
+import excepciones.UsuarioNoEncontrado;
+
 
 public class ConsolaAplicacion {
     
@@ -44,12 +46,25 @@ public class ConsolaAplicacion {
                     System.out.print("Ingrese su contraseña: ");
                     String password = sc.nextLine();
                     
-                    existeUsuario(login, password)
+                    PersistenciaUsuariosJson persistenciaJson = new PersistenciaUsuariosJson();
+                    boolean condicion = persistenciaJson.existeUsuario(login, password);
                     
                     // POR AHORA ASUMIMOS QUE LA CONTRASENA ES CORRECTA
                    
+                    try {
+                        if (!condicion) {
+                            throw new UsuarioNoEncontrado("El usuario no existe en el sistema.");
+                        }
+
+                        System.out.println("Bienvenido!");
+
+                    } catch (UsuarioNoEncontrado e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     
-                    menuParaUsuarios(usuarioEnUso);
+                    Usuario userActivo = persistenciaJson.buscarUsuario(login);
+                    
+                    menuParaUsuarios(userActivo);
                    
                     break;
 
@@ -77,22 +92,27 @@ public class ConsolaAplicacion {
             			 tipoUsuario = "CLIENTE";
             			 Usuario newUser = new Cliente(nuevoLogin, nuevaPassword, 0, tipoUsuario);
 						 persistenciaUsuariosJson.cargar(newUser);
+						 persistenciaUsuariosJson.agregarUsuario(newUser);
+						 
 
             			 
             		} else if (tipo.equals("2")) {
             			 tipoUsuario =  "PROMOTOR";
             			 Usuario newUser = new Promotor(nuevoLogin, nuevaPassword, 0, tipoUsuario);
             			 persistenciaUsuariosJson.cargar(newUser);
+            			 persistenciaUsuariosJson.agregarUsuario(newUser);
             			 
             		} else if (tipo.equals("3")) {
             			 tipoUsuario = "ORGANIZADOR";
             			 Usuario newUser = new Organizador(nuevoLogin, nuevaPassword, 0, tipoUsuario);
             			 persistenciaUsuariosJson.cargar(newUser);
+            			 persistenciaUsuariosJson.agregarUsuario(newUser);
             			 
             		} else if (tipo.equals("4")) {
             			 tipoUsuario = "ADMINISTRADOR";
             			 Usuario newUser = new Administrador(nuevoLogin, nuevaPassword, tipoUsuario);
             			 persistenciaUsuariosJson.cargar(newUser);
+            			 persistenciaUsuariosJson.agregarUsuario(newUser);
             			 
             		} else {
             			 tipoUsuario = "NA";
@@ -129,7 +149,7 @@ public class ConsolaAplicacion {
         
     }
     
-    private void menuParaUsuarios(Usuario usuarioEnUso) {
+    private static void menuParaUsuarios(Usuario usuarioEnUso) {
         if (usuarioEnUso instanceof Cliente cliente) {
             menuCliente(cliente);  
         } 
