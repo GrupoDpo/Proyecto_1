@@ -6,21 +6,25 @@ import java.util.HashMap;
 import Persistencia.IFormateo;
 import Persistencia.TextoUtils;
 import tiquete.Tiquete;
+import usuario.Organizador;
 
 public class Evento implements IFormateo {
-	private String entrada;
+	private String nombre;
 	private String fecha;
 	private String hora;
 	private HashMap<String, Tiquete> tiquetesDisponibles;
 	private Venue venueAsociado;
+	private String loginOrganizador;
 	
 	
-	public Evento(String entrada,String fecha, String hora, HashMap<String, Tiquete> tiquetesDisponibles2, Venue venueAsociado) {
+	public Evento(String entrada,String fecha, String hora, HashMap<String, Tiquete> tiquetesDisponibles2, Venue venueAsociado,
+			String loginOrganizador) {
 		this.setEntrada(entrada);
 		this.setFecha(fecha);
 		this.setHora(hora);
 		this.venueAsociado = venueAsociado;
 		tiquetesDisponibles = new HashMap<String, Tiquete>();
+		this.loginOrganizador = loginOrganizador;
 		
 		
 		
@@ -30,13 +34,15 @@ public class Evento implements IFormateo {
 	
 	
 	
-	
+	public String getLoginOrganizador() {
+		return this.loginOrganizador;
+	}
 	
 	public String getEntrada() {
-		return entrada;
+		return nombre;
 	}
 	public void setEntrada(String entrada) {
-		this.entrada = entrada;
+		this.nombre = entrada;
 	}
 	
 	public void agregarTiquete(Tiquete tiquete) {
@@ -90,7 +96,7 @@ public class Evento implements IFormateo {
 	public String formatear() {
 		String formatJson = String.format("  {\n    \"Entrada\": \"%s\",\n    \"Fecha\": \"%s\",\n    \"hora\": \"%s\"\n"
 				+ "\\\"TiquetesDisponibles\\\": \\\"%s\\\",\\n    \\\"VenueAsociado\\\": \\\"%s\\\",\\n   }"
-				, TextoUtils.escape(this.entrada), TextoUtils.escape(this.fecha), TextoUtils.escape(this.hora),
+				, TextoUtils.escape(this.nombre), TextoUtils.escape(this.fecha), TextoUtils.escape(this.hora),
 				TextoUtils.escape(getTiquetesDisponibles()),  TextoUtils.escape(this.venueAsociado));
 		
 		return formatJson;

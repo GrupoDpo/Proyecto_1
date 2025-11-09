@@ -10,7 +10,7 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
 	
 	private static final String RUTA = "data/usuarios.json";
     
-	@Override
+	
 	public void crearArchivo() {
 		 try {
 	            Files.createDirectories(Path.of("data"));
@@ -95,7 +95,7 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
         return condicion;
     }
 		
-	@Override
+	
 	public void salvar(String jsonFormatted) {
 		try (BufferedWriter writer = Files.newBufferedWriter(Path.of(RUTA))) {
             writer.write(jsonFormatted);
@@ -109,7 +109,7 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
 	private static final String ARCHIVO_USUARIOS = "usuarios.dat";
 
     @SuppressWarnings("unchecked")
-    public static List<Usuario> cargarUsuarios() {
+    public List<Usuario> cargarTodos() {
         File archivo = new File(ARCHIVO_USUARIOS);
 
         // Si el archivo no existe, devolvemos lista vacía
@@ -126,7 +126,7 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
         }
     }
 
-    public static void guardarUsuarios(List<Usuario> usuarios) {
+    public void guardarTodos(List<Usuario> usuarios) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_USUARIOS))) {
             oos.writeObject(usuarios);
         } catch (IOException e) {
@@ -134,15 +134,10 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
         }
     }
 
-    // Método útil: agrega un usuario nuevo al archivo sin borrar los anteriores
-    public void agregarUsuario(Usuario nuevo) {
-        List<Usuario> usuarios = cargarUsuarios(); // leo lo que ya existe
-        usuarios.add(nuevo);                       // agrego el nuevo
-        guardarUsuarios(usuarios);                 // sobreescribo el archivo con la lista completa
-    }
+    
     
     public Usuario buscarUsuario(String login) {
-		List<Usuario> listaUsuarios = cargarUsuarios();
+		List<Usuario> listaUsuarios = cargarTodos();
 		
 		for (Usuario user: listaUsuarios) {
 			String x = user.getLogin();

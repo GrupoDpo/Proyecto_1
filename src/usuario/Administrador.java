@@ -2,17 +2,20 @@ package usuario;
 
 import java.util.ArrayList;
 import Evento.Evento;
+import Evento.Venue;
 import tiquete.Tiquete;
 
 public class Administrador extends Usuario {
 
     private double porcentajeAdicional;
     private double cobroEmision;
+    private double ganancias;
 
     public Administrador(String login, String password, String tipoUsuario) {
         super(login, password, tipoUsuario);
         this.porcentajeAdicional = 0.0;
         this.cobroEmision = 0.0;
+        this.ganancias = 0.0;
     }
 
  
@@ -64,4 +67,28 @@ public class Administrador extends Usuario {
     public String getTipoUsuario() {
         return "ADMINISTRADOR";
     }
+    
+    public Venue crearVenue(String ubicacion, int capacidadMax, boolean aprobado) {
+        return new Venue(ubicacion, capacidadMax, aprobado);
+    }
+    
+    public double getGanancias() {
+    	return this.ganancias;
+    }
+    
+    public void setGanancias(double newGanancias) {
+    	this.ganancias = newGanancias;
+    }
+
+
+	public void aprobarORechazarVenue(Object object, boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public void verLogReventas() {
+		// TODO Auto-generated method stub
+		
+	}
 }

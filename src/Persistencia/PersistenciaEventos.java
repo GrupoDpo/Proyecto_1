@@ -1,70 +1,69 @@
 package Persistencia;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import Evento.Evento;
 
 public class PersistenciaEventos implements IPersistencia<Evento>  {
 
-	private static final String RUTA = "data/Tiquetes.json";
 
-	@Override
-	public void crearArchivo() {
-		 try {
-	            Files.createDirectories(Path.of("data"));
-	        } catch (IOException e) {
-	            System.out.println("Error al crear carpeta data: " + e.getMessage());
-	        }
-		
-	}
-	
-	@Override
-	public void cargar(Evento newObjeto) {
-		String format = newObjeto.formatear();
-		String info = "";
-		try {
-			if (Files.exists(Path.of(RUTA))) {
-				info = Files.readString(Path.of(RUTA));
-			}
-		} catch (IOException e) {
-			System.out.println("ERROR: no se puede leer el archivo");
-		}
-		
-		String newJson;
-		
-		if (info.isBlank()) {
-			newJson = "[\n" + format + "\n]";
-		} else {
-			info = info.trim();
-			
-			if (info.endsWith("]")) {
-				info = info.substring(0, info.length() - 1);
-				if (info.contains("{")) {
-					newJson = info +",\n" + format + "\n]";
-				} else {
-					newJson = "[\n" + format + "\n]";
-				}
-				
-			} else { 
-					newJson = "[\n" + format + "\n]";
-				}
-			
-			}
-			salvar(newJson);
-		
-		}
-		
-	@Override
-	public void salvar(String jsonFormatted) {
-		try (BufferedWriter writer = Files.newBufferedWriter(Path.of(RUTA))) {
-            writer.write(jsonFormatted);
-            System.out.println("\n Tiquete registrado correctamente en " + RUTA);
-        } catch (IOException e) {
-            System.out.println(" Error al guardar el archivo: " + e.getMessage());
+
+	private static final String ARCHIVO_EVENTOS = "data/eventos.dat";
+
+    @SuppressWarnings("unchecked")
+    public List<Evento> cargarTodos() {
+        File archivo = new File(ARCHIVO_EVENTOS);
+
+        // Si el archivo no existe, devolvemos lista vacía
+        if (!archivo.exists()) {
+            return new ArrayList<>();
         }
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+            return (List<Evento>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            // Si algo sale mal, devolvemos lista vacía para no romper la app
+            return new ArrayList<>();
+        }
+    }
+
+    public void guardarTodos(List<Evento> eventos) {
+        // Nos aseguramos de que exista la carpeta "data"
+        File carpeta = new File("data");
+        if (!carpeta.exists()) {
+            carpeta.mkdirs();
+        }
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_EVENTOS))) {
+            oos.writeObject(eventos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
+
+    // Ejemplo de búsqueda simple (puedes ajustarla a tu modelo)
+    public Evento buscarEventoPorEntrada(String entrada) {
+        List<Evento> listaEventos = cargarTodos();
+
+        for (Evento ev : listaEventos) {
+            if (ev.getEntrada().equals(entrada)) { // asumiendo getEntrada()
+                return ev;
+            }
+        }
+        return null;
     }
 
 }

@@ -5,6 +5,7 @@ import java.util.Scanner;
 import Finanzas.Transaccion;
 import usuario.Administrador;
 import usuario.Cliente;
+import usuario.IDuenoTiquetes;
 import usuario.Organizador;
 import usuario.Promotor;
 import usuario.Usuario;
@@ -49,7 +50,7 @@ public class ConsolaAplicacion {
                     PersistenciaUsuariosJson persistenciaJson = new PersistenciaUsuariosJson();
                     boolean condicion = persistenciaJson.existeUsuario(login, password);
                     
-                    // POR AHORA ASUMIMOS QUE LA CONTRASENA ES CORRECTA
+        
                    
                     try {
                         if (!condicion) {
@@ -92,7 +93,7 @@ public class ConsolaAplicacion {
             			 tipoUsuario = "CLIENTE";
             			 Usuario newUser = new Cliente(nuevoLogin, nuevaPassword, 0, tipoUsuario);
 						 persistenciaUsuariosJson.cargar(newUser);
-						 persistenciaUsuariosJson.agregarUsuario(newUser);
+						 persistenciaUsuariosJson.agregar(newUser);
 						 
 
             			 
@@ -100,19 +101,19 @@ public class ConsolaAplicacion {
             			 tipoUsuario =  "PROMOTOR";
             			 Usuario newUser = new Promotor(nuevoLogin, nuevaPassword, 0, tipoUsuario);
             			 persistenciaUsuariosJson.cargar(newUser);
-            			 persistenciaUsuariosJson.agregarUsuario(newUser);
+            			 persistenciaUsuariosJson.agregar(newUser);
             			 
             		} else if (tipo.equals("3")) {
             			 tipoUsuario = "ORGANIZADOR";
             			 Usuario newUser = new Organizador(nuevoLogin, nuevaPassword, 0, tipoUsuario);
             			 persistenciaUsuariosJson.cargar(newUser);
-            			 persistenciaUsuariosJson.agregarUsuario(newUser);
+            			 persistenciaUsuariosJson.agregar(newUser);
             			 
             		} else if (tipo.equals("4")) {
             			 tipoUsuario = "ADMINISTRADOR";
             			 Usuario newUser = new Administrador(nuevoLogin, nuevaPassword, tipoUsuario);
             			 persistenciaUsuariosJson.cargar(newUser);
-            			 persistenciaUsuariosJson.agregarUsuario(newUser);
+            			 persistenciaUsuariosJson.agregar(newUser);
             			 
             		} else {
             			 tipoUsuario = "NA";
@@ -168,27 +169,55 @@ public class ConsolaAplicacion {
     }
     
     
-    
-    
-    public static void imprimirMenuCliente() {
-    	System.out.println("\n========== MENÚ ==========");
+    public static void mostrarMenu(Usuario usuario) {
+        System.out.println("========= MENÚ PRINCIPAL =========");
+        System.out.println("Bienvenido, " + usuario.getLogin() + " (" + usuario.getTipoUsuario() + ")");
+        System.out.println("----------------------------------");
         System.out.println("1. Comprar tiquetes");
         System.out.println("2. Comprar paquete Deluxe");
         System.out.println("3. Transferir tiquetes");
-        System.out.println("4. Solicitar reembolsos");
-        System.out.println("5. revender tiquetes");
-        System.out.println("6. recargar saldo");
-        System.out.println("----------------------------------");
+        System.out.println("4. Revender tiquetes");
+        System.out.println("5. Recargar saldo");
+        System.out.println("6. Solicitar reembolso");
+
+        switch (usuario.getTipoUsuario().toUpperCase()) {
+            case "PROMOTOR":
+            	mostrarOpcionesPromotor();
+            case "ORGANIZADOR":
+            	mostrarOpcionesOrganizador();
+        }
+
         System.out.println("0. Salir");
         System.out.println("==================================");
     }
+
+    private static void mostrarOpcionesPromotor() {
+        System.out.println("------ OPCIONES DE PROMOTOR ------");
+        System.out.println("7. Sugerir un venue");
+        System.out.println("8. Ver ganancias");
+        System.out.println("9. Ver porcentaje de ventas por evento");
+    }
+
+    private static void mostrarOpcionesOrganizador() {
+        System.out.println("------ OPCIONES DE ORGANIZADOR ------");
+        System.out.println("7. Crear evento");
+    }
     
-    public static void menuCliente(Cliente cliente, Transaccion transaccion) {
+    
+    
+    
+
+    
+    public static void menuComprador(Usuario comprador, Transaccion transaccion) {
     	Scanner sc = new Scanner(System.in);
     	int opcion;
+    	
+    	IDuenoTiquetes compradorDueno = (IDuenoTiquetes) comprador;
+    
+    
         do {
         	
-            imprimirMenuCliente();
+            mostrarMenu();
             System.out.print("Elige una opción: ");
             while (!sc.hasNextInt()) {
                 System.out.print("Por favor, ingresa un número válido: ");
@@ -199,15 +228,15 @@ public class ConsolaAplicacion {
             switch (opcion) {
                 case 1:
                 	System.out.println("Comprando tiquete...");
-                	transaccion.comprarTiquete(null, cliente, opcion, null);
+                	transaccion.comprarTiquete(null, compradorDueno, opcion, null);
                 	break;
                 case 2:
                 	System.out.println("Comprando Paquete Deluxe...");
-                	transaccion.comprarPaqueteDeluxe(null, cliente, opcion, null);
+                	transaccion.comprarPaqueteDeluxe(null, compradorDueno, opcion, null);
                 	break;
                 case 3:
                 	System.out.println("Transfiriendo tiquete...");
-                	transaccion.transferirTiquete(null, cliente, cliente, null);
+                	transaccion.transferirTiquete(null, compradorDueno, compradorDueno, null);
                 	break;
                 case 4:
                 	System.out.println("Reembolsando tiquete...");
@@ -220,8 +249,38 @@ public class ConsolaAplicacion {
                 case 6:
                 	System.out.println("Recargando el saldo...");
                 	 System.out.print("Ingrese el valor a recargar: ");
-                     double nuevoSaldo =Double.parseDouble(sc.nextLine());;
-                	cliente.actualizarSaldo(nuevoSaldo);
+                     double nuevoSaldo = Double.parseDouble(sc.nextLine());;
+                	compradorDueno.actualizarSaldo(nuevoSaldo);
+                	
+                case 7:
+                    if (comprador instanceof Promotor promotor) {
+                        System.out.println("Sugerir un venue...");
+                        promotor.sugerirVenue();
+                    } else if (comprador instanceof Organizador organizador) {
+                        System.out.println("Creando un evento...");
+                        organizador.crearEvento(null, null, null, null, null, organizador.getLogin());
+                    } else {
+                        System.out.println("Opción no válida para este tipo de usuario.");
+                    }
+                    break;
+
+                case 8:
+                    if (comprador instanceof Promotor promotor) {
+                        System.out.println("Viendo ganancias...");
+                        promotor.getGanancias();
+                    } else {
+                        System.out.println("Opción no válida para este tipo de usuario.");
+                    }
+                    break;
+
+                case 9:
+                    if (comprador instanceof Promotor promotor) {
+                        System.out.println("Viendo porcentaje de ventas por evento...");
+                        promotor.getPorcentajeVenta();
+                    } else {
+                        System.out.println("Opción no válida para este tipo de usuario.");
+                    }
+                    break;
                 	
                 case 0:
                 	System.out.println("Cerrando sesión ...");
@@ -229,8 +288,23 @@ public class ConsolaAplicacion {
                 default: 
                 	System.out.println("Opción no válida.");
                 	break;
+                
+                	
             }
-        }while (opcion != 0);
+            
+            if (comprador instanceof Promotor) {
+                mostrarOpcionesPromotor();
+                
+            } else if (comprador instanceof Organizador) {
+                mostrarOpcionesOrganizador();
+                
+                
+            } else if (comprador instanceof Cliente) {
+                System.out.println("No hay opciones adicionales para clientes.");
+            }
+            
+            
+        } while (opcion != 0);
 
         sc.close();
      
@@ -381,7 +455,75 @@ public class ConsolaAplicacion {
         System.out.println("----------------------------------");
         System.out.println("0. Salir");
         System.out.println("==================================");
+        
+        
 
+    }
+    
+    
+    public static void ejecutarMenuAdministrador(Administrador admin) {
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        do {
+            menuAdministrador(admin);
+
+            System.out.print("Elige una opción: ");
+            while (!sc.hasNextInt()) {
+                System.out.print("Por favor, ingresa un número válido: ");
+                sc.next();
+            }
+            opcion = sc.nextInt();
+            sc.nextLine();
+
+            switch (opcion) {
+                case 1:
+                    System.out.println("Creando Venue...");
+                    admin.crearVenue("Ubicación temporal", 1000, false);
+                    break;
+
+                case 2:
+                    System.out.println("Fijando cargos porcentuales de emisión...");
+                    admin.fijarCobroEmisionImpresion(0.15);
+                    break;
+
+                case 3:
+                    System.out.println("Viendo ganancias de tiquetería...");
+                    admin.getGanancias();
+                    break;
+
+                case 4:
+                    System.out.println("Aprobando/Rechazando Venue...");
+                    admin.aprobarORechazarVenue(null, true);
+                    break;
+
+                case 5:
+                    System.out.println("Viendo log de reventas...");
+                    admin.verLogReventas();
+                    break;
+
+                case 6:
+                    System.out.println("Cancelando evento...");
+                    admin.cancelarEvento(null);
+                    break;
+
+                case 7:
+                    System.out.println("Gestionando solicitud de cancelación de evento...");
+                    admin.cancelarOAceptarCancelacion(null, true);
+                    break;
+
+                case 0:
+                    System.out.println("Saliendo del menú de administrador...");
+                    break;
+
+                default:
+                    System.out.println("Opción no válida.");
+                    break;
+            }
+
+        } while (opcion != 0);
+
+        sc.close();
     }
    
     

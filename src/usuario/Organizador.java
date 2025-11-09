@@ -8,6 +8,8 @@ import java.util.HashMap;
 import Evento.Evento;
 import Evento.Venue;
 import Finanzas.Oferta;
+import Persistencia.PersistenciaEventos;
+import excepciones.VenueNoPresente;
 import tiquete.Tiquete;
 import Evento.RegistroEventos;
 
@@ -38,18 +40,24 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 	}
 	
 	public Evento crearEvento(String Entrada, String fecha, String hora, 
-			HashMap<String, Tiquete> tiquetesDisponibles, Venue venueAsociado) {
-		Evento newEvento = new Evento(Entrada, fecha, hora, tiquetesDisponibles,venueAsociado);
+			HashMap<String, Tiquete> tiquetesDisponibles, Venue venueAsociado, String login) throws VenueNoPresente {
+		
+		if (venueAsociado == null) {
+			throw new VenueNoPresente("ERROR: El evento debe tener un Venue asociado");
+		}
+		
+		Evento newEvento = new Evento(Entrada, fecha, hora, tiquetesDisponibles,venueAsociado, login);
 		eventos.add(newEvento);
 		RegistroEventos.agregarEventoGlobal(newEvento);
+		
+		PersistenciaEventos persistencia = new PersistenciaEventos();
+		persistencia.agregarEvento(newEvento);
 		
 		
 		return newEvento;
 	}
 	
-	public Venue crearVenue(String ubicacion, int capacidadMax, boolean aprobado) {
-        return new Venue(ubicacion, capacidadMax, aprobado);
-    }
+	
 	
 	public void definirHoraEvento(Evento evento, String nuevaHora) {
 	       evento.setHora(nuevaHora);
