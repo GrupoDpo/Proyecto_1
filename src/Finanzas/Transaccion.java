@@ -324,6 +324,16 @@ public class Transaccion implements IFormateo {
         );
     
 	}
+
+	public void solicitarReembolso() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void revenderTiquete() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
 
