@@ -1,7 +1,9 @@
 package usuario;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import Evento.Evento;
 import Evento.Venue;
@@ -12,7 +14,7 @@ public class Administrador extends Usuario {
     private double porcentajeAdicional;
     private double cobroEmision;
     private double ganancias;
-    private Queue<String> rembolsosSolicitados;
+    private Queue<HashMap<Tiquete, String>> rembolsosSolicitados;
 
     public Administrador(String login, String password, String tipoUsuario) {
         super(login, password, tipoUsuario);
@@ -87,14 +89,28 @@ public class Administrador extends Usuario {
    
     
    
-   public void verSolicitud() {
-	   for (i = 0)
+   public void verSolicitud(Tiquete tiqueteRembolso, Usuario dueno) {
+	   boolean aceptado = true;
+	   for(HashMap<Tiquete, String> mapa : rembolsosSolicitados) {
+			   if(aceptado) {
+				   if (dueno instanceof IDuenoTiquetes) {
+			            IDuenoTiquetes duenoTiquete = (IDuenoTiquetes) dueno;
+			            double dineroReembolso = ((tiqueteRembolso.calcularPrecio())-(tiqueteRembolso.calcularPrecio()*porcentajeAdicional )
+			            		- cobroEmision);
+			            duenoTiquete.actualizarSaldo(dineroReembolso);
+			            duenoTiquete.eliminarTiquete(tiqueteRembolso);
+			            rembolsosSolicitados.remove(mapa);
+			   }else {
+				   System.out.println("Lo siento su reembolso no fue aceptado");
+			   }
+			   
+		   }
+		   }
 	   
+		   
    }
     
-   public String aprobarRembolso(Tiquete tiqueteRembolso) { 
-	   
-   }
+   
 
 
 	public void aprobarORechazarVenue(Object object, boolean b) {

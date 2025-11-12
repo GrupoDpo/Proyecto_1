@@ -331,7 +331,10 @@ public class Transaccion {
 		
 		
 		
+		
+		
 	}
+	
 
 	public void revenderTiquete() {
 		// TODO Auto-generated method stub
