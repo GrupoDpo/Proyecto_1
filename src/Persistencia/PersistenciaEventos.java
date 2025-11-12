@@ -1,14 +1,12 @@
 package Persistencia;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +57,7 @@ public class PersistenciaEventos implements IPersistencia<Evento>  {
         List<Evento> listaEventos = cargarTodos();
 
         for (Evento ev : listaEventos) {
-            if (ev.getEntrada().equals(entrada)) { // asumiendo getEntrada()
+            if (ev.getEntrada().equals(entrada)) { 
                 return ev;
             }
         }

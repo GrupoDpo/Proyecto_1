@@ -9,18 +9,19 @@ import java.util.Collection;
 import java.util.Scanner;
 
 import Evento.Evento;
-import Persistencia.IFormateo;
 import Persistencia.PersistenciaTransacciones;
-import Persistencia.TextoUtils;
 import excepciones.IDNoEncontrado;
+import excepciones.SaldoInsuficienteExeption;
+import excepciones.TiquetesNoDisponiblesException;
 import excepciones.TiquetesVencidosTransferidos;
+import excepciones.TransferenciaNoPermitidaException;
 import excepciones.UsuarioPasswordIncorrecto;
 import tiquete.PaqueteDeluxe;
 import tiquete.Tiquete;
 import tiquete.TiqueteMultiple;
 import tiquete.TiqueteSimple;
 
-public class Transaccion implements IFormateo {
+public class Transaccion {
 	
 	private Tiquete tiquete;
 	private Usuario dueno;
@@ -36,10 +37,10 @@ public class Transaccion implements IFormateo {
 			double valorTransaccion) {
 		this.tiquete = tiquete;
 		this.dueno = dueno;
-		this.fecha = localDateTime;
-		this.registro = registro;
-		this.tipoTransaccion = tipoTransaccion;
-		this.valorTransaccion = valorTransaccion;
+		this.setFecha(localDateTime);
+		this.setRegistro(registro);
+		this.setTipoTransaccion(tipoTransaccion);
+		this.setValorTransaccion(valorTransaccion);
 	}
 	
 	public Usuario getDueno() {
@@ -139,27 +140,27 @@ public class Transaccion implements IFormateo {
 	    Transaccion trans = new Transaccion("TRANSFERENCIA", tiquete, dueno, LocalDateTime.now(), registro, 0);
 
 	    PersistenciaTransacciones persist = new PersistenciaTransacciones();
-	    persist.cargar(trans);
+	    persist.agregar(trans);
 		
 		
 					     
 			}
 	
 	
-	public ArrayList<Tiquete> comprarTiquete(Tiquete tiqueteComprar, Usuario comprador,int cantidad, Evento eventoAsociado) {
+	public ArrayList<Tiquete> comprarTiquete(Tiquete tiqueteComprar, Usuario comprador,int cantidad, Evento eventoAsociado) throws TiquetesNoDisponiblesException, TransferenciaNoPermitidaException, SaldoInsuficienteExeption {
 		double precioTotal = 0;
 		ArrayList<Tiquete> tiquetesComprados = new ArrayList<>();
 		Collection<Tiquete> tiquetes = eventoAsociado.getTiquetesDisponibles();
 		if (tiquetes.isEmpty()) {
-	        System.out.println("ERROR: No hay tiquetes disponibles.");
-	        return tiquetesComprados;
+	        throw new TiquetesNoDisponiblesException("No hay tiquetes disponibles.");
+	        
 	    }
 		
 			
 		
 		if (cantidad > NUMERO_MAX_TRANSACCION) {
-		   System.out.println("ERROR: Supera el número máximo de tiquetes por transacción.");
-		    return tiquetesComprados;
+			throw new TransferenciaNoPermitidaException("porque supera el número máximo de tiquetes por transacción.");
+		    
 		    }
 		
 		if(comprador instanceof IDuenoTiquetes) {
@@ -176,8 +177,8 @@ public class Transaccion implements IFormateo {
 				saldo -= precioTotal;
 				((IDuenoTiquetes) comprador).actualizarSaldo(saldo);
 			}else {
-				System.out.print("ERROR: Saldo insuficiente");
-				return tiquetesComprados;
+				throw new SaldoInsuficienteExeption("Saldo insuficiente");
+				
 				}
 			
 			if (tiqueteComprar instanceof TiqueteMultiple) {
@@ -202,33 +203,32 @@ public class Transaccion implements IFormateo {
 	    Transaccion trans = new Transaccion("COMPRA", tiquete, dueno, LocalDateTime.now(), registro, precioTotal);
 
 	    PersistenciaTransacciones persist = new PersistenciaTransacciones();
-	    persist.cargar(trans);
+	    persist.agregar(trans);
 	
 		return tiquetesComprados;
 	}
 	
 	
 	public ArrayList<Tiquete> comprarPaqueteDeluxe(PaqueteDeluxe paquete,
-            Usuario comprador, int cantidad, Evento eventoAsociado ) {
+            Usuario comprador, int cantidad, Evento eventoAsociado ) throws TransferenciaNoPermitidaException, TiquetesNoDisponiblesException, SaldoInsuficienteExeption {
         ArrayList<Tiquete> tiquetesComprados = new ArrayList<>();
 
        
         if (paquete == null || comprador == null || eventoAsociado == null) {
-            System.out.println("ERROR: Datos incompletos para comprar paquete Deluxe.");
-            return tiquetesComprados;
+        	throw new TransferenciaNoPermitidaException("porque los datos no son consistentes.");
         }
         if (cantidad <= 0) {
-            System.out.println("ERROR: La cantidad debe ser mayor que cero.");
-            return tiquetesComprados;
+        	throw new TransferenciaNoPermitidaException("porque la cantidad a comprar debe ser mayor a 0.");
         }
         if (cantidad > NUMERO_MAX_TRANSACCION) {
-            System.out.println("ERROR: Supera el número máximo de paquetes por transacción.");
-            return tiquetesComprados;
+        	throw new TransferenciaNoPermitidaException("porque supera el número máximo de tiquetes por transacción.");
+            
         }
 
         if (cantidad != 1) {
-            System.out.println("ERROR: Por ahora solo se soporta comprar 1 Paquete Deluxe por transacción con el paquete recibido.");
-            return tiquetesComprados;
+        	throw new TransferenciaNoPermitidaException("porque Por ahora solo se soporta comprar 1 Paquete Deluxe por transacción con el paquete recibido.");
+            
+            
         }
         
         ArrayList<Tiquete> tiqsPaquete = new ArrayList<>();
@@ -249,15 +249,14 @@ public class Transaccion implements IFormateo {
         }
 
         if (tiqsPaquete.isEmpty()) {
-            System.out.println("ERROR: El paquete Deluxe no contiene tiquetes.");
-            return tiquetesComprados;
+        	throw new TiquetesNoDisponiblesException("El paquete deluxe no tiene tiquetes.");
         }
 
         for (Tiquete t : tiqsPaquete) {
             Tiquete enEvento = eventoAsociado.getTiquetePorId(t.getId());
             if (enEvento == null) {
-                System.out.println("ERROR: Tiquete no disponible en el evento: " + t.getId());
-                return tiquetesComprados;
+            	throw new TiquetesNoDisponiblesException("porque no hay tiquete disponibles en el evento: " + t.getId());
+        
             }
         }
 
@@ -275,8 +274,8 @@ public class Transaccion implements IFormateo {
             double saldo = dueno.getSaldo();
 
             if (total > saldo) {
-                System.out.println("ERROR: Saldo insuficiente para comprar el paquete Deluxe.");
-                return tiquetesComprados;
+            	throw new SaldoInsuficienteExeption("Saldo insuficiente");
+				
             }
             
             if (total > 0) {
@@ -284,8 +283,8 @@ public class Transaccion implements IFormateo {
                 dueno.actualizarSaldo(saldo);
             }
         } else {
-            System.out.println("ERROR: El comprador no puede poseer tiquetes (no implementa IDuenoTiquetes).");
-            return tiquetesComprados;
+        	throw new TransferenciaNoPermitidaException("ERROR: El comprador no puede poseer tiquetes.");
+            
         }
 
         
@@ -315,17 +314,9 @@ public class Transaccion implements IFormateo {
 		return UsuarioReceptor;
 	}
 
-	@Override
-	 public String formatear() {
-        return String.format(
-            "{\n  \"tipoTransaccion\": \"%s\",\n  \"valor\": %.2f,\n  \"fecha\": \"%s\",\n  \"registro\": %s\n}",
-            TextoUtils.escape(this.tipoTransaccion),
-            TextoUtils.escape(this.valorTransaccion),
-            TextoUtils.escape(this.fecha),
-            this.registro.formatear()
-        );
+	
     
-	}
+	
 
 	public void solicitarReembolso() {
 		// TODO Auto-generated method stub
@@ -335,6 +326,45 @@ public class Transaccion implements IFormateo {
 	public void revenderTiquete() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	
+	
+	
+	
+	
+	
+
+	public LocalDateTime getFecha() {
+		return fecha;
+	}
+
+	public void setFecha(LocalDateTime fecha) {
+		this.fecha = fecha;
+	}
+
+	public String getTipoTransaccion() {
+		return tipoTransaccion;
+	}
+
+	public void setTipoTransaccion(String tipoTransaccion) {
+		this.tipoTransaccion = tipoTransaccion;
+	}
+
+	public double getValorTransaccion() {
+		return valorTransaccion;
+	}
+
+	public void setValorTransaccion(double valorTransaccion) {
+		this.valorTransaccion = valorTransaccion;
+	}
+
+	public Registro getRegistro() {
+		return registro;
+	}
+
+	public void setRegistro(Registro registro) {
+		this.registro = registro;
 	}
 	
 }
