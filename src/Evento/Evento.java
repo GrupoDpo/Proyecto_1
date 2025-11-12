@@ -3,6 +3,7 @@ package Evento;
 import java.util.Collection;
 import java.util.HashMap;
 
+import Finanzas.EstadosFinancieros;
 import Persistencia.IFormateo;
 import Persistencia.TextoUtils;
 import tiquete.Tiquete;
@@ -15,6 +16,8 @@ public class Evento implements IFormateo {
 	private HashMap<String, Tiquete> tiquetesDisponibles;
 	private Venue venueAsociado;
 	private String loginOrganizador;
+	private EstadosFinancieros estadoFinanciero;
+	
 	
 	
 	public Evento(String entrada,String fecha, String hora, HashMap<String, Tiquete> tiquetesDisponibles2, Venue venueAsociado,

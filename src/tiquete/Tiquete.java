@@ -2,6 +2,8 @@ package tiquete;
 
 import java.time.LocalDate;
 
+import Evento.Evento;
+import Evento.Localidad;
 import Persistencia.IFormateo;
 import Persistencia.TextoUtils;
 
@@ -16,9 +18,11 @@ public abstract class Tiquete implements IFormateo  {
 	private String nombre;
 	private boolean transferido;
 	private boolean anulado;
+	private Evento eventoAsociado;
+	private Localidad localidadAsociada;
 	
 	public Tiquete(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, String fechaExpiracion, 
-			double precio, String nombre, boolean transferido, boolean anulado){
+			double precio, String nombre, boolean transferido, boolean anulado, Evento eventoAsociado){
 		this.tipoTiquete = tipoTiquete;
 		this.cargoPorcentual = cargoPorcentual;
 		this.cuotaAdicional = cuotaAdicional;
@@ -28,6 +32,11 @@ public abstract class Tiquete implements IFormateo  {
 		this.nombre = nombre;
 		this.transferido = true;
 		this.anulado = false;
+		this.eventoAsociado = eventoAsociado;
+	}
+	
+	public Evento getEventoAsociado() {
+		return this.eventoAsociado;
 	}
 	
 	public boolean isAnulado() {
