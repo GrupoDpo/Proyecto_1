@@ -2,6 +2,8 @@ package usuario;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import tiquete.Tiquete;
 
@@ -9,6 +11,7 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 	
 	private double saldo;
 	private ArrayList<Tiquete> tiquetes;
+	private List<HashMap<Tiquete, String>> listaOfertas;
 
 	public Promotor(String login, String password, double saldo, String tipoUsuario) {
 		super(login, password, tipoUsuario);
@@ -67,4 +70,17 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 		
 	}
 
+	
+
+	@Override
+	public List<HashMap<Tiquete, String>> getListaOfertas() {
+		return listaOfertas;
+	}
+
+	public void sugerirVenue() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }

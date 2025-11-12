@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.Map.Entry;
 
 import excepciones.OfertaNoDIsponibleException;
+import excepciones.TransferenciaNoPermitidaException;
 import tiquete.Tiquete;
 import usuario.IDuenoTiquetes;
 import usuario.Usuario;
@@ -77,16 +78,16 @@ public class marketPlaceReventas {
 		
 	}
 	
-	public void Vercontraofertar(Usuario comprador) {
+	public void Vercontraofertar(Usuario comprador) throws TransferenciaNoPermitidaException {
 		try (Scanner sc = new Scanner(System.in)) {
 		List<HashMap<Tiquete, String>> procesados = new ArrayList<>();
 		if (comprador instanceof IDuenoTiquetes) {
 			
             IDuenoTiquetes compradorTiquete = (IDuenoTiquetes) comprador;
-            if (compradorTiquete.getOfertas().isEmpty()) {
+            if (compradorTiquete.getListaOfertas().isEmpty()) {
                 System.out.println("No hay contraofertas pendientes.");
             
-		for (HashMap<Tiquete, String> mapa : compradorTiquete.getOfertas() ) {
+		for (HashMap<Tiquete, String> mapa : compradorTiquete.getListaOfertas() ) {
 		    for (Entry<Tiquete, String> entry : mapa.entrySet()) {
 		        Tiquete tiqueteOferta = entry.getKey();
 		        String info = entry.getValue();
@@ -95,17 +96,9 @@ public class marketPlaceReventas {
 		        System.out.println("Tiquete: " + tiqueteOferta.getId());
 		        System.out.println("Info oferta: " + info);
 		        
-		        double precioPropuesto = 0;
+		        double precioPropuesto = extraerPrecio(info);
 
-		        if (info.contains("Precio: $")) {
-		            String[] partes = info.split("Precio: \\$");
-		            if (partes.length > 1) {
-		                precioPropuesto = Double.parseDouble(partes[1].trim());
-		            }
-		        }
-		        System.out.println("[1] Aceptar");
-		        System.out.println("[2] Rechazar");
-		        System.out.print("Seleccione una opción: ");
+		        
 
 		        int opcion = sc.nextInt(); 
 		        sc.nextLine(); 
@@ -127,13 +120,58 @@ public class marketPlaceReventas {
 		}
 
 		
-            compradorTiquete.getOfertas().removeAll(procesados);
+            compradorTiquete.getListaOfertas().removeAll(procesados);
 		}
 }
 
 		
 		
 		
+	}
+	
+	public void contraofertar() {
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	public static double extraerPrecio(String etiqueta) throws TransferenciaNoPermitidaException {
+	    if (etiqueta == null) throw new TransferenciaNoPermitidaException("Etiqueta de oferta inválida.");
+
+	    String clave = "Precio:";
+	    int i = etiqueta.indexOf(clave);
+	    if (i < 0) throw new TransferenciaNoPermitidaException("No se encontró 'Precio:' en la oferta.");
+
+	    String tail = etiqueta.substring(i + clave.length()).trim(); 
+	    if (tail.startsWith("$")) tail = tail.substring(1).trim();
+
+	    tail = tail.replace(',', '.');   
+	    
+	    StringBuilder sb = new StringBuilder();
+	    for (int k = 0; k < tail.length(); k++) {
+	        char c = tail.charAt(k);
+	        if ((c >= '0' && c <= '9') || c == '.') sb.append(c);
+	        else if (sb.length() > 0) break;  
+	    }
+	    String num = sb.toString();
+	    if (num.isEmpty()) throw new TransferenciaNoPermitidaException("Precio no presente en la oferta.");
+
+	    int lastDot = num.lastIndexOf('.');
+	    if (lastDot > 0) {
+	        String enteros = num.substring(0, lastDot).replace(".", "");
+	        String dec = num.substring(lastDot + 1);
+	        num = enteros + (dec.isEmpty() ? "" : "." + dec);
+	    }
+
+	    try {
+	        return Double.parseDouble(num);
+	    } catch (NumberFormatException e) {
+	        throw new TransferenciaNoPermitidaException("Formato de precio de oferta inválido.");
+	    }
 	}
 	
 	

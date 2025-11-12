@@ -350,12 +350,12 @@ public class ConsolaAplicacion {
             	break;
             case 4:
             	System.out.println("Reembolsando tiquete...");
-            	transaccion.solicitarReembolso();
+            	transaccion.solicitarReembolso(null, null);
             	break;
             	
             case 5:
             	System.out.println("revendiendo tiquete...");
-            	transaccion.revenderTiquete();
+            	transaccion.revenderTiquete(null, opcion, organizador);
             case 6:
             	System.out.println("Recargando el saldo...");
             	 System.out.print("Ingrese el valor a recargar: ");

@@ -2,6 +2,8 @@ package usuario;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import tiquete.Tiquete;
 
@@ -9,7 +11,7 @@ public class Cliente extends Usuario implements IDuenoTiquetes  {
 	
 	private double saldo;
 	private ArrayList<Tiquete> tiquetes;
-
+	private List<HashMap<Tiquete, String>> listaOfertas;
 	public Cliente(String login, String password, double saldo, String tipoUsuario) {
 		super(login, password, tipoUsuario);
 		this.saldo = saldo;
@@ -42,6 +44,15 @@ public class Cliente extends Usuario implements IDuenoTiquetes  {
 	public void actualizarSaldo(double precioNuevo) {
 		this.saldo = precioNuevo;
 		
+	}
+
+	
+
+	
+
+	@Override
+	public List<HashMap<Tiquete, String>> getListaOfertas() {
+		return  listaOfertas;
 	}
 	
 	

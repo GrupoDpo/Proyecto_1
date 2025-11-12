@@ -358,7 +358,7 @@ public class Transaccion {
 	    IDuenoTiquetes vend = (IDuenoTiquetes) vendedor;
 	    IDuenoTiquetes comp = (IDuenoTiquetes) comprador;
 
-	    List<HashMap<Tiquete, String>> ofertas = vend.getOfertas();
+	    List<HashMap<Tiquete, String>> ofertas = vend.getListaOfertas();
 	    if (ofertas == null || ofertas.isEmpty()) {
 	        throw new TiquetesNoDisponiblesException("El vendedor no tiene ofertas activas.");
 	    }
@@ -382,7 +382,7 @@ public class Transaccion {
 	        throw new TiquetesNoDisponiblesException("No se encontró la oferta para el tiquete indicado.");
 	    }
 
-	    double precioOferta = extraerPrecio(etiqueta); // <<--- ahora parsea "login - Precio: $12345"
+	    double precioOferta = marketPlaceReventas.extraerPrecio(etiqueta); // <<--- ahora parsea "login - Precio: $12345"
 	    if (precioOferta <= 0) {
 	        throw new TransferenciaNoPermitidaException("Precio de oferta inválido.");
 	    }
@@ -421,42 +421,6 @@ public class Transaccion {
 	    return adquiridos;
 	}
 	
-	private double extraerPrecio(String etiqueta) throws TransferenciaNoPermitidaException {
-	    if (etiqueta == null) throw new TransferenciaNoPermitidaException("Etiqueta de oferta inválida.");
-
-	    String clave = "Precio:";
-	    int i = etiqueta.indexOf(clave);
-	    if (i < 0) throw new TransferenciaNoPermitidaException("No se encontró 'Precio:' en la oferta.");
-
-	    String tail = etiqueta.substring(i + clave.length()).trim(); // "$12345" o "$12345.67" etc.
-	    if (tail.startsWith("$")) tail = tail.substring(1).trim();
-
-	    // Normaliza decimales y separadores de miles
-	    tail = tail.replace(',', '.');        // decimal comma -> dot
-	    // Mantén solo dígitos y puntos
-	    StringBuilder sb = new StringBuilder();
-	    for (int k = 0; k < tail.length(); k++) {
-	        char c = tail.charAt(k);
-	        if ((c >= '0' && c <= '9') || c == '.') sb.append(c);
-	        else if (sb.length() > 0) break;  // corta al primer no-numérico luego de empezar
-	    }
-	    String num = sb.toString();
-	    if (num.isEmpty()) throw new TransferenciaNoPermitidaException("Precio no presente en la oferta.");
-
-	    // Si hay múltiples puntos, asume el último como decimal (remueve los anteriores)
-	    int lastDot = num.lastIndexOf('.');
-	    if (lastDot > 0) {
-	        String enteros = num.substring(0, lastDot).replace(".", "");
-	        String dec = num.substring(lastDot + 1);
-	        num = enteros + (dec.isEmpty() ? "" : "." + dec);
-	    }
-
-	    try {
-	        return Double.parseDouble(num);
-	    } catch (NumberFormatException e) {
-	        throw new TransferenciaNoPermitidaException("Formato de precio de oferta inválido.");
-	    }
-	}
 	
 	
 

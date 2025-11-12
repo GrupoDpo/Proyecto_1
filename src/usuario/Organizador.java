@@ -17,6 +17,7 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 	private double saldo;
 	private List<Tiquete> tiquetes;
 	private List<Evento> eventos;
+	private List<HashMap<Tiquete, String>> listaOfertas;
 
 	public Organizador(String login, String password, double saldo, String tipoUsuario) {
 		super(login, password, tipoUsuario);
@@ -51,7 +52,7 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 		RegistroEventos.agregarEventoGlobal(newEvento);
 		
 		PersistenciaEventos persistencia = new PersistenciaEventos();
-		persistencia.agregarEvento(newEvento);
+		persistencia.agregar(newEvento);
 		
 		
 		return newEvento;
@@ -86,6 +87,11 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 	public void actualizarSaldo(double precioNuevo) {
 		this.saldo = precioNuevo;
 		
+	}
+
+	@Override
+	public List<HashMap<Tiquete, String>> getListaOfertas() {
+		return listaOfertas;
 	}
 	
 	
