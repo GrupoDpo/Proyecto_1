@@ -12,6 +12,9 @@ import Evento.Evento;
 import Persistencia.IFormateo;
 import Persistencia.PersistenciaTransacciones;
 import Persistencia.TextoUtils;
+import excepciones.IDNoEncontrado;
+import excepciones.TiquetesVencidosTransferidos;
+import excepciones.UsuarioPasswordIncorrecto;
 import tiquete.PaqueteDeluxe;
 import tiquete.Tiquete;
 import tiquete.TiqueteMultiple;
@@ -43,7 +46,8 @@ public class Transaccion implements IFormateo {
 		return this.dueno;
 	}
 	
-	public void transferirTiquete(Tiquete tiquete, Usuario dueno, Usuario usuarioDestino, String fechaActual) {
+	public void transferirTiquete(Tiquete tiquete, Usuario dueno, Usuario usuarioDestino, String fechaActual) throws TiquetesVencidosTransferidos, 
+	IDNoEncontrado, UsuarioPasswordIncorrecto {
 		if (dueno.getTipoUsuario().equalsIgnoreCase("ADMINISTRADOR")) {
 			try (Scanner sc = new Scanner(System.in)) {
 				System.out.print("Ingresa el login del destinatario: ");
@@ -68,7 +72,7 @@ public class Transaccion implements IFormateo {
 				                }
 				            }
 				            
-				            if(puedeTransferirse) {
+				            if (puedeTransferirse) {
 				            	((IDuenoTiquetes) dueno).eliminarTiquete(tm);
 				                ((IDuenoTiquetes) usuarioDestino).agregarTiquete(tm);
 				                tm.setTransferido(true);
@@ -77,10 +81,10 @@ public class Transaccion implements IFormateo {
 				                }
 				                System.out.println("Paquete completo transferido con éxito.");
 				            } else {
-				                System.out.println("No se puede transferir el paquete: contiene tiquetes vencidos o ya transferidos.");
+				                throw new TiquetesVencidosTransferidos("Tiquete(s) transferidos o vencidos");
 				            }
 				            
-				        }else {
+				        } else {
 				        	System.out.print("Ingrese el ID del tiquete individual dentro del paquete: ");
 				            String idTiquete = sc.nextLine();
 
@@ -88,10 +92,8 @@ public class Transaccion implements IFormateo {
 				            for (TiqueteSimple t : tm.getTiquetes()) {
 				                if (t.getId().equals(idTiquete)) {
 				                    encontrado = true;
-				                    if (!t.esVigente(fechaActual)) {
-				                        System.out.println("ERROR: el tiquete está vencido.");
-				                    } else if (t.isTransferido()) {
-				                        System.out.println("ERROR: el tiquete ya fue transferido anteriormente.");
+				                    if (!t.esVigente(fechaActual) || t.isTransferido()) {
+				                    	throw new TiquetesVencidosTransferidos("Tiquete(s) transferidos o vencidos");
 				                    } else {
 				                        t.setTransferido(true);
 				                        ((IDuenoTiquetes) usuarioDestino).agregarTiquete(t);
@@ -103,7 +105,7 @@ public class Transaccion implements IFormateo {
 				            }
 
 				            if (!encontrado) {
-				                System.out.println("ERROR: el ID no corresponde a ningún tiquete dentro del paquete.");
+				                throw new IDNoEncontrado("ID No encontrado");
 				            }
 				        }
 					    
@@ -115,8 +117,8 @@ public class Transaccion implements IFormateo {
 				        		((IDuenoTiquetes) dueno).eliminarTiquete(tiquete);
 								((IDuenoTiquetes) usuarioDestino).agregarTiquete(tiquete);
 								tiquete.setTransferido(true);
-							}else {
-								System.out.print("ERROR: el id escrito no es válido");
+							} else {
+								throw new IDNoEncontrado("ID No encontrado");
 										
 								}
 									}
@@ -125,8 +127,8 @@ public class Transaccion implements IFormateo {
 							}
 					    
 						
-			 }else {
-				System.out.print("ERROR: login o password incorrecto");
+			 } else {
+				throw new UsuarioPasswordIncorrecto("Login o password incorrecto");
 					}
 				        }
 				            	
