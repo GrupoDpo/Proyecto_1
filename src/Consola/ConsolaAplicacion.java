@@ -9,7 +9,7 @@ import usuario.IDuenoTiquetes;
 import usuario.Organizador;
 import usuario.Promotor;
 import usuario.Usuario;
-import Persistencia.PersistenciaUsuariosJson;
+import Persistencia.PersistenciaUsuarios;
 import excepciones.UsuarioNoEncontrado;
 
 
@@ -47,7 +47,7 @@ public class ConsolaAplicacion {
                     System.out.print("Ingrese su contraseña: ");
                     String password = sc.nextLine();
                     
-                    PersistenciaUsuariosJson persistenciaJson = new PersistenciaUsuariosJson();
+                    PersistenciaUsuarios persistenciaJson = new PersistenciaUsuarios();
                     boolean condicion = persistenciaJson.existeUsuario(login, password);
                     
         
@@ -86,7 +86,7 @@ public class ConsolaAplicacion {
                     String tipo = sc.nextLine();
                     
                     String tipoUsuario = "";
-                    PersistenciaUsuariosJson persistenciaUsuariosJson = new PersistenciaUsuariosJson();
+                    PersistenciaUsuarios persistenciaUsuariosJson = new PersistenciaUsuarios();
                     
                     
                     if (tipo.equals("1")) {
@@ -152,7 +152,7 @@ public class ConsolaAplicacion {
     
     private static void menuParaUsuarios(Usuario usuarioEnUso) {
         if (usuarioEnUso instanceof Cliente cliente) {
-            menuCliente(cliente, null);  
+            menuComprador(cliente, null);  
         } 
         else if (usuarioEnUso instanceof Promotor promotor) {
             menuPromotor(promotor, null);
@@ -217,7 +217,7 @@ public class ConsolaAplicacion {
     
         do {
         	
-            mostrarMenu();
+            mostrarMenu(comprador);
             System.out.print("Elige una opción: ");
             while (!sc.hasNextInt()) {
                 System.out.print("Por favor, ingresa un número válido: ");
@@ -321,7 +321,7 @@ public class ConsolaAplicacion {
     	Scanner sc = new Scanner(System.in);
     	int opcion;
         do {
-        	imprimirMenuCliente();
+        	mostrarMenu(organizador);
             System.out.println("7. Crear evento");
         	System.out.println("----------------------------------");
             System.out.println("0. Salir");
@@ -395,7 +395,7 @@ public class ConsolaAplicacion {
     	Scanner sc = new Scanner(System.in);
     	int opcion;
     	do {
-    		imprimirMenuCliente();
+    		mostrarMenu(promotor);
         	System.out.println("6. Ver ganancias/porcentaje de ventas");
         	System.out.println("7. Sugerir Venue");
         	System.out.println("----------------------------------");

@@ -28,16 +28,18 @@ public class marketPlaceReventas {
 		
 		 HashMap<Tiquete, String> mapaOferta = new HashMap<>();
 		 
+		 String loginDueno = vendedor.getLogin();
+		 
 		 if (vendedor instanceof IDuenoTiquetes) {
-             IDuenoTiquetes duenoTiquete = (IDuenoTiquetes) vendedor;
-             mapaOferta.put(tiquete, duenoTiquete + " - Precio: $" + precio);
+             mapaOferta.put(tiquete, loginDueno + " - Precio: $" + precio);
              ofertas.add(mapaOferta);
              
              
 		 }
+		 
 		 String fechaHora = LocalDateTime.now()
 	                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	        String registro = "[" + fechaHora + "] Oferta creada por " + vendedor 
+	        String registro = "[" + fechaHora + "] Oferta creada por " + loginDueno 
 	                        + " para tiquete " + tiquete.getId() 
 	                        + " con precio $" + precio;
 	        logEventos.add(registro);
@@ -133,7 +135,6 @@ public class marketPlaceReventas {
 		
 		
 	}
-	
 	
 	
 	
