@@ -7,6 +7,7 @@ import usuario.Usuario;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import Evento.Evento;
@@ -324,20 +325,17 @@ public class Transaccion {
 		PersistenciaUsuarios persistencia = new PersistenciaUsuarios();
 		
 		Administrador admin = persistencia.recuperarAdministrador();
+		HashMap<Tiquete, String> solicitud = new HashMap<>();
+		solicitud.put(tiqueteRembolso, motivo);
 		
-		
-		
-		
-		
-		
-		
+		admin.getSolicitudes().add(solicitud);
 		
 		
 	}
 	
 
-	public void revenderTiquete() {
-		// TODO Auto-generated method stub
+	public void revenderTiquete(Tiquete tiqueteVenta) {
+		
 		
 	}
 	

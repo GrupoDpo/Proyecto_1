@@ -3,8 +3,12 @@ package usuario;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Scanner;
+import java.util.Map.Entry;
+
 import Evento.Evento;
 import Evento.Venue;
 import tiquete.Tiquete;
@@ -89,27 +93,53 @@ public class Administrador extends Usuario {
    
     
    
-   public void verSolicitud(Tiquete tiqueteRembolso, Usuario dueno) {
-	   boolean aceptado = true;
-	   for(HashMap<Tiquete, String> mapa : rembolsosSolicitados) {
-			   if(aceptado) {
-				   if (dueno instanceof IDuenoTiquetes) {
-			            IDuenoTiquetes duenoTiquete = (IDuenoTiquetes) dueno;
-			            double dineroReembolso = ((tiqueteRembolso.calcularPrecio())-(tiqueteRembolso.calcularPrecio()*porcentajeAdicional )
-			            		- cobroEmision);
-			            duenoTiquete.actualizarSaldo(dineroReembolso);
-			            duenoTiquete.eliminarTiquete(tiqueteRembolso);
-			            rembolsosSolicitados.remove(mapa);
-			   }else {
-				   System.out.println("Lo siento su reembolso no fue aceptado");
-			   }
-			   
-		   }
-		   }
-	   
-		   
-   }
+  
+    public void verSolicitud(Usuario dueno) {
+        try (Scanner sc = new Scanner(System.in)) {
+			List<HashMap<Tiquete, String>> procesados = new ArrayList<>();
+
+			for (HashMap<Tiquete, String> mapa : rembolsosSolicitados) {
+			    for (Entry<Tiquete, String> entry : mapa.entrySet()) {
+			        Tiquete tiqueteRembolso = entry.getKey();
+			        String motivo = entry.getValue();
+
+			        System.out.println("--- Solicitud de reembolso ---");
+			        System.out.println("Tiquete: " + tiqueteRembolso.getId());
+			        System.out.println("Motivo: " + motivo);
+			        System.out.println("[1] Aceptar");
+			        System.out.println("[2] Rechazar");
+			        System.out.print("Seleccione una opción: ");
+
+			        int opcion = sc.nextInt(); 
+			        sc.nextLine(); 
+
+			        if (opcion == 1) {
+			            if (dueno instanceof IDuenoTiquetes) {
+			                IDuenoTiquetes duenoTiquete = (IDuenoTiquetes) dueno;
+			                double dineroReembolso = tiqueteRembolso.calcularPrecio()
+			                        - (tiqueteRembolso.calcularPrecio() * porcentajeAdicional)
+			                        - cobroEmision;
+			                duenoTiquete.actualizarSaldo(dineroReembolso);
+			                duenoTiquete.eliminarTiquete(tiqueteRembolso);
+			                System.out.println("Reembolso aceptado. Dinero devuelto: $" + dineroReembolso);
+			            }
+			        } else if (opcion == 2) {
+			            System.out.println("Reembolso rechazado.");
+			        }
+
+			        procesados.add(mapa);
+			    }
+			}
+
+			rembolsosSolicitados.removeAll(procesados);
+		}
+        System.out.println("No hay más solicitudes pendientes.");
+    }
     
+    
+    public Queue<HashMap<Tiquete, String>> getSolicitudes() {
+    	return this.rembolsosSolicitados;
+    }
    
 
 
