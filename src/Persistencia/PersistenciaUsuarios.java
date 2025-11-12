@@ -4,9 +4,10 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import usuario.Administrador;
 import usuario.Usuario;
 
-public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
+public class PersistenciaUsuarios implements IPersistencia<Usuario> {
 	
 	private static final String RUTA = "data/usuarios.json";
     
@@ -149,6 +150,18 @@ public class PersistenciaUsuariosJson implements IPersistencia<Usuario> {
 		
 		return null;
     	
+    }
+    
+    public Administrador recuperarAdministrador() {
+        List<Usuario> listaUsuarios = cargarTodos();
+
+        for (Usuario user : listaUsuarios) {
+            if (user instanceof Administrador) {
+                return (Administrador) user; 
+            }
+        }
+
+        return null; 
     }
 
 

@@ -1,5 +1,6 @@
 package Finanzas;
 
+import usuario.Administrador;
 import usuario.IDuenoTiquetes;
 import usuario.Usuario;
 
@@ -10,6 +11,7 @@ import java.util.Scanner;
 
 import Evento.Evento;
 import Persistencia.PersistenciaTransacciones;
+import Persistencia.PersistenciaUsuarios;
 import excepciones.IDNoEncontrado;
 import excepciones.SaldoInsuficienteExeption;
 import excepciones.TiquetesNoDisponiblesException;
@@ -318,8 +320,16 @@ public class Transaccion {
     
 	
 
-	public void solicitarReembolso() {
-		// TODO Auto-generated method stub
+	public void solicitarReembolso(Tiquete tiqueteRembolso, String motivo) {
+		PersistenciaUsuarios persistencia = new PersistenciaUsuarios();
+		
+		Administrador admin = persistencia.recuperarAdministrador();
+		
+		
+		
+		
+		
+		
 		
 	}
 

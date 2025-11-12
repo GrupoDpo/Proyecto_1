@@ -1,6 +1,8 @@
 package usuario;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import Evento.Evento;
 import Evento.Venue;
 import tiquete.Tiquete;
@@ -10,12 +12,14 @@ public class Administrador extends Usuario {
     private double porcentajeAdicional;
     private double cobroEmision;
     private double ganancias;
+    private Queue<String> rembolsosSolicitados;
 
     public Administrador(String login, String password, String tipoUsuario) {
         super(login, password, tipoUsuario);
         this.porcentajeAdicional = 0.0;
         this.cobroEmision = 0.0;
         this.ganancias = 0.0;
+        this.rembolsosSolicitados = new LinkedList<>();
     }
 
  
@@ -79,6 +83,18 @@ public class Administrador extends Usuario {
     public void setGanancias(double newGanancias) {
     	this.ganancias = newGanancias;
     }
+    
+   
+    
+   
+   public void verSolicitud() {
+	   for (i = 0)
+	   
+   }
+    
+   public String aprobarRembolso(Tiquete tiqueteRembolso) { 
+	   
+   }
 
 
 	public void aprobarORechazarVenue(Object object, boolean b) {
