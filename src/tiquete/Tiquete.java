@@ -3,6 +3,12 @@ package tiquete;
 import java.time.LocalDate;
 
 import Evento.Evento;
+<<<<<<< HEAD
+=======
+import Evento.Localidad;
+import Persistencia.IFormateo;
+import Persistencia.TextoUtils;
+>>>>>>> branch 'master' of https://github.com/GrupoDpo/Proyecto_1.git
 
 
 public abstract class Tiquete   {
@@ -16,10 +22,19 @@ public abstract class Tiquete   {
 	private boolean transferido;
 	private boolean anulado;
 	private Evento eventoAsociado;
+<<<<<<< HEAD
 
+=======
+	private Localidad localidadAsociada;
+>>>>>>> branch 'master' of https://github.com/GrupoDpo/Proyecto_1.git
 	
+<<<<<<< HEAD
 	public Tiquete(String tipoTiquete, double recargo, String identificador, String fechaExpiracion, 
 			double precio, String nombre, boolean transferido, boolean anulado, Evento evento){
+=======
+	public Tiquete(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, String fechaExpiracion, 
+			double precio, String nombre, boolean transferido, boolean anulado, Evento eventoAsociado){
+>>>>>>> branch 'master' of https://github.com/GrupoDpo/Proyecto_1.git
 		this.tipoTiquete = tipoTiquete;
 		this.recargo = recargo;
 		this.identificador = identificador;
@@ -28,7 +43,15 @@ public abstract class Tiquete   {
 		this.nombre = nombre;
 		this.transferido = true;
 		this.anulado = false;
+<<<<<<< HEAD
 		this.eventoAsociado = evento;
+=======
+		this.eventoAsociado = eventoAsociado;
+	}
+	
+	public Evento getEventoAsociado() {
+		return this.eventoAsociado;
+>>>>>>> branch 'master' of https://github.com/GrupoDpo/Proyecto_1.git
 	}
 	
 	public boolean isAnulado() {

@@ -1,9 +1,17 @@
 package Finanzas;
 
 
+<<<<<<< HEAD
 
 
 public class EstadosFinancieros   {
+=======
+// PROMOTOR: Revisa porcentaje de ventas y ganancias 
+// 
+
+
+public class EstadosFinancieros {
+>>>>>>> branch 'master' of https://github.com/GrupoDpo/Proyecto_1.git
 	public double preciosSinRecargos;
 	public double ganancias;
 	public double costoProduccion;
@@ -31,6 +39,10 @@ public class EstadosFinancieros   {
 		return this.preciosSinRecargos;
 	}
 
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> branch 'master' of https://github.com/GrupoDpo/Proyecto_1.git
 
 }
