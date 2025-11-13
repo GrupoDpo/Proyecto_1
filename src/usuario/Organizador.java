@@ -9,9 +9,11 @@ import Evento.Evento;
 import Evento.Venue;
 import Finanzas.Oferta;
 import Persistencia.PersistenciaEventos;
+import Persistencia.PersistenciaUsuarios;
 import excepciones.VenueNoPresente;
 import tiquete.Tiquete;
 import Evento.RegistroEventos;
+import Evento.SolicitudCancelacion;
 
 public class Organizador extends Usuario implements IDuenoTiquetes {
 	private double saldo;
@@ -93,11 +95,37 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 		return listaOfertas;
 	}
 	
-	
-	public void solicitarCancelacioDeEvento() {
+	public void solicitarCancelacioDeEvento(Evento evento, String motivo, PersistenciaEventos persistenciaEventos) {
+		PersistenciaUsuarios perUsuarios = new PersistenciaUsuarios();
 		
-	}
+		Administrador admin = perUsuarios.recuperarAdministrador();
+		
 	
+	
+	    if (evento == null) {
+	        System.out.println("ERROR: Evento nulo.");
+	        return;
+	    }
+	    if (!this.getLogin().equals(evento.getLoginOrganizador())) {
+	        System.out.println("ERROR: Este evento no pertenece a este organizador.");
+	        return;
+	    }
+	    if (evento.getCancelado()) {
+	        System.out.println("El evento ya está cancelado.");
+	        return;
+	    }
+	    if (motivo == null || motivo.isBlank()) {
+	        System.out.println("Debe indicar un motivo para la cancelación.");
+	        return;
+	    }
+
+	    // Crear solicitud (estado = "pendiente")
+	    SolicitudCancelacion sol = new SolicitudCancelacion(this.getLogin(), evento, motivo);
+	    
+	    admin.recibirSolicitudCancelacionEvento(sol);
+
+	    System.out.println("Solicitud de cancelación enviada. Estado: " + sol.getEstado());
+	}
 	
 
 }

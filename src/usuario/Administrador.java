@@ -9,7 +9,9 @@ import java.util.Scanner;
 import java.util.Map.Entry;
 
 import Evento.Evento;
+import Evento.SolicitudCancelacion;
 import Evento.Venue;
+import Persistencia.PersistenciaEventos;
 import tiquete.Tiquete;
 
 public class Administrador extends Usuario {
@@ -19,6 +21,7 @@ public class Administrador extends Usuario {
     private double ganancias;
     private Queue<HashMap<Tiquete, String>> rembolsosSolicitados;
     private Queue<HashMap<Venue, String>> solicitudesVenue;
+    private private Queue<SolicitudCancelacion> solicitudesCancelacionEvento;
 
     public Administrador(String login, String password, String tipoUsuario) {
         super(login, password, tipoUsuario);
@@ -27,7 +30,9 @@ public class Administrador extends Usuario {
         this.ganancias = 0.0;
         this.rembolsosSolicitados = new LinkedList<>();
         this.solicitudesVenue = new LinkedList<>();
+        this.solicitudesCancelacionEvento = new LinkedList<>();
     }
+   
 
  
     public void cobrarPorcentajeAdicional(double porcentaje) {
@@ -63,7 +68,7 @@ public class Administrador extends Usuario {
             t.setAnulado(true); 
         }
 
-        System.out.println("El evento '" + evento.getEntrada() + "' ha sido cancelado junto con sus tiquetes.");
+        System.out.println("El evento '" + evento.getNombre() + "' ha sido cancelado junto con sus tiquetes.");
     }
 
     public double getPorcentajeAdicional() {
@@ -251,10 +256,79 @@ public class Administrador extends Usuario {
 	    }
 	    return mapa;
 	}
-
-
-	public void verSolicitudCancelacionEvento() {
-		// TODO Auto-generated method stub
-		
+	
+	public void recibirSolicitudCancelacionEvento(SolicitudCancelacion solicitud) {
+	    if (solicitud == null) return;
+	    solicitudesCancelacionEvento.add(solicitud);
+	    System.out.println("Admin: solicitud recibida para el evento '" 
+	            + solicitud.getEvento().getNombre() + "' del organizador " 
+	            + solicitud.getLoginOrganizador() + ".");
 	}
+	
+	public void verSolicitudCancelacionEvento(PersistenciaEventos persistenciaEventos) {
+	    if (solicitudesCancelacionEvento.isEmpty()) {
+	        System.out.println("No hay solicitudes de cancelación pendientes.");
+	        return;
+	    }
+
+	    try (Scanner sc = new Scanner(System.in)) {
+	        List<SolicitudCancelacion> procesadas = new ArrayList<>();
+
+	        for (SolicitudCancelacion sol : solicitudesCancelacionEvento) {
+	            Evento ev = sol.getEvento();
+
+	            System.out.println("\n--- Solicitud de Cancelación ---");
+	            System.out.println("Evento: " + ev.getNombre());
+	            System.out.println("Fecha: " + ev.getFecha() + "  Hora: " + ev.getHora());
+	            System.out.println("Organizador: " + sol.getLoginOrganizador());
+	            System.out.println("Motivo: " + sol.getMotivo());
+	            System.out.println("Estado actual: " + sol.getEstado());
+	            System.out.println("[1] Aprobar (CANCELAR evento)");
+	            System.out.println("[2] Negar");
+	            System.out.print("Seleccione una opción: ");
+
+	            int opcion = sc.nextInt();
+	            sc.nextLine(); // limpiar
+
+	            if (opcion == 1) {
+	       
+	                ev.setCancelado();
+	                ArrayList<Tiquete> tiqs = new ArrayList<>(ev.getTiquetesDisponibles());
+	                for (Tiquete t : tiqs) {
+	                    t.setAnulado(true);
+	                }
+	                
+	                List<Evento> lista = persistenciaEventos.cargarTodos();
+	                for (int i = 0; i < lista.size(); i++) {
+	                    if (lista.get(i).getNombre().equals(ev.getNombre())) {
+	                        lista.set(i, ev);
+	                        break;
+	                    }
+	                }
+	                persistenciaEventos.guardarTodos(lista);
+
+	                sol.setEstado("cancelado");
+	                System.out.println("Solicitud aprobada. Evento CANCELADO y persistido.");
+
+	            } else if (opcion == 2) {
+	                sol.setEstado("negado");
+	                System.out.println("Solicitud NEGADA.");
+	            } else {
+	                System.out.println("Opción inválida. Se deja pendiente.");
+	                continue; 
+	            }
+
+	            procesadas.add(sol);
+	        }
+
+	      
+	        solicitudesCancelacionEvento.removeAll(procesadas);
+	    }
+
+	    System.out.println("No hay más solicitudes de cancelación.");
+
+
+
+}
+	
 }

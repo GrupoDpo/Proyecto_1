@@ -3,14 +3,10 @@ package Evento;
 import java.util.Collection;
 import java.util.HashMap;
 
-<<<<<<< HEAD
-=======
+
 import Finanzas.EstadosFinancieros;
-import Persistencia.IFormateo;
-import Persistencia.TextoUtils;
 import tiquete.Tiquete;
 import usuario.Organizador;
->>>>>>> branch 'master' of https://github.com/GrupoDpo/Proyecto_1.git
 
 import tiquete.Tiquete;
 
@@ -22,34 +18,39 @@ public class Evento  {
 	private Venue venueAsociado;
 	private String loginOrganizador;
 	private EstadosFinancieros estadoFinanciero;
+	private boolean cancelado;
 	
 	
 	
-	public Evento(String entrada,String fecha, String hora, HashMap<String, Tiquete> tiquetesDisponibles2, Venue venueAsociado,
+	
+	public Evento(String nombre,String fecha, String hora, HashMap<String, Tiquete> tiquetesDisponibles2, Venue venueAsociado,
 			String loginOrganizador) {
-		this.setEntrada(entrada);
+		this.setNombre(nombre);
 		this.setFecha(fecha);
 		this.setHora(hora);
 		this.venueAsociado = venueAsociado;
 		tiquetesDisponibles = new HashMap<String, Tiquete>();
 		this.loginOrganizador = loginOrganizador;
-		
-		
-		
-	
+		this.cancelado = false;
 		
 	}
 	
+	public void setCancelado(boolean estado) {
+		this.cancelado = estado;
+	}
 	
+	public boolean getCancelado() {
+		return this.cancelado;
+	}
 	
 	public String getLoginOrganizador() {
 		return this.loginOrganizador;
 	}
 	
-	public String getEntrada() {
+	public String getNombre() {
 		return nombre;
 	}
-	public void setEntrada(String entrada) {
+	public void setNombre(String entrada) {
 		this.nombre = entrada;
 	}
 	
@@ -98,9 +99,8 @@ public class Evento  {
 
 
 
-	public void setCancelado(boolean b) {
-		// TODO Auto-generated method stub
-		
+	public void setCancelado() {
+		this.cancelado = true;
 	}
 
 	

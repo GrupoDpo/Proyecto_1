@@ -1,9 +1,13 @@
 package Consola;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Queue;
 import java.util.Scanner;
 
 import Evento.Evento;
 import Evento.Venue;
+import Evento.RegistroEventos;
 import Finanzas.Transaccion;
 import Finanzas.marketPlaceReventas;
 import usuario.Administrador;
@@ -12,7 +16,9 @@ import usuario.IDuenoTiquetes;
 import usuario.Organizador;
 import usuario.Promotor;
 import usuario.Usuario;
+import Persistencia.PersistenciaEventos;
 import Persistencia.PersistenciaUsuarios;
+import Persistencia.marketplacePersistencia;
 import excepciones.UsuarioNoEncontrado;
 import tiquete.PaqueteDeluxe;
 import tiquete.Tiquete;
@@ -156,20 +162,12 @@ public class ConsolaAplicacion {
     }
     
     private static void menuParaUsuarios(Usuario usuarioEnUso) {
-        if (usuarioEnUso instanceof Cliente cliente) {
-            menuComprador(cliente, null, null);  
-        } 
-        else if (usuarioEnUso instanceof Promotor promotor) {
-        	menuComprador(promotor, null, null); 
-        } 
-        else if (usuarioEnUso instanceof Organizador organizador) {
-        	menuComprador(organizador, null, null); 
-        } 
-        else if (usuarioEnUso instanceof Administrador admin) {
+       
+       if (usuarioEnUso instanceof Administrador admin) {
             menuAdministrador(admin);
         } 
-        else {
-            System.out.println("Tipo de usuario no reconocido.");
+        else if (usuarioEnUso instanceof IDuenoTiquetes) {
+           menuComprador(usuarioEnUso, null, null);
         }
     }
     
@@ -187,6 +185,7 @@ public class ConsolaAplicacion {
         System.out.println("7. Contraofertar");
         System.out.println("8. Recargar saldo");
         System.out.println("9. Solicitar reembolso");
+        System.out.println("10. Ver contraofertas");
 
         switch (usuario.getTipoUsuario().toUpperCase()) {
             case "PROMOTOR":
@@ -201,16 +200,64 @@ public class ConsolaAplicacion {
 
     private static void mostrarOpcionesPromotor() {
         System.out.println("------ OPCIONES DE PROMOTOR ------");
-        System.out.println("10. Sugerir un venue");
-        System.out.println("11. Ver ganancias");
+        System.out.println("11. Sugerir un venue");
+        System.out.println("12. Ver ganancias");
     }
 
     private static void mostrarOpcionesOrganizador() {
         System.out.println("------ OPCIONES DE ORGANIZADOR ------");
-        System.out.println("10. Crear evento");
+        System.out.println("11. Crear evento");
     }
     
+    public static void imprimirEventos(PersistenciaEventos pers) {
+    	List<Evento> eventos = pers.cargarTodos();
+    	
+    	for (Evento e : eventos) {
+    	    System.out.println("=== EVENTO ===");
+    	    System.out.println("Nombre: " + e.getNombre());
+    	    System.out.println("Fecha: " + e.getFecha());
+    	    System.out.println("Hora: " + e.getHora());
+    	    System.out.println("Organizador: " + e.getLoginOrganizador());
+    	    System.out.println("Venue asociado: " + e.getVenueAsociado());
+    	    System.out.println("Cancelado: " + e.getCancelado());
+    	    System.out.println("---------------------------");
+    	}
+    }
     
+    public static void imprimirMarketplace(marketplacePersistencia pers) {
+        List<marketPlaceReventas> reventas = pers.cargarTodos();
+
+        System.out.println("=== LISTADO DE OFERTAS EN EL MARKETPLACE ===");
+
+        if (reventas.isEmpty()) {
+            System.out.println("No hay marketplace guardado.");
+            return;
+        }
+
+        marketPlaceReventas mp = reventas.get(0);
+
+        Queue<HashMap<Tiquete, String>> ofertas = mp.getOfertas();
+
+        if (ofertas.isEmpty()) {
+            System.out.println("No hay ofertas publicadas actualmente.");
+            return;
+        }
+
+        int contador = 1;
+        for (HashMap<Tiquete, String> mapa : ofertas) {
+            for (Tiquete tiq : mapa.keySet()) {
+                System.out.println("=== OFERTA #" + contador + " ===");
+                System.out.println("Tiquete ID: " + tiq.getId());
+                System.out.println("Nombre del tiquete: " + tiq.getNombre());
+                System.out.println("Evento asociado: " + tiq.getEventoAsociado().getNombre());
+                System.out.println("Precio / Vendedor: " + mapa.get(tiq));
+                System.out.println("Transferido: " + tiq.isTransferido());
+                System.out.println("Anulado: " + tiq.isAnulado());
+                System.out.println("---------------------------");
+                contador++;
+            }
+        }
+    }
     
     
 
@@ -220,11 +267,17 @@ public class ConsolaAplicacion {
     	int opcion;
     	
     	IDuenoTiquetes compradorDueno = (IDuenoTiquetes) usuario;
+    	PersistenciaEventos EventPers = new PersistenciaEventos();
+    	marketplacePersistencia marketPers = new marketplacePersistencia();
     
     
         do {
         	
+        	
+        	
             mostrarMenu(usuario);
+            imprimirEventos(EventPers);
+            imprimirMarketplace(marketPers);
             System.out.print("Elige una opción: ");
             while (!sc.hasNextInt()) {
                 System.out.print("Por favor, ingresa un número válido: ");
@@ -271,9 +324,14 @@ public class ConsolaAplicacion {
                 	break;
                 	
                 case 10:
+                	System.out.println("Reembolsando tiquete...");
+                	market.Vercontraofertar(usuario);
+                	break;
+                	
+                case 11:
                     if (compradorDueno instanceof Promotor promotor) {
                         System.out.println("Sugerir un venue...");
-                        promotor.sugerirVenue( venue,  mensaje);
+                        promotor.sugerirVenue(venue,  mensaje);
                     } else if (compradorDueno instanceof Organizador organizador) {
                         System.out.println("Creando un evento...");
                         organizador.crearEvento(null, null, null, null, null, organizador.getLogin());
@@ -282,7 +340,7 @@ public class ConsolaAplicacion {
                     }
                     break;
 
-                case 11:
+                case 12:
                     if (compradorDueno instanceof Promotor promotor) {
                         System.out.println("Viendo ganancias...");
                         promotor.verGanancias();

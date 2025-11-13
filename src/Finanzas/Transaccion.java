@@ -382,7 +382,7 @@ public class Transaccion {
 	        throw new TiquetesNoDisponiblesException("No se encontró la oferta para el tiquete indicado.");
 	    }
 
-	    double precioOferta = marketPlaceReventas.extraerPrecio(etiqueta); // <<--- ahora parsea "login - Precio: $12345"
+	    double precioOferta = marketPlaceReventas.extraerPrecio(etiqueta); // ahora parsea "login - Precio: $12345"
 	    if (precioOferta <= 0) {
 	        throw new TransferenciaNoPermitidaException("Precio de oferta inválido.");
 	    }
@@ -410,7 +410,7 @@ public class Transaccion {
 	            "COMPRA_MARKETPLACE",
 	            tiquetePublicado,
 	            vendedor,
-	            java.time.LocalDateTime.now(),
+	            LocalDateTime.now(),
 	            registro,
 	            precioOferta
 	    );

@@ -53,11 +53,11 @@ public class PersistenciaEventos implements IPersistencia<Evento>  {
     
 
     // Ejemplo de búsqueda simple (puedes ajustarla a tu modelo)
-    public Evento buscarEventoPorEntrada(String entrada) {
+    public Evento buscarEventoPorEntrada(String nombre) {
         List<Evento> listaEventos = cargarTodos();
 
         for (Evento ev : listaEventos) {
-            if (ev.getEntrada().equals(entrada)) { 
+            if (ev.getNombre().equals(nombre)) { 
                 return ev;
             }
         }

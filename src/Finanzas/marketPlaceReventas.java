@@ -10,6 +10,7 @@ import java.util.Queue;
 import java.util.Scanner;
 
 import Persistencia.PersistenciaUsuarios;
+import Persistencia.marketplacePersistencia;
 
 import java.util.Map.Entry;
 
@@ -27,6 +28,10 @@ public class marketPlaceReventas {
 		 ofertas = new LinkedList<>();
 		 logEventos = new ArrayList<>();
 		
+	}
+	
+	public Queue<HashMap<Tiquete, String>> getOfertas() {
+		return this.ofertas;
 	}
 	
 	public void crearOferta(Tiquete tiquete,double precio, Usuario vendedor) {
@@ -50,6 +55,17 @@ public class marketPlaceReventas {
 	        logEventos.add(registro);
 
 	        System.out.println("Oferta creada exitosamente: " + registro);
+	        
+	        marketplacePersistencia p = new marketplacePersistencia();
+	        List<marketPlaceReventas> estado = p.cargarTodos();
+
+	        if (estado.isEmpty()) {
+	            p.agregar(this);
+	        } else {
+	            estado.clear();
+	            estado.add(this);
+	            p.guardarTodos(estado);
+	        }
 
 	}
 	
@@ -73,6 +89,17 @@ public class marketPlaceReventas {
 	        logEventos.add(registro);
 
 	        System.out.println("Oferta eliminada exitosamente.");
+	        
+	        marketplacePersistencia p = new marketplacePersistencia();
+	        List<marketPlaceReventas> estado = p.cargarTodos();
+	        
+	        if (estado.isEmpty()) {
+	            p.agregar(this);
+	        } else {
+	            estado.clear();
+	            estado.add(this);
+	            p.guardarTodos(estado);
+	        }
 	        
 	    } else {
 	        throw new OfertaNoDIsponibleException("No se encontró ninguna oferta para ese tiquete.");
