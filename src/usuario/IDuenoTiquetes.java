@@ -18,7 +18,7 @@ public interface IDuenoTiquetes {
 	
 	List<HashMap<Tiquete, String>> getListaOfertas();
 
-    default void eliminarOferta(Tiquete tiqueteOferta) {
+    default void eliminarOfertaListaPropia(Tiquete tiqueteOferta) {
         List<HashMap<Tiquete, String>> listaOfertas = getListaOfertas();
         List<HashMap<Tiquete, String>> mapasAEliminar = new ArrayList<>();
 

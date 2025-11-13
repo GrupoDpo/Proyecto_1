@@ -403,7 +403,7 @@ public class Transaccion {
 	    }
 	    adquiridos.add(tiquetePublicado);
 
-	    vend.eliminarOferta(tiquetePublicado);
+	    vend.eliminarOfertaListaPropia(tiquetePublicado);
 
 	    Registro registro = new Registro(vendedor, tiquetePublicado, comprador);
 	    Transaccion trans = new Transaccion(

@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import Evento.Evento;
+import Evento.Venue;
+import Persistencia.PersistenciaUsuarios;
 import tiquete.Tiquete;
 
 public class Promotor extends Usuario implements IDuenoTiquetes {
@@ -22,25 +25,65 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 		return this.saldo;
 	}
 	
-	public double getGanancias() {
-		return saldo;
-		
+	public void verGanancias() {
+	    double gananciaTotal = 0.0;
+	    int totalVendidos = 0;
+	    int totalDisponibles = 0;
+
+	    HashMap<Evento, Double> gananciasPorConcierto = new HashMap<>();
+	    HashMap<Evento, Integer> vendidosPorConcierto = new HashMap<>();
+	    HashMap<Evento, Integer> disponiblesPorConcierto = new HashMap<>();
+
+	    for (Tiquete t : tiquetes) {
+	        Evento evento = t.getEvento();
+	        double precioBase = t.calcularPrecio();
+
+	        // Si está vendido, sumamos a ganancias
+	        if (t.isTransferido()) {
+	            gananciaTotal += precioBase;
+	            totalVendidos++;
+
+	            gananciasPorConcierto.put(evento,
+	                gananciasPorConcierto.getOrDefault(evento, 0.0) + precioBase);
+	            vendidosPorConcierto.put(evento,
+	                vendidosPorConcierto.getOrDefault(evento, 0) + 1);
+	        } else {
+	            totalDisponibles++;
+	            disponiblesPorConcierto.put(evento,
+	                disponiblesPorConcierto.getOrDefault(evento, 0) + 1);
+	        }
+	    }
+
+	    double porcentajeGlobal = 0.0;
+	    if (totalVendidos + totalDisponibles > 0) {
+	        porcentajeGlobal = (double) totalVendidos / (totalVendidos + totalDisponibles) * 100;
+	    }
+
+	    System.out.println("===== ESTADO FINANCIERO DEL PROMOTOR =====");
+	    System.out.println("Ganancia total: $" + gananciaTotal);
+	    System.out.println("Porcentaje de ventas global: " + String.format("%.2f", porcentajeGlobal) + "%");
+	    System.out.println();
+
+	    System.out.println("--- Detalle por concierto ---");
+	    for (Evento evento : gananciasPorConcierto.keySet()) {
+	        double g = gananciasPorConcierto.get(evento);
+	        int vendidos = vendidosPorConcierto.getOrDefault(evento, 0);
+	        int disponibles = disponiblesPorConcierto.getOrDefault(evento, 0);
+
+	        double porcentaje = 0.0;
+	        if (vendidos + disponibles > 0) {
+	            porcentaje = (double) vendidos / (vendidos + disponibles) * 100;
+	        }
+
+	        System.out.println("Evento: " + evento);
+	        System.out.println("  Ganancia: $" + g);
+	        System.out.println("  Porcentaje de venta: " + String.format("%.2f", porcentaje) + "%");
+	        System.out.println();
+	    }
 	}
+
 	
-	public double getPrecio() {
-		return saldo;
-		
-	}
 	
-	public double getPorcentajeVenta() {
-		return saldo;
-		
-	}
-	
-	public double getPorcentajeVentaEvento() {
-		return saldo;
-		
-	}
 	
 	public double getPorcentajeVentaLocalidad(String identificadorEvento, String nombreLocalidad) {
 		return saldo;
@@ -77,9 +120,22 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 		return listaOfertas;
 	}
 
-	public void sugerirVenue() {
-		// TODO Auto-generated method stub
-		
+	public void sugerirVenue(Venue venue, String mensaje) {
+	    HashMap<Venue, String> solicitud = new HashMap<>();
+	    solicitud.put(venue, mensaje);
+
+	    PersistenciaUsuarios persistencia = new PersistenciaUsuarios();
+	    Administrador admin = persistencia.recuperarAdministrador();
+
+	    if (admin != null) {
+	        admin.getSolicitudesVenue().add(solicitud);
+
+	        persistencia.agregar(admin);
+
+	        System.out.println("Solicitud enviada correctamente al administrador.");
+	    } else {
+	        System.out.println("Error: no se encontró al administrador en el sistema.");
+	    }
 	}
 
 	

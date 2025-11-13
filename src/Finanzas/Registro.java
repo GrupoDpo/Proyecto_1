@@ -1,11 +1,11 @@
 package Finanzas;
 
-import Persistencia.IFormateo;
-import Persistencia.TextoUtils;
+
+
 import tiquete.Tiquete;
 import usuario.Usuario;
 
-public class Registro implements IFormateo {
+public class Registro  {
 	
 	private Usuario duenio;
     private Tiquete tiquete;
@@ -17,13 +17,6 @@ public class Registro implements IFormateo {
         this.receptor = receptor;
     }
 
-    @Override
-    public String formatear() {
-    	String formatJson = String.format("  {\n    \"dueno\": \"%s\",\n    \"receptor\": \"%s\",\n    \"tiquete\": \"%s\"\n  }"
-				, TextoUtils.escape(this.duenio), TextoUtils.escape(this.receptor), TextoUtils.escape(this.tiquete));
-    	
-    	return formatJson;
-     
-    }
+    
 
 }

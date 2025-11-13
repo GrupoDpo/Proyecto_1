@@ -79,7 +79,6 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 
 	@Override
 	public String getTipoUsuario() {
-		// TODO Auto-generated method stub
 		return "ORGANIZADOR";
 	}
 
@@ -94,6 +93,10 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 		return listaOfertas;
 	}
 	
+	
+	public void solicitarCancelacioDeEvento() {
+		
+	}
 	
 	
 

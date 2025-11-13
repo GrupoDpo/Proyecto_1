@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import Evento.Evento;
+import Persistencia.PersistenciaUsuarios;
+import usuario.Administrador;
 
 public class TiqueteMultiple extends Tiquete{
 	private ArrayList<TiqueteSimple> tiquetesInternos;
 	private ArrayList<Evento> eventosAsociados;
 
-	public TiqueteMultiple(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador,
-			String fechaExpiracion, int precio, String nombre, boolean transferido, boolean anulado) {
-		super(tipoTiquete, cargoPorcentual, cuotaAdicional, identificador, fechaExpiracion, precio, nombre, transferido, anulado);
+	public TiqueteMultiple(String tipoTiquete, double recargo, String identificador, String fechaExpiracion, 
+			double precio, String nombre, boolean transferido, boolean anulado, Evento evento) {
+		super(tipoTiquete, recargo, identificador, fechaExpiracion, precio, nombre, transferido, anulado,evento);
 		this.tiquetesInternos = new ArrayList<>();
 	}
 
@@ -20,12 +22,26 @@ public class TiqueteMultiple extends Tiquete{
 	@Override
 	//Se permite que tenga un descuento o un precio especial sobre la suma
 	public double calcularPrecio() {
-		int cantidadTiquetes = 0;
-		for(Tiquete t:tiquetesInternos) {
-			cantidadTiquetes += t.calcularPrecio();
-		}
-		double precioAgrupado = cantidadTiquetes * 0.9;  
-		return  (precioAgrupado + (precioAgrupado * (cargoPorcentual)/100) + cuotaAdicional);
+		double precioTotal = 0;
+
+	    for (Tiquete t : tiquetesInternos) {
+	        precioTotal += t.calcularPrecio();
+	    }
+
+	    double precioConDescuento = precioTotal * 0.9;
+
+	    double precioConRecargo = precioConDescuento + (precioConDescuento * (recargo / 100));
+
+	    PersistenciaUsuarios persistencia = new PersistenciaUsuarios();
+	    Administrador admin = persistencia.recuperarAdministrador();
+
+	    if (admin != null) {
+	        double cobroEmision = admin.getCobroEmision();
+	        precioConRecargo += (precioConDescuento * (cobroEmision / 100));
+	       
+	    }
+
+	    return precioConRecargo;
 	}
 	
 	public Collection<TiqueteSimple> getTiquetes( )

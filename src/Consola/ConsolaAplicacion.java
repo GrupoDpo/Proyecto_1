@@ -2,7 +2,10 @@ package Consola;
 
 import java.util.Scanner;
 
+import Evento.Evento;
+import Evento.Venue;
 import Finanzas.Transaccion;
+import Finanzas.marketPlaceReventas;
 import usuario.Administrador;
 import usuario.Cliente;
 import usuario.IDuenoTiquetes;
@@ -11,6 +14,8 @@ import usuario.Promotor;
 import usuario.Usuario;
 import Persistencia.PersistenciaUsuarios;
 import excepciones.UsuarioNoEncontrado;
+import tiquete.PaqueteDeluxe;
+import tiquete.Tiquete;
 
 
 public class ConsolaAplicacion {
@@ -152,13 +157,13 @@ public class ConsolaAplicacion {
     
     private static void menuParaUsuarios(Usuario usuarioEnUso) {
         if (usuarioEnUso instanceof Cliente cliente) {
-            menuComprador(cliente, null);  
+            menuComprador(cliente, null, null);  
         } 
         else if (usuarioEnUso instanceof Promotor promotor) {
-            menuPromotor(promotor, null);
+        	menuComprador(promotor, null, null); 
         } 
         else if (usuarioEnUso instanceof Organizador organizador) {
-            menuOrganizador(organizador, null);
+        	menuComprador(organizador, null, null); 
         } 
         else if (usuarioEnUso instanceof Administrador admin) {
             menuAdministrador(admin);
@@ -176,9 +181,12 @@ public class ConsolaAplicacion {
         System.out.println("1. Comprar tiquetes");
         System.out.println("2. Comprar paquete Deluxe");
         System.out.println("3. Transferir tiquetes");
-        System.out.println("4. Revender tiquetes");
-        System.out.println("5. Recargar saldo");
-        System.out.println("6. Solicitar reembolso");
+        System.out.println("4. Crear oferta de reeventa de tiquetes");
+        System.out.println("5. Comprar tiquete Revendido");
+        System.out.println("6. cancelar oferta Tiquete");
+        System.out.println("7. Contraofertar");
+        System.out.println("8. Recargar saldo");
+        System.out.println("9. Solicitar reembolso");
 
         switch (usuario.getTipoUsuario().toUpperCase()) {
             case "PROMOTOR":
@@ -193,14 +201,13 @@ public class ConsolaAplicacion {
 
     private static void mostrarOpcionesPromotor() {
         System.out.println("------ OPCIONES DE PROMOTOR ------");
-        System.out.println("7. Sugerir un venue");
-        System.out.println("8. Ver ganancias");
-        System.out.println("9. Ver porcentaje de ventas por evento");
+        System.out.println("10. Sugerir un venue");
+        System.out.println("11. Ver ganancias");
     }
 
     private static void mostrarOpcionesOrganizador() {
         System.out.println("------ OPCIONES DE ORGANIZADOR ------");
-        System.out.println("7. Crear evento");
+        System.out.println("10. Crear evento");
     }
     
     
@@ -208,16 +215,16 @@ public class ConsolaAplicacion {
     
 
     
-    public static void menuComprador(Usuario comprador, Transaccion transaccion) {
+    public static void menuComprador(Usuario usuario, Transaccion transaccion, marketPlaceReventas market) {
     	Scanner sc = new Scanner(System.in);
     	int opcion;
     	
-    	IDuenoTiquetes compradorDueno = (IDuenoTiquetes) comprador;
+    	IDuenoTiquetes compradorDueno = (IDuenoTiquetes) usuario;
     
     
         do {
         	
-            mostrarMenu(comprador);
+            mostrarMenu(usuario);
             System.out.print("Elige una opción: ");
             while (!sc.hasNextInt()) {
                 System.out.print("Por favor, ingresa un número válido: ");
@@ -228,35 +235,46 @@ public class ConsolaAplicacion {
             switch (opcion) {
                 case 1:
                 	System.out.println("Comprando tiquete...");
-                	transaccion.comprarTiquete(null, compradorDueno, opcion, null);
+                	transaccion.comprarTiquete(tiqueteComprar,  comprador, cantidad,eventoAsociado);
                 	break;
                 case 2:
                 	System.out.println("Comprando Paquete Deluxe...");
-                	transaccion.comprarPaqueteDeluxe(null, compradorDueno, opcion, null);
+                	transaccion.comprarPaqueteDeluxe( paquete,
+                             comprador,  cantidad,  eventoAsociado);
                 	break;
                 case 3:
                 	System.out.println("Transfiriendo tiquete...");
-                	transaccion.transferirTiquete(null, compradorDueno, compradorDueno, null);
-                	break;
-                case 4:
-                	System.out.println("Reembolsando tiquete...");
-                	transaccion.solicitarReembolso();
+                	transaccion.transferirTiquete( tiquete,  dueno,  usuarioDestino,  fechaActual);
                 	break;
                 	
+                case 4:
+                	System.out.println("creando oferta de reventa de tiquete...");
+                	transaccion.revenderTiquete( tiqueteVenta,  precioOferta,  vendedor);
                 case 5:
-                	System.out.println("revendiendo tiquete...");
-                	transaccion.revenderTiquete();
+                	System.out.println("creando oferta de reventa de tiquete...");
+                	transaccion.comprarEnMarketplace(null, usuario, usuario);
                 case 6:
+                	System.out.println("eliminando oferta de reventa de tiquete...");
+                	market.eliminarOferta(null, usuario);
+                case 7:
+                	System.out.println("eliminando oferta de reventa de tiquete...");
+                	market.contraofertar(usuario);
+                case 8:
                 	System.out.println("Recargando el saldo...");
                 	 System.out.print("Ingrese el valor a recargar: ");
                      double nuevoSaldo = Double.parseDouble(sc.nextLine());;
                 	compradorDueno.actualizarSaldo(nuevoSaldo);
                 	
-                case 7:
-                    if (comprador instanceof Promotor promotor) {
+                case 9:
+                	System.out.println("Reembolsando tiquete...");
+                	transaccion.solicitarReembolso( tiqueteRembolso,  motivo);
+                	break;
+                	
+                case 10:
+                    if (compradorDueno instanceof Promotor promotor) {
                         System.out.println("Sugerir un venue...");
-                        promotor.sugerirVenue();
-                    } else if (comprador instanceof Organizador organizador) {
+                        promotor.sugerirVenue( venue,  mensaje);
+                    } else if (compradorDueno instanceof Organizador organizador) {
                         System.out.println("Creando un evento...");
                         organizador.crearEvento(null, null, null, null, null, organizador.getLogin());
                     } else {
@@ -264,23 +282,16 @@ public class ConsolaAplicacion {
                     }
                     break;
 
-                case 8:
-                    if (comprador instanceof Promotor promotor) {
+                case 11:
+                    if (compradorDueno instanceof Promotor promotor) {
                         System.out.println("Viendo ganancias...");
-                        promotor.getGanancias();
+                        promotor.verGanancias();
                     } else {
                         System.out.println("Opción no válida para este tipo de usuario.");
                     }
                     break;
 
-                case 9:
-                    if (comprador instanceof Promotor promotor) {
-                        System.out.println("Viendo porcentaje de ventas por evento...");
-                        promotor.getPorcentajeVenta();
-                    } else {
-                        System.out.println("Opción no válida para este tipo de usuario.");
-                    }
-                    break;
+             
                 	
                 case 0:
                 	System.out.println("Cerrando sesión ...");
@@ -292,16 +303,14 @@ public class ConsolaAplicacion {
                 	
             }
             
-            if (comprador instanceof Promotor) {
+            if (compradorDueno instanceof Promotor) {
                 mostrarOpcionesPromotor();
                 
-            } else if (comprador instanceof Organizador) {
+            } else if (compradorDueno instanceof Organizador) {
                 mostrarOpcionesOrganizador();
                 
                 
-            } else if (comprador instanceof Cliente) {
-                System.out.println("No hay opciones adicionales para clientes.");
-            }
+            } 
             
             
         } while (opcion != 0);
@@ -315,143 +324,18 @@ public class ConsolaAplicacion {
     
     
     
-    public static void menuOrganizador(Organizador organizador, Transaccion transaccion) {
-    	
-        
-    	Scanner sc = new Scanner(System.in);
-    	int opcion;
-        do {
-        	mostrarMenu(organizador);
-            System.out.println("7. Crear evento");
-        	System.out.println("----------------------------------");
-            System.out.println("0. Salir");
-            System.out.println("==================================");
-            System.out.print("Elige una opción: ");
-            
-            while (!sc.hasNextInt()) {
-                System.out.print("Por favor, ingresa un número válido: ");
-                sc.next(); 
-            }
-            opcion = sc.nextInt();
-            sc.nextLine();
-            
-            switch (opcion) {
-            case 1:
-            	System.out.println("Comprando tiquete...");
-            	transaccion.comprarTiquete(null, organizador, opcion, null);
-            	break;
-            case 2:
-            	System.out.println("Comprando Paquete Deluxe...");
-            	transaccion.comprarPaqueteDeluxe(null, organizador, opcion, null);
-            	break;
-            case 3:
-            	System.out.println("Transfiriendo tiquete...");
-            	transaccion.transferirTiquete(null, organizador, organizador, null);
-            	break;
-            case 4:
-            	System.out.println("Reembolsando tiquete...");
-            	transaccion.solicitarReembolso(null, null);
-            	break;
-            	
-            case 5:
-            	System.out.println("revendiendo tiquete...");
-            	transaccion.revenderTiquete(null, opcion, organizador);
-            case 6:
-            	System.out.println("Recargando el saldo...");
-            	 System.out.print("Ingrese el valor a recargar: ");
-                 double nuevoSaldo =Double.parseDouble(sc.nextLine());;
-            	 organizador.actualizarSaldo(nuevoSaldo);
-            case 7:
-            	System.out.print("Ingrese el nombre o tipo de entrada del evento: ");
-                String entrada = sc.nextLine();
-
-                System.out.print("Ingrese la fecha del evento (YYYY-MM-DD): ");
-                String fecha = sc.nextLine();
-
-                System.out.print("Ingrese la hora del evento (HH:MM): ");
-                String hora = sc.nextLine();
-
-
-                System.out.print("Ingrese la capacidad máxima del venue: ");
-                int capacidadMax = 0;
-            	organizador.crearEvento(entrada, fecha, hora, null, null); 
-            case 0:
-            	System.out.println("Cerrando sesión ...");
-            	break;
-            default: 
-            	System.out.println("Opción no válida.");
-            	break;
-        }
-    }while (opcion != 0);
-
-    sc.close();
-       
-            
-           
-    	
-    }
     
-    public static void menuPromotor(Promotor promotor,Transaccion transaccion) {
-    	Scanner sc = new Scanner(System.in);
-    	int opcion;
-    	do {
-    		mostrarMenu(promotor);
-        	System.out.println("6. Ver ganancias/porcentaje de ventas");
-        	System.out.println("7. Sugerir Venue");
-        	System.out.println("----------------------------------");
-            System.out.println("0. Salir");
-            System.out.println("==================================");
-    		
-            while (!sc.hasNextInt()) {
-                System.out.print("Por favor, ingresa un número válido: ");
-                sc.next(); 
-            }
-            opcion = sc.nextInt();
-            sc.nextLine();
-            
-            switch (opcion) {
-            case 1:
-            	System.out.println("Comprando tiquete...");
-            	transaccion.comprarTiquete(null, promotor, opcion, null);
-            	break;
-            case 2:
-            	System.out.println("Comprando Paquete Deluxe...");
-            	transaccion.comprarPaqueteDeluxe(null, promotor, opcion, null);
-            	break;
-            case 3:
-            	System.out.println("Transfiriendo tiquete...");
-            	transaccion.transferirTiquete(null, promotor, promotor, null);
-            	break;
-            case 4:
-            	System.out.println("Reembolsando tiquete...");
-            	transaccion.solicitarReembolso();
-            	break;
-            	
-            case 5:
-            	System.out.println("revendiendo tiquete...");
-            	transaccion.revenderTiquete();
-            	
-            case 6:
-            	promotor.getPorcentajeVenta();
-            	promotor.getGanancias();
-            	
-    	}
-    	}while (opcion != 0);
-
-        sc.close();
-    	
-    	
-    }
     
     public static void menuAdministrador(Administrador admin) {
     	System.out.println("\n========== MENÚ ADMINISTRADOR ==========");
         System.out.println("1. Crear Venue");
-        System.out.println("2. Fijar cargos porcentuales de emision");
-        System.out.println("3. Ver ganancias de tiqueteria");
-        System.out.println("4. Aprobar/rechazar Venue");
-        System.out.println("5. Ver log de reventas");
-        System.out.println("6. Cancelar evento");
-        System.out.println("7. Cancelar/aceptar cancelacion de evento");
+        System.out.println("2. Aprobar/rechazar Venue");
+        System.out.println("3. Fijar cargos porcentuales de emision");
+        System.out.println("4.ver solicitudes de reembolso");
+        System.out.println("5. Ver ganancias de la tiquetera");
+        System.out.println("6. Ver log de reventas");
+        System.out.println("7. Cancelar evento");
+        System.out.println("8. Cancelar/aceptar cancelacion de evento");
         System.out.println("----------------------------------");
         System.out.println("0. Salir");
         System.out.println("==================================");
@@ -461,13 +345,13 @@ public class ConsolaAplicacion {
     }
     
     
-    public static void ejecutarMenuAdministrador(Administrador admin) {
+    public static void ejecutarMenuAdministrador(Administrador admin,marketPlaceReventas market) {
         Scanner sc = new Scanner(System.in);
         int opcion;
 
         do {
             menuAdministrador(admin);
-
+            
             System.out.print("Elige una opción: ");
             while (!sc.hasNextInt()) {
                 System.out.print("Por favor, ingresa un número válido: ");
@@ -481,35 +365,42 @@ public class ConsolaAplicacion {
                     System.out.println("Creando Venue...");
                     admin.crearVenue("Ubicación temporal", 1000, false);
                     break;
-
+                    
                 case 2:
-                    System.out.println("Fijando cargos porcentuales de emisión...");
-                    admin.fijarCobroEmisionImpresion(0.15);
+                    System.out.println("Verificando solicitudes de venue...");
+                    admin.verSolicitudVenue();
                     break;
 
                 case 3:
-                    System.out.println("Viendo ganancias de tiquetería...");
-                    admin.getGanancias();
+                    System.out.println("Fijando cargos porcentuales de emisión...");
+                    admin.fijarCobroEmisionImpresion(0.15);
                     break;
-
+                    
                 case 4:
-                    System.out.println("Aprobando/Rechazando Venue...");
-                    admin.aprobarORechazarVenue(null, true);
+                    System.out.println("Verificando solicitudes de reembolsos...");
+                    admin.verSolicitud(admin);
                     break;
 
                 case 5:
-                    System.out.println("Viendo log de reventas...");
-                    admin.verLogReventas();
+                    System.out.println("Viendo ganancias de tiquetería...");
+                    admin.verGananciasAdministrador(null);
                     break;
 
+                
+
                 case 6:
+                    System.out.println("Viendo log de reventas...");
+                    market.verLogEventos(admin);
+                    break;
+
+                case 7:
                     System.out.println("Cancelando evento...");
                     admin.cancelarEvento(null);
                     break;
 
-                case 7:
+                case 8:
                     System.out.println("Gestionando solicitud de cancelación de evento...");
-                    admin.cancelarOAceptarCancelacion(null, true);
+                    admin.verSolicitudCancelacionEvento();
                     break;
 
                 case 0:

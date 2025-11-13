@@ -2,32 +2,33 @@ package tiquete;
 
 import java.time.LocalDate;
 
-import Persistencia.IFormateo;
-import Persistencia.TextoUtils;
+import Evento.Evento;
 
-public abstract class Tiquete implements IFormateo  {
+
+public abstract class Tiquete   {
 	
 	private String tipoTiquete;
-	protected double cargoPorcentual;
-	protected double cuotaAdicional;
+	protected double recargo;
 	private String identificador;
 	private String fechaExpiracion;
 	protected double precio;
 	private String nombre;
 	private boolean transferido;
 	private boolean anulado;
+	private Evento eventoAsociado;
+
 	
-	public Tiquete(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, String fechaExpiracion, 
-			double precio, String nombre, boolean transferido, boolean anulado){
+	public Tiquete(String tipoTiquete, double recargo, String identificador, String fechaExpiracion, 
+			double precio, String nombre, boolean transferido, boolean anulado, Evento evento){
 		this.tipoTiquete = tipoTiquete;
-		this.cargoPorcentual = cargoPorcentual;
-		this.cuotaAdicional = cuotaAdicional;
+		this.recargo = recargo;
 		this.identificador = identificador;
 		this.fechaExpiracion = fechaExpiracion;
 		this.precio = precio;
 		this.nombre = nombre;
 		this.transferido = true;
 		this.anulado = false;
+		this.eventoAsociado = evento;
 	}
 	
 	public boolean isAnulado() {
@@ -74,13 +75,13 @@ public abstract class Tiquete implements IFormateo  {
 	}
 	
 	
-	public String formatear() {
-		String formatJson = String.format("  {\n    \"nombre\": \"%s\",\n    \"Id\": \"%s\",\n    \"FechaExpiracion\": \"%s\"\n   "
-				+ "\\\"precio\\\": \\\"%s\\\",\\n    \\\"TipoTiquete\\\": \\\"%s\\\",\\n    \\\"Transferido\\\": \\\"%s\\\",\\n                       }"
-				, TextoUtils.escape(this.nombre), TextoUtils.escape(this.identificador), TextoUtils.escape(this.fechaExpiracion),
-				 TextoUtils.escape(this.precio), TextoUtils.escape(this.tipoTiquete),TextoUtils.escape(this.transferido));
-		
-		return formatJson;
-		
+	
+
+	public Evento getEvento() {
+		return this.eventoAsociado;
+	}
+
+	public double getRecargo() {
+		return this.recargo;
 	}
 }

@@ -1,13 +1,16 @@
 package tiquete;
 
+import Evento.Evento;
+import Persistencia.PersistenciaUsuarios;
+import usuario.Administrador;
 
 public class TiqueteSimple extends Tiquete {
 	
 	
 	
-	public TiqueteSimple(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, 
-			String localDate, double d, String nombre,boolean transferido, boolean anulado) {
-		super(tipoTiquete,cargoPorcentual,cuotaAdicional,identificador,localDate,d,nombre, transferido, anulado);
+	public TiqueteSimple(String tipoTiquete, double recargo, String identificador, String fechaExpiracion, 
+			double precio, String nombre, boolean transferido, boolean anulado, Evento evento) {
+		super(tipoTiquete,recargo,identificador,fechaExpiracion,precio,nombre, transferido, anulado,evento);
 		
 	}
 
@@ -15,10 +18,20 @@ public class TiqueteSimple extends Tiquete {
 
 	
 
-	@Override
-	//Se cobra el precio base más los cargos adicionales establecidos por el admin
 	public double calcularPrecio() {
-		return (precio + (precio * cargoPorcentual/100) + cuotaAdicional);
+	    double precioBase = this.precio;
+
+	    PersistenciaUsuarios persistencia = new PersistenciaUsuarios();
+	    Administrador admin = persistencia.recuperarAdministrador();
+
+	    double precioConRecargo = precioBase + (precioBase * (recargo / 100));
+
+	    if (admin != null) {
+	        double cobroEmision = admin.getCobroEmision();
+	        precioConRecargo += (precioBase * (cobroEmision / 100));
+	    }
+
+	    return precioConRecargo;
 	}
 
 

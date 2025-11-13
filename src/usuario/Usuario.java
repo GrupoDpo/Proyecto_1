@@ -1,10 +1,10 @@
 package usuario;
 
-import Persistencia.IFormateo;
+
 import Persistencia.TextoUtils;
 import tiquete.Tiquete;
 
-public abstract class Usuario implements IFormateo {
+public abstract class Usuario  {
 	
 	private String login;
 	private String password;

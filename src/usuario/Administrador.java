@@ -18,6 +18,7 @@ public class Administrador extends Usuario {
     private double cobroEmision;
     private double ganancias;
     private Queue<HashMap<Tiquete, String>> rembolsosSolicitados;
+    private Queue<HashMap<Venue, String>> solicitudesVenue;
 
     public Administrador(String login, String password, String tipoUsuario) {
         super(login, password, tipoUsuario);
@@ -25,6 +26,7 @@ public class Administrador extends Usuario {
         this.cobroEmision = 0.0;
         this.ganancias = 0.0;
         this.rembolsosSolicitados = new LinkedList<>();
+        this.solicitudesVenue = new LinkedList<>();
     }
 
  
@@ -81,9 +83,8 @@ public class Administrador extends Usuario {
         return new Venue(ubicacion, capacidadMax, aprobado);
     }
     
-    public double getGanancias() {
-    	return this.ganancias;
-    }
+   
+
     
     public void setGanancias(double newGanancias) {
     	this.ganancias = newGanancias;
@@ -139,16 +140,120 @@ public class Administrador extends Usuario {
     public Queue<HashMap<Tiquete, String>> getSolicitudes() {
     	return this.rembolsosSolicitados;
     }
+    
+    public Queue<HashMap<Venue, String>> getSolicitudesVenue() {
+    	return this.solicitudesVenue;
+    }
    
 
 
-	public void aprobarORechazarVenue(Object object, boolean b) {
-		// TODO Auto-generated method stub
-		
+    public void verSolicitudVenue() {
+        if (solicitudesVenue == null || solicitudesVenue.isEmpty()) {
+            System.out.println("No hay solicitudes pendientes de aprobación de venues.");
+            return;
+        }
+
+        try (Scanner sc = new Scanner(System.in)) {
+            List<HashMap<Venue, String>> procesados = new ArrayList<>();
+
+            for (HashMap<Venue, String> mapa : solicitudesVenue) {
+                for (Entry<Venue, String> entry : mapa.entrySet()) {
+                    Venue venueSolicitado = entry.getKey();
+                    String mensaje = entry.getValue();
+
+                    System.out.println("\n--- Solicitud de Venue ---");
+                    System.out.println("Venue: " + venueSolicitado.getUbicacion());
+                    System.out.println("Capacidad: " + venueSolicitado.getCapacidadMax());
+                    System.out.println("Mensaje: " + mensaje);
+                    System.out.println("[1] Aceptar");
+                    System.out.println("[2] Rechazar");
+                    System.out.print("Seleccione una opción: ");
+
+                    int opcion = sc.nextInt();
+                    sc.nextLine();
+
+                    if (opcion == 1) {
+                        venueSolicitado.setAprobado(true);
+                        System.out.println("Venue aprobado: " + venueSolicitado.getUbicacion());
+                    } else if (opcion == 2) {
+                        venueSolicitado.setAprobado(false);
+                        System.out.println("Venue rechazado: " + venueSolicitado.getUbicacion());
+                    } else {
+                        System.out.println("Opción no válida, se omite esta solicitud.");
+                    }
+
+                    procesados.add(mapa);
+                }
+            }
+
+            solicitudesVenue.removeAll(procesados);
+        }
+
+        System.out.println("\nNo hay más solicitudes pendientes.");
+    }
+
+
+
+	
+	public void verGananciasAdministrador(List<Tiquete> todosLosTiquetes) {
+	    double total = calcularGananciaTotal(todosLosTiquetes);
+	    HashMap<String, Double> porFecha = calcularGananciasPorFecha(todosLosTiquetes);
+	    HashMap<Evento, Double> porEvento = calcularGananciasPorEvento(todosLosTiquetes);
+	    HashMap<String, Double> porOrganizador = calcularGananciasPorOrganizador(todosLosTiquetes);
+
+	    System.out.println("==== GANANCIAS DE LA TIQUETERA ====");
+	    System.out.println("Ganancia total: $" + total);
+	    System.out.println("Por fecha: " + porFecha);
+	    System.out.println("Por evento: " + porEvento);
+	    System.out.println("Por organizador: " + porOrganizador);
+	}
+	
+	private double calcularGananciaTotal(List<Tiquete> tiquetes) {
+	    double total = 0.0;
+	    for (Tiquete t : tiquetes) {
+	        if (t.isTransferido()) {
+	            total += t.getRecargo() + cobroEmision;
+	        }
+	    }
+	    setGanancias(total);
+	    return total;
+	}
+	
+	private HashMap<String, Double> calcularGananciasPorFecha(List<Tiquete> tiquetes) {
+	    HashMap<String, Double> mapa = new HashMap<>();
+	    for (Tiquete t : tiquetes) {
+	        if (t.isTransferido()) {
+	            String fecha = t.getEvento().getFecha();
+	            mapa.put(fecha, mapa.getOrDefault(fecha, 0.0) + t.getRecargo() + cobroEmision);
+	        }
+	    }
+	    return mapa;
+	}
+	
+	private HashMap<Evento, Double> calcularGananciasPorEvento(List<Tiquete> tiquetes) {
+	    HashMap<Evento, Double> mapa = new HashMap<>();
+	    for (Tiquete t : tiquetes) {
+	        if (t.isTransferido()) {
+	            Evento evento = t.getEvento();
+	            mapa.put(evento, mapa.getOrDefault(evento, 0.0) + t.getRecargo() + cobroEmision);
+	        }
+	    }
+	    return mapa;
+	}
+	
+	private HashMap<String, Double> calcularGananciasPorOrganizador(List<Tiquete> tiquetes) {
+	    HashMap<String, Double> mapa = new HashMap<>();
+	    for (Tiquete t : tiquetes) {
+	        if (t.isTransferido()) {
+	            String organizador = t.getEvento().getLoginOrganizador();
+	            mapa.put(organizador, mapa.getOrDefault(organizador, 0.0) + t.getRecargo() + cobroEmision);
+	        }
+	    }
+	    return mapa;
 	}
 
 
-	public void verLogReventas() {
+	public void verSolicitudCancelacionEvento() {
 		// TODO Auto-generated method stub
 		
 	}

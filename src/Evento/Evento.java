@@ -3,12 +3,10 @@ package Evento;
 import java.util.Collection;
 import java.util.HashMap;
 
-import Persistencia.IFormateo;
-import Persistencia.TextoUtils;
-import tiquete.Tiquete;
-import usuario.Organizador;
 
-public class Evento implements IFormateo {
+import tiquete.Tiquete;
+
+public class Evento  {
 	private String nombre;
 	private String fecha;
 	private String hora;
@@ -87,22 +85,6 @@ public class Evento implements IFormateo {
 	public void setFecha(String fecha) {
 		this.fecha = fecha;
 	}
-
-
-
-
-
-	@Override
-	public String formatear() {
-		String formatJson = String.format("  {\n    \"Entrada\": \"%s\",\n    \"Fecha\": \"%s\",\n    \"hora\": \"%s\"\n"
-				+ "\\\"TiquetesDisponibles\\\": \\\"%s\\\",\\n    \\\"VenueAsociado\\\": \\\"%s\\\",\\n   }"
-				, TextoUtils.escape(this.nombre), TextoUtils.escape(this.fecha), TextoUtils.escape(this.hora),
-				TextoUtils.escape(getTiquetesDisponibles()),  TextoUtils.escape(this.venueAsociado));
-		
-		return formatJson;
-	}
-
-
 
 
 

@@ -8,11 +8,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
+
+import Persistencia.PersistenciaUsuarios;
+
 import java.util.Map.Entry;
 
 import excepciones.OfertaNoDIsponibleException;
 import excepciones.TransferenciaNoPermitidaException;
 import tiquete.Tiquete;
+import usuario.Administrador;
 import usuario.IDuenoTiquetes;
 import usuario.Usuario;
 
@@ -106,7 +110,7 @@ public class marketPlaceReventas {
 		        if (opcion == 1) {
 
 		        	compradorTiquete.actualizarSaldo(precioPropuesto);
-		        	compradorTiquete.eliminarOferta(tiqueteOferta);
+		        	compradorTiquete.eliminarOfertaListaPropia(tiqueteOferta);
 		                System.out.println("contraOferta aceptada. precioAcordado: $" + precioPropuesto);
 		            
 		        } else if (opcion == 2) {
@@ -129,9 +133,87 @@ public class marketPlaceReventas {
 		
 	}
 	
-	public void contraofertar() {
-		
+	public void contraofertar(Usuario comprador) throws TransferenciaNoPermitidaException {
+	    PersistenciaUsuarios persistencia = new PersistenciaUsuarios();
+	    try (Scanner sc = new Scanner(System.in)) {
+			if (ofertas.isEmpty()) {
+			    System.out.println("No hay ofertas disponibles actualmente.");
+			    return;
+			}
+
+			System.out.println("=== OFERTAS DISPONIBLES ===");
+			int index = 1;
+			List<HashMap<Tiquete, String>> listaOfertasTemp = new ArrayList<>(ofertas);
+
+			for (HashMap<Tiquete, String> mapa : listaOfertasTemp) {
+			    for (Entry<Tiquete, String> entry : mapa.entrySet()) {
+			        Tiquete t = entry.getKey();
+			        String info = entry.getValue();
+			        System.out.println(index + ". Tiquete ID: " + t.getId() + " | " + info);
+			        index++;
+			    }
+			}
+
+			System.out.print("Ingrese el número de la oferta a contraofertar: ");
+			int seleccion = sc.nextInt();
+			sc.nextLine();
+
+			if (seleccion < 1 || seleccion > listaOfertasTemp.size()) {
+			    System.out.println("Selección inválida.");
+			    return;
+			}
+
+			HashMap<Tiquete, String> ofertaSeleccionada = listaOfertasTemp.get(seleccion - 1);
+			Entry<Tiquete, String> entrySeleccionada = ofertaSeleccionada.entrySet().iterator().next();
+			Tiquete tiquete = entrySeleccionada.getKey();
+			String info = entrySeleccionada.getValue();
+
+			String loginVendedor = info.split(" - ")[0];
+			Usuario vendedor = persistencia.buscarUsuario(loginVendedor);
+
+			if (vendedor == null) {
+			    System.out.println("No se encontró el vendedor en el sistema.");
+			    return;
+			}
+
+			if (comprador.getLogin().equals(loginVendedor)) {
+			    throw new TransferenciaNoPermitidaException("No puedes contraofertar tu propia oferta.");
+			}
+
+			System.out.print("Ingrese su precio propuesto: ");
+			double nuevoPrecio = sc.nextDouble();
+			sc.nextLine();
+
+			if (nuevoPrecio <= 0) {
+			    System.out.println("El precio debe ser mayor que 0.");
+			    return;
+			}
+
+			if (!(vendedor instanceof IDuenoTiquetes)) {
+			    throw new TransferenciaNoPermitidaException("El vendedor no es un dueño de tiquetes válido.");
+			}
+
+			IDuenoTiquetes vendedorTiquete = (IDuenoTiquetes) vendedor;
+
+			HashMap<Tiquete, String> contraoferta = new HashMap<>();
+			contraoferta.put(tiquete, comprador.getLogin() + " - Contraoferta: $" + nuevoPrecio);
+			vendedorTiquete.getListaOfertas().add(contraoferta);
+
+			
+			persistencia.agregar((Usuario) vendedorTiquete);
+
+			
+			String fechaHora = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+			String registro = "[" + fechaHora + "] " + comprador.getLogin() +
+			                  " hizo una contraoferta a " + loginVendedor +
+			                  " por el tiquete " + tiquete.getId() +
+			                  " con precio $" + nuevoPrecio;
+			logEventos.add(registro);
+
+			System.out.println(" Contraoferta enviada exitosamente: " + registro);
+		}
 	}
+
 	
 	
 	
@@ -175,6 +257,27 @@ public class marketPlaceReventas {
 	}
 	
 	
+	
+	public void verLogEventos(Usuario usuario) {
+	    if (!(usuario instanceof Administrador)) {
+	        System.out.println(" Acceso denegado: solo el administrador puede consultar el registro de eventos.");
+	        return;
+	    }
+
+	    System.out.println("===== LOG DE EVENTOS DEL MARKETPLACE =====");
+
+	    if (logEventos.isEmpty()) {
+	        System.out.println("No hay eventos registrados en el sistema.");
+	        return;
+	    }
+
+	    int contador = 1;
+	    for (String registro : logEventos) {
+	        System.out.println(contador + ". " + registro);
+	        contador++;
+	    }
+
+	}
 	
 	
 	
