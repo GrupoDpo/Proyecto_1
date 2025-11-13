@@ -1,5 +1,6 @@
 package usuario;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,9 +13,13 @@ import Evento.Evento;
 import Evento.Venue;
 import tiquete.Tiquete;
 
-public class Administrador extends Usuario {
+public class Administrador extends Usuario implements Serializable  {
 
-    private double porcentajeAdicional;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private double porcentajeAdicional;
     private double cobroEmision;
     private double ganancias;
     private Queue<HashMap<Tiquete, String>> rembolsosSolicitados;

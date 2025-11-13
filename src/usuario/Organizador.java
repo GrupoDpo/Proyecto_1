@@ -47,7 +47,7 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 			throw new VenueNoPresente("ERROR: El evento debe tener un Venue asociado");
 		}
 		
-		Evento newEvento = new Evento(Entrada, fecha, hora, tiquetesDisponibles,venueAsociado, login);
+		Evento newEvento = new Evento(Entrada, fecha, hora, tiquetesDisponibles,venueAsociado, login, null, false);
 		eventos.add(newEvento);
 		RegistroEventos.agregarEventoGlobal(newEvento);
 		

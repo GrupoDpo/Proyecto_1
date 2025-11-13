@@ -3,14 +3,11 @@ package Evento;
 import java.util.Collection;
 import java.util.HashMap;
 
-<<<<<<< HEAD
-=======
+
 import Finanzas.EstadosFinancieros;
-import Persistencia.IFormateo;
 import Persistencia.TextoUtils;
 import tiquete.Tiquete;
 import usuario.Organizador;
->>>>>>> branch 'master' of https://github.com/GrupoDpo/Proyecto_1.git
 
 import tiquete.Tiquete;
 
@@ -22,17 +19,19 @@ public class Evento  {
 	private Venue venueAsociado;
 	private String loginOrganizador;
 	private EstadosFinancieros estadoFinanciero;
-	
+	private boolean cancelado;
 	
 	
 	public Evento(String entrada,String fecha, String hora, HashMap<String, Tiquete> tiquetesDisponibles2, Venue venueAsociado,
-			String loginOrganizador) {
+			String loginOrganizador, EstadosFinancieros estadoFinanciero, boolean cancelado ) {
 		this.setEntrada(entrada);
 		this.setFecha(fecha);
 		this.setHora(hora);
 		this.venueAsociado = venueAsociado;
 		tiquetesDisponibles = new HashMap<String, Tiquete>();
 		this.loginOrganizador = loginOrganizador;
+		this.estadoFinanciero = estadoFinanciero;
+		this.cancelado = cancelado;
 		
 		
 		
@@ -62,6 +61,10 @@ public class Evento  {
         return tiquetesDisponibles.values( );
     }
 	
+	public HashMap<String, Tiquete> getMapaTiquetes( )
+    {
+        return tiquetesDisponibles;
+    }
 	public Tiquete getTiquetePorId(String id) {
         return tiquetesDisponibles.get(id);
     }
@@ -78,6 +81,10 @@ public class Evento  {
 	}
 	public void setHora(String hora) {
 		this.hora = hora;
+	}
+	
+	public void setVenueAsociado(Venue venue) {
+		this.venueAsociado = venue;
 	}
 
 
@@ -100,6 +107,13 @@ public class Evento  {
 
 	public void setCancelado(boolean b) {
 		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	public void setLoginOrganizador(String login) {
+		this.loginOrganizador = login;
 		
 	}
 

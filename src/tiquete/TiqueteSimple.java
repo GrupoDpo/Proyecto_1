@@ -8,7 +8,7 @@ public class TiqueteSimple extends Tiquete {
 	
 	
 	
-	public TiqueteSimple(String tipoTiquete, double recargo, String identificador, String fechaExpiracion, 
+	public TiqueteSimple(String tipoTiquete, double recargo, double d, String identificador, String fechaExpiracion, 
 			double precio, String nombre, boolean transferido, boolean anulado, Evento evento) {
 		super(tipoTiquete,recargo,identificador,fechaExpiracion,precio,nombre, transferido, anulado,evento);
 		

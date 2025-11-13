@@ -4,6 +4,7 @@ import usuario.Administrador;
 import usuario.IDuenoTiquetes;
 import usuario.Usuario;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,8 +26,12 @@ import tiquete.Tiquete;
 import tiquete.TiqueteMultiple;
 import tiquete.TiqueteSimple;
 
-public class Transaccion {
+public class Transaccion implements Serializable  {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Tiquete tiquete;
 	private Usuario dueno;
 	private LocalDateTime fecha;
