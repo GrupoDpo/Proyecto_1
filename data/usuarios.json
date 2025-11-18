@@ -1,0 +1,16 @@
+{
+  "usuarios": [
+    {
+      "login": "David22",
+      "password": "david123",
+      "tipo": "ADMINISTRADOR"
+    },
+    {
+      "login": "JuanL",
+      "password": "juan123",
+      "tipo": "CLIENTE",
+      "saldo": 0.0,
+      "idsTiquetes": []
+    }
+  ]
+}
