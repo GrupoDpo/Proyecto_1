@@ -1,67 +1,79 @@
 package Persistencia;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 import Evento.Evento;
+import Evento.Venue;
 
-public class PersistenciaEventos implements IPersistencia<Evento>  {
+public class PersistenciaEventos {
 
+    private static final String RUTA = "data/eventos.json";
 
-
-	private static final String ARCHIVO_EVENTOS = "data/eventos.dat";
-
-    @SuppressWarnings("unchecked")
-    public List<Evento> cargarTodos() {
-        File archivo = new File(ARCHIVO_EVENTOS);
-
-        // Si el archivo no existe, devolvemos lista vacía
-        if (!archivo.exists()) {
-            return new ArrayList<>();
-        }
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-            return (List<Evento>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            // Si algo sale mal, devolvemos lista vacía para no romper la app
-            return new ArrayList<>();
+    public PersistenciaEventos() {
+        File f = new File(RUTA);
+        if (!f.exists()) {
+            try {
+                f.getParentFile().mkdirs();
+                FileWriter fw = new FileWriter(f);
+                fw.write("{\n  \"eventos\": []\n}");
+                fw.close();
+            } catch (Exception e) {}
         }
     }
 
-    public void guardarTodos(List<Evento> eventos) {
-        // Nos aseguramos de que exista la carpeta "data"
-        File carpeta = new File("data");
-        if (!carpeta.exists()) {
-            carpeta.mkdirs();
-        }
-
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_EVENTOS))) {
-            oos.writeObject(eventos);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public String cargar() {
+        try {
+            return TextoUtils.cargarTexto(RUTA);
+        } catch (Exception e) {
+            return "";
         }
     }
 
-    
+    public void guardar(String json) {
+        try {
+            Writer w = new OutputStreamWriter(new FileOutputStream(RUTA), StandardCharsets.UTF_8);
+            w.write(json);
+            w.close();
+        } catch (Exception e) {}
+    }
 
-    // Ejemplo de búsqueda simple (puedes ajustarla a tu modelo)
-    public Evento buscarEventoPorEntrada(String nombre) {
-        List<Evento> listaEventos = cargarTodos();
+    public List<Evento> reconstruir(String json) {
 
-        for (Evento ev : listaEventos) {
-            if (ev.getNombre().equals(nombre)) { 
-                return ev;
+        List<Evento> lista = new ArrayList<>();
+
+        String bloque = TextoUtils.obtenerBloque(json, "\"eventos\"");
+        List<String> objetos = TextoUtils.dividirBloques(bloque);
+
+        for (String obj : objetos) {
+
+            String nombre = TextoUtils.obtener(obj, "nombre");
+            String fecha = TextoUtils.obtener(obj, "fecha");
+            String hora = TextoUtils.obtener(obj, "hora");
+            String loginOrg = TextoUtils.obtener(obj, "loginOrganizador");
+            String canceladoStr = TextoUtils.obtener(obj, "cancelado");
+
+            boolean cancelado = Boolean.parseBoolean(canceladoStr);
+
+            // Venue
+            String venuUb = TextoUtils.obtener(obj, "venueUbicacion");
+            String venuCapStr = TextoUtils.obtener(obj, "venueCapMax");
+            String venuAprobStr = TextoUtils.obtener(obj, "venueAprobado");
+
+            Venue v = null;
+            if (!venuUb.equals("")) {
+                int cap = Integer.parseInt(venuCapStr);
+                boolean aprobado = Boolean.parseBoolean(venuAprobStr);
+                v = new Venue(venuUb, cap, aprobado);
             }
-        }
-        return null;
-    }
 
+            Evento e = new Evento(nombre, fecha, hora, new HashMap<>(), v, loginOrg);
+            e.setCancelado(cancelado);
+
+            lista.add(e);
+        }
+
+        return lista;
+    }
 }

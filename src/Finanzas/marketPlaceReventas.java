@@ -2,18 +2,8 @@ package Finanzas;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Scanner;
-
-import Persistencia.PersistenciaUsuarios;
-import Persistencia.marketplacePersistencia;
-
-import java.util.Map.Entry;
-
+import java.util.*;
+import Persistencia.SistemaPersistencia;
 import excepciones.OfertaNoDIsponibleException;
 import excepciones.TransferenciaNoPermitidaException;
 import tiquete.Tiquete;
@@ -22,291 +12,263 @@ import usuario.IDuenoTiquetes;
 import usuario.Usuario;
 
 public class marketPlaceReventas {
-	private Queue<HashMap<Tiquete, String>> ofertas;
-	private List<String> logEventos;
-	public marketPlaceReventas() {
-		 ofertas = new LinkedList<>();
-		 logEventos = new ArrayList<>();
-		
-	}
-	
-	public Queue<HashMap<Tiquete, String>> getOfertas() {
-		return this.ofertas;
-	}
-	
-	public void crearOferta(Tiquete tiquete,double precio, Usuario vendedor) {
-		
-		 HashMap<Tiquete, String> mapaOferta = new HashMap<>();
-		 
-		 String loginDueno = vendedor.getLogin();
-		 
-		 if (vendedor instanceof IDuenoTiquetes) {
-             mapaOferta.put(tiquete, loginDueno + " - Precio: $" + precio);
-             ofertas.add(mapaOferta);
-             
-             
-		 }
-		 
-		 String fechaHora = LocalDateTime.now()
-	                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	        String registro = "[" + fechaHora + "] Oferta creada por " + loginDueno 
-	                        + " para tiquete " + tiquete.getId() 
-	                        + " con precio $" + precio;
-	        logEventos.add(registro);
 
-	        System.out.println("Oferta creada exitosamente: " + registro);
-	        
-	        marketplacePersistencia p = new marketplacePersistencia();
-	        List<marketPlaceReventas> estado = p.cargarTodos();
+    private Queue<HashMap<Tiquete, String>> ofertas;
+    private List<String> logEventos;
 
-	        if (estado.isEmpty()) {
-	            p.agregar(this);
-	        } else {
-	            estado.clear();
-	            estado.add(this);
-	            p.guardarTodos(estado);
-	        }
+    public marketPlaceReventas() {
+        ofertas = new LinkedList<HashMap<Tiquete,String>>();
+        logEventos = new ArrayList<String>();
+    }
 
-	}
-	
-	public void eliminarOferta(Tiquete tiquete, Usuario vendedor) throws OfertaNoDIsponibleException {
-		HashMap<Tiquete, String> ofertaAEliminar = null;
+    public Queue<HashMap<Tiquete,String>> getOfertas() { return ofertas; }
+    public List<String> getLogEventos() { return logEventos; }
 
-	    for (HashMap<Tiquete, String> mapa : ofertas) {
-	        if (mapa.containsKey(tiquete)) {
-	            ofertaAEliminar = mapa;
-	            break;
-	        }
-	    }
+    // ============================================================
+    //  CREAR OFERTA
+    // ============================================================
+    public void crearOferta(Tiquete tiquete, double precio, Usuario vendedor, SistemaPersistencia sistema) {
 
-	    if (ofertaAEliminar != null) {
-	        ofertas.remove(ofertaAEliminar);
+        if (!(vendedor instanceof IDuenoTiquetes)) {
+            System.out.println("El usuario no puede crear ofertas.");
+            return;
+        }
 
-	        String fechaHora = LocalDateTime.now()
-	                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	        String registro = "[" + fechaHora + "] Oferta eliminada por " + vendedor 
-	                        + " para tiquete " + tiquete.getId();
-	        logEventos.add(registro);
+        HashMap<Tiquete, String> mapaOferta = new HashMap<Tiquete, String>();
+        mapaOferta.put(tiquete, vendedor.getLogin() + " - Precio: $" + precio);
 
-	        System.out.println("Oferta eliminada exitosamente.");
-	        
-	        marketplacePersistencia p = new marketplacePersistencia();
-	        List<marketPlaceReventas> estado = p.cargarTodos();
-	        
-	        if (estado.isEmpty()) {
-	            p.agregar(this);
-	        } else {
-	            estado.clear();
-	            estado.add(this);
-	            p.guardarTodos(estado);
-	        }
-	        
-	    } else {
-	        throw new OfertaNoDIsponibleException("No se encontró ninguna oferta para ese tiquete.");
-	        
-	    }
-		
-		
-	}
-	
-	public void Vercontraofertar(Usuario comprador) throws TransferenciaNoPermitidaException {
-		try (Scanner sc = new Scanner(System.in)) {
-		List<HashMap<Tiquete, String>> procesados = new ArrayList<>();
-		if (comprador instanceof IDuenoTiquetes) {
-			
-            IDuenoTiquetes compradorTiquete = (IDuenoTiquetes) comprador;
-            if (compradorTiquete.getListaOfertas().isEmpty()) {
-                System.out.println("No hay contraofertas pendientes.");
-            
-		for (HashMap<Tiquete, String> mapa : compradorTiquete.getListaOfertas() ) {
-		    for (Entry<Tiquete, String> entry : mapa.entrySet()) {
-		        Tiquete tiqueteOferta = entry.getKey();
-		        String info = entry.getValue();
+        ofertas.add(mapaOferta);
 
-		        System.out.println("--- contra oferta ---");
-		        System.out.println("Tiquete: " + tiqueteOferta.getId());
-		        System.out.println("Info oferta: " + info);
-		        
-		        double precioPropuesto = extraerPrecio(info);
+        String fechaHora = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String registro = "[" + fechaHora + "] Oferta creada por " + vendedor.getLogin()
+                          + " para tiquete " + tiquete.getId()
+                          + " con precio $" + precio;
 
-		        
+        logEventos.add(registro);
 
-		        int opcion = sc.nextInt(); 
-		        sc.nextLine(); 
+        System.out.println("Oferta creada exitosamente: " + registro);
 
-		        if (opcion == 1) {
+        // Guardar todo el sistema
+        sistema.guardarTodo();
+    }
 
-		        	compradorTiquete.actualizarSaldo(precioPropuesto);
-		        	compradorTiquete.eliminarOfertaListaPropia(tiqueteOferta);
-		                System.out.println("contraOferta aceptada. precioAcordado: $" + precioPropuesto);
-		            
-		        } else if (opcion == 2) {
-		            System.out.println("contraoferta rechazada.");
-		        }
 
-		        procesados.add(mapa);
-		    }
-		
-		}
-		}
+    // ============================================================
+    //   ELIMINAR OFERTA
+    // ============================================================
+    public void eliminarOferta(Tiquete tiquete, Usuario vendedor, SistemaPersistencia sistema)
+            throws OfertaNoDIsponibleException {
 
-		
-            compradorTiquete.getListaOfertas().removeAll(procesados);
-		}
-}
+        HashMap<Tiquete, String> ofertaAEliminar = null;
 
-		
-		
-		
-	}
-	
-	public void contraofertar(Usuario comprador) throws TransferenciaNoPermitidaException {
-	    PersistenciaUsuarios persistencia = new PersistenciaUsuarios();
-	    try (Scanner sc = new Scanner(System.in)) {
-			if (ofertas.isEmpty()) {
-			    System.out.println("No hay ofertas disponibles actualmente.");
-			    return;
-			}
+        for (HashMap<Tiquete, String> mapa : ofertas) {
+            if (mapa.containsKey(tiquete)) {
+                ofertaAEliminar = mapa;
+                break;
+            }
+        }
 
-			System.out.println("=== OFERTAS DISPONIBLES ===");
-			int index = 1;
-			List<HashMap<Tiquete, String>> listaOfertasTemp = new ArrayList<>(ofertas);
+        if (ofertaAEliminar == null) {
+            throw new OfertaNoDIsponibleException("No se encontró ninguna oferta para ese tiquete.");
+        }
 
-			for (HashMap<Tiquete, String> mapa : listaOfertasTemp) {
-			    for (Entry<Tiquete, String> entry : mapa.entrySet()) {
-			        Tiquete t = entry.getKey();
-			        String info = entry.getValue();
-			        System.out.println(index + ". Tiquete ID: " + t.getId() + " | " + info);
-			        index++;
-			    }
-			}
+        ofertas.remove(ofertaAEliminar);
 
-			System.out.print("Ingrese el número de la oferta a contraofertar: ");
-			int seleccion = sc.nextInt();
-			sc.nextLine();
+        String fechaHora = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String registro = "[" + fechaHora + "] Oferta eliminada por "
+                          + vendedor.getLogin() + " para tiquete " + tiquete.getId();
 
-			if (seleccion < 1 || seleccion > listaOfertasTemp.size()) {
-			    System.out.println("Selección inválida.");
-			    return;
-			}
+        logEventos.add(registro);
+        System.out.println("Oferta eliminada: " + registro);
 
-			HashMap<Tiquete, String> ofertaSeleccionada = listaOfertasTemp.get(seleccion - 1);
-			Entry<Tiquete, String> entrySeleccionada = ofertaSeleccionada.entrySet().iterator().next();
-			Tiquete tiquete = entrySeleccionada.getKey();
-			String info = entrySeleccionada.getValue();
+        sistema.guardarTodo();
+    }
 
-			String loginVendedor = info.split(" - ")[0];
-			Usuario vendedor = persistencia.buscarUsuario(loginVendedor);
 
-			if (vendedor == null) {
-			    System.out.println("No se encontró el vendedor en el sistema.");
-			    return;
-			}
 
-			if (comprador.getLogin().equals(loginVendedor)) {
-			    throw new TransferenciaNoPermitidaException("No puedes contraofertar tu propia oferta.");
-			}
+    // ============================================================
+    //      REALIZAR CONTRAOFERTA
+    // ============================================================
+    public void contraofertar(Usuario comprador, SistemaPersistencia sistema)
+            throws TransferenciaNoPermitidaException {
 
-			System.out.print("Ingrese su precio propuesto: ");
-			double nuevoPrecio = sc.nextDouble();
-			sc.nextLine();
+        if (ofertas.isEmpty()) {
+            System.out.println("No hay ofertas disponibles.");
+            return;
+        }
 
-			if (nuevoPrecio <= 0) {
-			    System.out.println("El precio debe ser mayor que 0.");
-			    return;
-			}
+        Scanner sc = new Scanner(System.in);
 
-			if (!(vendedor instanceof IDuenoTiquetes)) {
-			    throw new TransferenciaNoPermitidaException("El vendedor no es un dueño de tiquetes válido.");
-			}
+        System.out.println("=== OFERTAS DISPONIBLES ===");
+        List<HashMap<Tiquete,String>> temp = new ArrayList<HashMap<Tiquete,String>>();
 
-			IDuenoTiquetes vendedorTiquete = (IDuenoTiquetes) vendedor;
+        for (HashMap<Tiquete,String> m : ofertas) temp.add(m);
 
-			HashMap<Tiquete, String> contraoferta = new HashMap<>();
-			contraoferta.put(tiquete, comprador.getLogin() + " - Contraoferta: $" + nuevoPrecio);
-			vendedorTiquete.getListaOfertas().add(contraoferta);
+        int index = 1;
+        for (HashMap<Tiquete, String> mapa : temp) {
+            for (Map.Entry<Tiquete, String> e : mapa.entrySet()) {
+                System.out.println(index + ". Tiquete ID: " + e.getKey().getId() + " | " + e.getValue());
+                index++;
+            }
+        }
 
-			
-			persistencia.agregar((Usuario) vendedorTiquete);
+        System.out.print("Seleccione oferta: ");
+        int pos = sc.nextInt();
+        sc.nextLine();
 
-			
-			String fechaHora = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-			String registro = "[" + fechaHora + "] " + comprador.getLogin() +
-			                  " hizo una contraoferta a " + loginVendedor +
-			                  " por el tiquete " + tiquete.getId() +
-			                  " con precio $" + nuevoPrecio;
-			logEventos.add(registro);
+        if (pos < 1 || pos > temp.size()) {
+            System.out.println("Selección inválida.");
+            return;
+        }
 
-			System.out.println(" Contraoferta enviada exitosamente: " + registro);
-		}
-	}
+        HashMap<Tiquete,String> seleccion = temp.get(pos - 1);
+        Map.Entry<Tiquete,String> entry = seleccion.entrySet().iterator().next();
 
-	
-	
-	
-	
-	
-	
-	
-	public static double extraerPrecio(String etiqueta) throws TransferenciaNoPermitidaException {
-	    if (etiqueta == null) throw new TransferenciaNoPermitidaException("Etiqueta de oferta inválida.");
+        Tiquete tiquete = entry.getKey();
+        String info = entry.getValue();
 
-	    String clave = "Precio:";
-	    int i = etiqueta.indexOf(clave);
-	    if (i < 0) throw new TransferenciaNoPermitidaException("No se encontró 'Precio:' en la oferta.");
+        String loginVendedor = info.split(" - ")[0];
+        Usuario vendedor = sistema.buscarUsuario(loginVendedor);
 
-	    String tail = etiqueta.substring(i + clave.length()).trim(); 
-	    if (tail.startsWith("$")) tail = tail.substring(1).trim();
+        if (vendedor == null) {
+            System.out.println("Vendedor no encontrado.");
+            return;
+        }
 
-	    tail = tail.replace(',', '.');   
-	    
-	    StringBuilder sb = new StringBuilder();
-	    for (int k = 0; k < tail.length(); k++) {
-	        char c = tail.charAt(k);
-	        if ((c >= '0' && c <= '9') || c == '.') sb.append(c);
-	        else if (sb.length() > 0) break;  
-	    }
-	    String num = sb.toString();
-	    if (num.isEmpty()) throw new TransferenciaNoPermitidaException("Precio no presente en la oferta.");
+        if (comprador.getLogin().equals(loginVendedor)) {
+            throw new TransferenciaNoPermitidaException("No puedes contraofertarte a ti mismo.");
+        }
 
-	    int lastDot = num.lastIndexOf('.');
-	    if (lastDot > 0) {
-	        String enteros = num.substring(0, lastDot).replace(".", "");
-	        String dec = num.substring(lastDot + 1);
-	        num = enteros + (dec.isEmpty() ? "" : "." + dec);
-	    }
+        System.out.print("Ingrese nuevo precio: ");
+        double nuevoPrecio = sc.nextDouble();
+        sc.nextLine();
 
-	    try {
-	        return Double.parseDouble(num);
-	    } catch (NumberFormatException e) {
-	        throw new TransferenciaNoPermitidaException("Formato de precio de oferta inválido.");
-	    }
-	}
-	
-	
-	
-	public void verLogEventos(Usuario usuario) {
-	    if (!(usuario instanceof Administrador)) {
-	        System.out.println(" Acceso denegado: solo el administrador puede consultar el registro de eventos.");
-	        return;
-	    }
+        if (nuevoPrecio <= 0) {
+            System.out.println("Precio inválido.");
+            return;
+        }
 
-	    System.out.println("===== LOG DE EVENTOS DEL MARKETPLACE =====");
+        // Guardar la contraoferta
+        IDuenoTiquetes vendedorD = (IDuenoTiquetes) vendedor;
+        HashMap<Tiquete,String> c = new HashMap<Tiquete,String>();
+        c.put(tiquete, comprador.getLogin() + " - Contraoferta: $" + nuevoPrecio);
+        vendedorD.getListaOfertas().add(c);
 
-	    if (logEventos.isEmpty()) {
-	        System.out.println("No hay eventos registrados en el sistema.");
-	        return;
-	    }
+        String fechaHora = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String registro = "[" + fechaHora + "] " + comprador.getLogin()
+                          + " hizo una contraoferta a " + vendedor.getLogin()
+                          + " por el tiquete " + tiquete.getId()
+                          + " con precio $" + nuevoPrecio;
 
-	    int contador = 1;
-	    for (String registro : logEventos) {
-	        System.out.println(contador + ". " + registro);
-	        contador++;
-	    }
+        logEventos.add(registro);
 
-	}
-	
-	
-	
+        System.out.println("Contraoferta enviada: " + registro);
 
+        sistema.guardarTodo();
+    }
+
+
+
+    // ============================================================
+    //  VER CONTRAOFERTAS (para el dueño del tiquete)
+    // ============================================================
+    public void Vercontraofertar(Usuario comprador, SistemaPersistencia sistema)
+            throws TransferenciaNoPermitidaException {
+
+        if (!(comprador instanceof IDuenoTiquetes)) {
+            System.out.println("No puedes ver contraofertas.");
+            return;
+        }
+
+        IDuenoTiquetes dueno = (IDuenoTiquetes) comprador;
+
+        if (dueno.getListaOfertas().isEmpty()) {
+            System.out.println("No tienes contraofertas pendientes.");
+            return;
+        }
+
+        Scanner sc = new Scanner(System.in);
+
+        List<HashMap<Tiquete,String>> procesar = new ArrayList<HashMap<Tiquete,String>>();
+
+        System.out.println("=== CONTRAOFERTAS RECIBIDAS ===");
+
+        for (HashMap<Tiquete,String> mapa : dueno.getListaOfertas()) {
+            for (Map.Entry<Tiquete,String> e : mapa.entrySet()) {
+
+                Tiquete tiq = e.getKey();
+                String info = e.getValue();
+
+                System.out.println("Tiquete: " + tiq.getId());
+                System.out.println("Info: " + info);
+                System.out.println("[1] Aceptar  [2] Rechazar");
+                System.out.print("Opción: ");
+
+                int opcion = sc.nextInt();
+                sc.nextLine();
+
+                if (opcion == 1) {
+                    double precio = extraerPrecio(info);
+                    dueno.actualizarSaldo(precio);
+                    procesar.add(mapa);
+
+                    System.out.println("Contraoferta aceptada. +" + precio);
+
+                } else if (opcion == 2) {
+                    System.out.println("Contraoferta rechazada.");
+                    procesar.add(mapa);
+                }
+            }
+        }
+
+        dueno.getListaOfertas().removeAll(procesar);
+        sistema.guardarTodo();
+    }
+
+
+    // ============================================================
+    //  EXTRAER PRECIO
+    // ============================================================
+    public static double extraerPrecio(String etiqueta) throws TransferenciaNoPermitidaException {
+
+        if (etiqueta == null) throw new TransferenciaNoPermitidaException("Etiqueta inválida.");
+
+        String clave = "Precio:";
+        int pos = etiqueta.indexOf(clave);
+
+        if (pos < 0) throw new TransferenciaNoPermitidaException("No se encontró 'Precio:'.");
+
+        String sub = etiqueta.substring(pos + clave.length()).trim();
+        if (sub.startsWith("$")) sub = sub.substring(1);
+
+        try {
+            return Double.parseDouble(sub);
+        } catch (Exception e) {
+            throw new TransferenciaNoPermitidaException("Precio inválido.");
+        }
+    }
+
+
+    // ============================================================
+    //  LOG
+    // ============================================================
+    public void verLogEventos(Usuario u) {
+
+        if (!(u instanceof Administrador)) {
+            System.out.println("Solo admin puede ver el log.");
+            return;
+        }
+
+        if (logEventos.isEmpty()) {
+            System.out.println("No hay eventos registrados.");
+            return;
+        }
+
+        System.out.println("===== LOG MARKETPLACE =====");
+        int i = 1;
+        for (String r : logEventos) {
+            System.out.println(i + ". " + r);
+            i++;
+        }
+    }
 }

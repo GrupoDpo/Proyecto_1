@@ -12,6 +12,7 @@ import Evento.Evento;
 import Evento.SolicitudCancelacion;
 import Evento.Venue;
 import Persistencia.PersistenciaEventos;
+import Persistencia.SistemaPersistencia;
 import tiquete.Tiquete;
 
 public class Administrador extends Usuario {
@@ -21,7 +22,7 @@ public class Administrador extends Usuario {
     private double ganancias;
     private Queue<HashMap<Tiquete, String>> rembolsosSolicitados;
     private Queue<HashMap<Venue, String>> solicitudesVenue;
-    private private Queue<SolicitudCancelacion> solicitudesCancelacionEvento;
+    private Queue<SolicitudCancelacion> solicitudesCancelacionEvento;
 
     public Administrador(String login, String password, String tipoUsuario) {
         super(login, password, tipoUsuario);
@@ -121,8 +122,8 @@ public class Administrador extends Usuario {
 			        if (opcion == 1) {
 			            if (dueno instanceof IDuenoTiquetes) {
 			                IDuenoTiquetes duenoTiquete = (IDuenoTiquetes) dueno;
-			                double dineroReembolso = tiqueteRembolso.calcularPrecio()
-			                        - (tiqueteRembolso.calcularPrecio() * porcentajeAdicional)
+			                double dineroReembolso = tiqueteRembolso.calcularPrecio(cobroEmision)
+			                        - (tiqueteRembolso.calcularPrecio(cobroEmision) * porcentajeAdicional)
 			                        - cobroEmision;
 			                duenoTiquete.actualizarSaldo(dineroReembolso);
 			                duenoTiquete.eliminarTiquete(tiqueteRembolso);
@@ -265,7 +266,7 @@ public class Administrador extends Usuario {
 	            + solicitud.getLoginOrganizador() + ".");
 	}
 	
-	public void verSolicitudCancelacionEvento(PersistenciaEventos persistenciaEventos) {
+	public void verSolicitudCancelacionEvento(SistemaPersistencia sistema) {
 	    if (solicitudesCancelacionEvento.isEmpty()) {
 	        System.out.println("No hay solicitudes de cancelación pendientes.");
 	        return;
@@ -273,6 +274,7 @@ public class Administrador extends Usuario {
 
 	    try (Scanner sc = new Scanner(System.in)) {
 	        List<SolicitudCancelacion> procesadas = new ArrayList<>();
+	        
 
 	        for (SolicitudCancelacion sol : solicitudesCancelacionEvento) {
 	            Evento ev = sol.getEvento();
@@ -298,18 +300,20 @@ public class Administrador extends Usuario {
 	                    t.setAnulado(true);
 	                }
 	                
-	                List<Evento> lista = persistenciaEventos.cargarTodos();
+	                List<Evento> lista = sistema.getEventos();
 	                for (int i = 0; i < lista.size(); i++) {
 	                    if (lista.get(i).getNombre().equals(ev.getNombre())) {
 	                        lista.set(i, ev);
 	                        break;
 	                    }
 	                }
-	                persistenciaEventos.guardarTodos(lista);
 
 	                sol.setEstado("cancelado");
 	                System.out.println("Solicitud aprobada. Evento CANCELADO y persistido.");
-
+	                
+	                
+	                sistema.guardarTodo();
+	                
 	            } else if (opcion == 2) {
 	                sol.setEstado("negado");
 	                System.out.println("Solicitud NEGADA.");

@@ -1,8 +1,8 @@
 package excepciones;
 
-import excepciones.BoletaMasterException.BoletamasterException;
 
-public class CodigoTiqueteDuplicadoException extends BoletamasterException {
+
+public class CodigoTiqueteDuplicadoException extends Exception {
     private static final long serialVersionUID = 1L;
 
 	public CodigoTiqueteDuplicadoException(String codigo) {

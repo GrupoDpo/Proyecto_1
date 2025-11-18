@@ -1,8 +1,7 @@
 package excepciones;
 
-import excepciones.BoletaMasterException.BoletamasterException;
 
-public class ConflictoAgendaVenueException extends BoletamasterException {
+public class ConflictoAgendaVenueException extends Exception {
     private static final long serialVersionUID = 1L;
 
 	public ConflictoAgendaVenueException(String venueNombre, String fecha) {

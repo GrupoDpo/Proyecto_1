@@ -22,17 +22,18 @@ public abstract class Tiquete   {
 	private Localidad localidadAsociada;
 	
 
-	public Tiquete(String tipoTiquete, double cargoPorcentual, double cuotaAdicional, String identificador, String fechaExpiracion, 
-			double precio, String nombre, boolean transferido, boolean anulado, Evento eventoAsociado){
+	public Tiquete(String tipoTiquete, String identificador, String fechaExpiracion, 
+			double precio, String nombre, boolean transferido, boolean anulado, Evento eventoAsociado, double recargo,Localidad localidadAsociada){
 		this.tipoTiquete = tipoTiquete;
 		this.recargo = recargo;
 		this.identificador = identificador;
 		this.fechaExpiracion = fechaExpiracion;
 		this.precio = precio;
 		this.nombre = nombre;
-		this.transferido = true;
-		this.anulado = false;
+		this.transferido = transferido;
+		this.anulado = anulado;
 		this.eventoAsociado = eventoAsociado;
+		this.setLocalidadAsociada(localidadAsociada);
 	}
 	
 	public Evento getEventoAsociado() {
@@ -72,7 +73,7 @@ public abstract class Tiquete   {
         
 	}
 	
-	public abstract double calcularPrecio();
+	public abstract double calcularPrecio(double cobroEmision);
 
 	public boolean isTransferido() {
 		
@@ -92,5 +93,22 @@ public abstract class Tiquete   {
 
 	public double getRecargo() {
 		return this.recargo;
+	}
+
+	public void setEventoAsociado(Evento e) {
+		this.eventoAsociado = e;
+		
+	}
+
+	public Localidad getLocalidadAsociada() {
+		return localidadAsociada;
+	}
+
+	public void setLocalidadAsociada(Localidad localidadAsociada) {
+		this.localidadAsociada = localidadAsociada;
+	}
+
+	public double getPrecioBaseSinCalcular() {
+		return precio;
 	}
 }

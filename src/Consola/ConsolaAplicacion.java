@@ -1,482 +1,1405 @@
 package Consola;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 
 import Evento.Evento;
+import Evento.Localidad;
 import Evento.Venue;
-import Evento.RegistroEventos;
 import Finanzas.Transaccion;
 import Finanzas.marketPlaceReventas;
-import usuario.Administrador;
-import usuario.Cliente;
-import usuario.IDuenoTiquetes;
-import usuario.Organizador;
-import usuario.Promotor;
-import usuario.Usuario;
-import Persistencia.PersistenciaEventos;
-import Persistencia.PersistenciaUsuarios;
-import Persistencia.marketplacePersistencia;
-import excepciones.UsuarioNoEncontrado;
-import tiquete.PaqueteDeluxe;
-import tiquete.Tiquete;
+import Persistencia.SistemaPersistencia;
+import excepciones.IDNoEncontrado;
+import excepciones.SaldoInsuficienteExeption;
+import excepciones.TiquetesNoDisponiblesException;
+import excepciones.TiquetesVencidosTransferidos;
+import excepciones.TransferenciaNoPermitidaException;
 
+import tiquete.Tiquete;
+import tiquete.TiqueteMultiple;
+import tiquete.TiqueteSimple;
+import usuario.*;
 
 public class ConsolaAplicacion {
-    
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+	private static Scanner sc = new Scanner(System.in); 
+    public static void main(String[] args) throws TransferenciaNoPermitidaException {
+    	
+        SistemaPersistencia sistema = new SistemaPersistencia();
+
+        sistema.cargarTodo();
+ 
+      
+
         int opcion = 0;
 
         System.out.println("=====================================");
         System.out.println("        -- BOLETAMASTER --");
         System.out.println("=====================================");
         System.out.println();
-        
-        
 
         do {
             System.out.println("===== MENÚ PRINCIPAL =====");
             System.out.println("1. Iniciar sesión");
-            System.out.println("2. Registrar nuevo usuario");
+            System.out.println("2. Registrar usuario");
             System.out.println("3. Salir");
             System.out.print("Seleccione una opción: ");
-            
+
             try {
                 opcion = Integer.parseInt(sc.nextLine());
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 opcion = -1;
             }
 
             switch (opcion) {
-                case 1:
-                	System.out.println("\n--- INICIAR SESIÓN ---");
-                    System.out.print("Ingrese su login: ");
+
+                case 1: {
+                    System.out.print("Login: ");
                     String login = sc.nextLine();
-                    System.out.print("Ingrese su contraseña: ");
-                    String password = sc.nextLine();
-                    
-                    PersistenciaUsuarios persistenciaJson = new PersistenciaUsuarios();
-                    boolean condicion = persistenciaJson.existeUsuario(login, password);
-                    
-        
+                    System.out.print("Password: ");
+                    String pass = sc.nextLine();
+
+                    Usuario usuario = sistema.buscarUsuario(login);
                    
-                    try {
-                        if (!condicion) {
-                            throw new UsuarioNoEncontrado("El usuario no existe en el sistema.");
-                        }
+                  
 
-                        System.out.println("Bienvenido!");
-
-                    } catch (UsuarioNoEncontrado e) {
-                        System.out.println("Error: " + e.getMessage());
+                    if (usuario == null || !usuario.IsPasswordTrue(pass)) {
+                        System.out.println("Credenciales incorrectas.\n");
+                        break;
                     }
-                    
-                    Usuario userActivo = persistenciaJson.buscarUsuario(login);
-                    
-                    menuParaUsuarios(userActivo);
-                   
+
+                    System.out.println("Bienvenido, " + usuario.getLogin());
+                    menuUsuario(usuario, sistema);
                     break;
+                }
 
                 case 2:
-                    
-                	System.out.println("\n--- REGISTRO DE NUEVO USUARIO ---");
-                    System.out.print("Ingrese nuevo login: ");
-                    String nuevoLogin = sc.nextLine();
-                    System.out.print("Ingrese nueva contraseña: ");
-                    String nuevaPassword = sc.nextLine();
-
-                    System.out.println("\nSeleccione el tipo de usuario:");
-                    System.out.println("1. Cliente");
-                    System.out.println("2. Promotor");
-                    System.out.println("3. Organizador");
-                    System.out.println("4. Administrador");
-                    System.out.print("Tipo de usuario: ");
-                    String tipo = sc.nextLine();
-                    
-                    String tipoUsuario = "";
-                    PersistenciaUsuarios persistenciaUsuariosJson = new PersistenciaUsuarios();
-                    
-                    
-                    if (tipo.equals("1")) {
-            			 tipoUsuario = "CLIENTE";
-            			 Usuario newUser = new Cliente(nuevoLogin, nuevaPassword, 0, tipoUsuario);
-						 persistenciaUsuariosJson.cargar(newUser);
-						 persistenciaUsuariosJson.agregar(newUser);
-						 
-
-            			 
-            		} else if (tipo.equals("2")) {
-            			 tipoUsuario =  "PROMOTOR";
-            			 Usuario newUser = new Promotor(nuevoLogin, nuevaPassword, 0, tipoUsuario);
-            			 persistenciaUsuariosJson.cargar(newUser);
-            			 persistenciaUsuariosJson.agregar(newUser);
-            			 
-            		} else if (tipo.equals("3")) {
-            			 tipoUsuario = "ORGANIZADOR";
-            			 Usuario newUser = new Organizador(nuevoLogin, nuevaPassword, 0, tipoUsuario);
-            			 persistenciaUsuariosJson.cargar(newUser);
-            			 persistenciaUsuariosJson.agregar(newUser);
-            			 
-            		} else if (tipo.equals("4")) {
-            			 tipoUsuario = "ADMINISTRADOR";
-            			 Usuario newUser = new Administrador(nuevoLogin, nuevaPassword, tipoUsuario);
-            			 persistenciaUsuariosJson.cargar(newUser);
-            			 persistenciaUsuariosJson.agregar(newUser);
-            			 
-            		} else {
-            			 tipoUsuario = "NA";
-            		}
-                    
-                    if (tipoUsuario.equals("NA")) {
-                    	System.out.println("ERROR: tipo no valido");
-                    	break;
-                    }
-                    
-                  
-                    
-
-                    System.out.println("\nRegistrando usuario...");
-                    System.out.println("Login: " + nuevoLogin);
-                    System.out.println("Tipo seleccionado: " + tipo);
-
+                    registrarUsuario(sistema);
                     break;
 
                 case 3:
-                    System.out.println("\nSaliendo del sistema...");
+                    System.out.println("Saliendo...");
                     break;
 
                 default:
-                    System.out.println("\nOpción inválida. Intente nuevamente.\n");
-                    break;
+                    System.out.println("Opción inválida.");
             }
 
         } while (opcion != 3);
 
+        sistema.guardarTodo();
         sc.close();
-        
-           
-        
     }
-    
-    private static void menuParaUsuarios(Usuario usuarioEnUso) {
+
+    // ----------------------------------------------------------
+    // REGISTRO
+    // ----------------------------------------------------------
+    private static void registrarUsuario(SistemaPersistencia sistema) {
+        
+
+        System.out.print("Nuevo login: ");
+        String login = sc.nextLine();
+
+        if (sistema.buscarUsuario(login) != null) {
+            System.out.println("Ese login ya existe.");
+            return;
+        }
+
+        System.out.print("Contraseña: ");
+        String pass = sc.nextLine();
+
+        System.out.println("Tipo:");
+        System.out.println("1. Cliente");
+        System.out.println("2. Promotor");
+        System.out.println("3. Organizador");
+        System.out.println("4. Administrador");
+        System.out.print("Seleccione: ");
+
+        String op = sc.nextLine();
+        Usuario nuevo = null;
+
+        switch (op) {
+            case "1": nuevo = new Cliente(login, pass, 0, "CLIENTE"); break;
+            case "2": nuevo = new Promotor(login, pass, 0, "PROMOTOR"); break;
+            case "3": nuevo = new Organizador(login, pass, 0, "ORGANIZADOR"); break;
+            case "4": nuevo = new Administrador(login, pass, "ADMINISTRADOR"); break;
+            default:
+                System.out.println("Opción inválida.");
+                return;
+        }
        
-       if (usuarioEnUso instanceof Administrador admin) {
-            menuAdministrador(admin);
-        } 
-        else if (usuarioEnUso instanceof IDuenoTiquetes) {
-           menuComprador(usuarioEnUso, null, null);
-        }
-    }
     
-    
-    public static void mostrarMenu(Usuario usuario) {
-        System.out.println("========= MENÚ PRINCIPAL =========");
-        System.out.println("Bienvenido, " + usuario.getLogin() + " (" + usuario.getTipoUsuario() + ")");
-        System.out.println("----------------------------------");
-        System.out.println("1. Comprar tiquetes");
-        System.out.println("2. Comprar paquete Deluxe");
-        System.out.println("3. Transferir tiquetes");
-        System.out.println("4. Crear oferta de reeventa de tiquetes");
-        System.out.println("5. Comprar tiquete Revendido");
-        System.out.println("6. cancelar oferta Tiquete");
-        System.out.println("7. Contraofertar");
-        System.out.println("8. Recargar saldo");
-        System.out.println("9. Solicitar reembolso");
-        System.out.println("10. Ver contraofertas");
 
-        switch (usuario.getTipoUsuario().toUpperCase()) {
-            case "PROMOTOR":
-            	mostrarOpcionesPromotor();
-            case "ORGANIZADOR":
-            	mostrarOpcionesOrganizador();
-        }
+        sistema.agregarUsuario(nuevo);
+        sistema.guardarTodo();
 
-        System.out.println("0. Salir");
-        System.out.println("==================================");
+        // Verificar que se guardó
+        System.out.println("Total usuarios en memoria: " + sistema.getUsuarios().size());
+        System.out.println("Usuario registrado.");
     }
 
-    private static void mostrarOpcionesPromotor() {
-        System.out.println("------ OPCIONES DE PROMOTOR ------");
-        System.out.println("11. Sugerir un venue");
-        System.out.println("12. Ver ganancias");
-    }
+    // ----------------------------------------------------------
+    // MENÚ GENERAL
+    // ----------------------------------------------------------
+    private static void menuUsuario(Usuario u, SistemaPersistencia sistema) throws TransferenciaNoPermitidaException {
 
-    private static void mostrarOpcionesOrganizador() {
-        System.out.println("------ OPCIONES DE ORGANIZADOR ------");
-        System.out.println("11. Crear evento");
-    }
-    
-    public static void imprimirEventos(PersistenciaEventos pers) {
-    	List<Evento> eventos = pers.cargarTodos();
-    	
-    	for (Evento e : eventos) {
-    	    System.out.println("=== EVENTO ===");
-    	    System.out.println("Nombre: " + e.getNombre());
-    	    System.out.println("Fecha: " + e.getFecha());
-    	    System.out.println("Hora: " + e.getHora());
-    	    System.out.println("Organizador: " + e.getLoginOrganizador());
-    	    System.out.println("Venue asociado: " + e.getVenueAsociado());
-    	    System.out.println("Cancelado: " + e.getCancelado());
-    	    System.out.println("---------------------------");
-    	}
+        if (u instanceof Administrador admin)
+            menuAdministrador(admin, sistema);
+
+        else if (u instanceof IDuenoTiquetes duen)
+            menuComprador(duen, sistema);
+
+        else
+            System.out.println("Tipo de usuario no soportado.");
     }
     
-    public static void imprimirMarketplace(marketplacePersistencia pers) {
-        List<marketPlaceReventas> reventas = pers.cargarTodos();
+ 
 
-        System.out.println("=== LISTADO DE OFERTAS EN EL MARKETPLACE ===");
+    // ----------------------------------------------------------
+    // MENÚ COMPRADOR
+    // ----------------------------------------------------------
+    private static void menuComprador(IDuenoTiquetes usuario, SistemaPersistencia sistema) throws TransferenciaNoPermitidaException {
 
-        if (reventas.isEmpty()) {
-            System.out.println("No hay marketplace guardado.");
-            return;
-        }
+        int op = -1;
 
-        marketPlaceReventas mp = reventas.get(0);
+        Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
+        marketPlaceReventas market = sistema.getMarketplace();
 
-        Queue<HashMap<Tiquete, String>> ofertas = mp.getOfertas();
-
-        if (ofertas.isEmpty()) {
-            System.out.println("No hay ofertas publicadas actualmente.");
-            return;
-        }
-
-        int contador = 1;
-        for (HashMap<Tiquete, String> mapa : ofertas) {
-            for (Tiquete tiq : mapa.keySet()) {
-                System.out.println("=== OFERTA #" + contador + " ===");
-                System.out.println("Tiquete ID: " + tiq.getId());
-                System.out.println("Nombre del tiquete: " + tiq.getNombre());
-                System.out.println("Evento asociado: " + tiq.getEventoAsociado().getNombre());
-                System.out.println("Precio / Vendedor: " + mapa.get(tiq));
-                System.out.println("Transferido: " + tiq.isTransferido());
-                System.out.println("Anulado: " + tiq.isAnulado());
-                System.out.println("---------------------------");
-                contador++;
-            }
-        }
-    }
-    
-    
-
-    
-    public static void menuComprador(Usuario usuario, Transaccion transaccion, marketPlaceReventas market) {
-    	Scanner sc = new Scanner(System.in);
-    	int opcion;
-    	
-    	IDuenoTiquetes compradorDueno = (IDuenoTiquetes) usuario;
-    	PersistenciaEventos EventPers = new PersistenciaEventos();
-    	marketplacePersistencia marketPers = new marketplacePersistencia();
-    
-    
         do {
-        	
-        	
-        	
-            mostrarMenu(usuario);
-            imprimirEventos(EventPers);
-            imprimirMarketplace(marketPers);
-            System.out.print("Elige una opción: ");
-            while (!sc.hasNextInt()) {
-                System.out.print("Por favor, ingresa un número válido: ");
-                sc.next(); 
+            System.out.println("\n====== MENÚ USUARIO ======");
+            System.out.println("Saldo: " + usuario.getSaldo());
+            System.out.println("1. Comprar tiquete");
+            System.out.println("2. Comprar Paquete Deluxe");
+            System.out.println("3. Transferir tiquete");
+            System.out.println("4. Crear oferta de reventa");
+            System.out.println("5. Comprar en marketplace");
+            System.out.println("6. Contraofertar");
+            System.out.println("7. Recargar saldo");
+            System.out.println("8. Solicitar reembolso");
+            
+            // Opciones específicas por tipo de usuario
+            if (usuario instanceof Organizador) {
+                System.out.println("9. Crear evento");
+                System.out.println("10. Solicitar cancelación de evento");
+                System.out.println("11. Agregar tiquetes al evento");
             }
-            opcion = sc.nextInt();
-            sc.nextLine();
-            switch (opcion) {
+            
+            if (usuario instanceof Promotor) {
+                System.out.println("9. Sugerir venue");
+                System.out.println("10. Ver ganancias");
+            }
+            
+            System.out.println("0. Salir");
+            System.out.print("Seleccione: ");
+
+            try { op = Integer.parseInt(sc.nextLine()); }
+            catch (Exception e) { op = -1; }
+
+            switch (op) {
+
                 case 1:
-                	System.out.println("Comprando tiquete...");
-                	transaccion.comprarTiquete(tiqueteComprar,  comprador, cantidad,eventoAsociado);
-                	break;
+                    comprarTiquete(usuario, sistema, trans);
+                    break;
+
                 case 2:
-                	System.out.println("Comprando Paquete Deluxe...");
-                	transaccion.comprarPaqueteDeluxe( paquete,
-                             comprador,  cantidad,  eventoAsociado);
-                	break;
+                    System.out.println("Todavía no está listo.");
+                    break;
+
                 case 3:
-                	System.out.println("Transfiriendo tiquete...");
-                	transaccion.transferirTiquete( tiquete,  dueno,  usuarioDestino,  fechaActual);
-                	break;
-                	
+                    transferirTiquete(usuario, sistema, trans);
+                    break;
+
                 case 4:
-                	System.out.println("creando oferta de reventa de tiquete...");
-                	transaccion.revenderTiquete( tiqueteVenta,  precioOferta,  vendedor);
+                    crearOferta(usuario, sistema, trans);
+                    break;
+
                 case 5:
-                	System.out.println("creando oferta de reventa de tiquete...");
-                	transaccion.comprarEnMarketplace(null, usuario, usuario);
+                    comprarMarketplace(usuario, sistema, trans);
+                    break;
+
                 case 6:
-                	System.out.println("eliminando oferta de reventa de tiquete...");
-                	market.eliminarOferta(null, usuario);
+                    market.contraofertar((Usuario) usuario, sistema);
+                    break;
+
                 case 7:
-                	System.out.println("eliminando oferta de reventa de tiquete...");
-                	market.contraofertar(usuario);
+                    recargarSaldo(usuario);
+                    break;
+
                 case 8:
-                	System.out.println("Recargando el saldo...");
-                	 System.out.print("Ingrese el valor a recargar: ");
-                     double nuevoSaldo = Double.parseDouble(sc.nextLine());;
-                	compradorDueno.actualizarSaldo(nuevoSaldo);
-                	
+                    solicitarReembolso(usuario, sistema, trans);
+                    break;
+
                 case 9:
-                	System.out.println("Reembolsando tiquete...");
-                	transaccion.solicitarReembolso( tiqueteRembolso,  motivo);
-                	break;
-                	
+                    if (usuario instanceof Organizador) {
+                        crearEvento((Organizador) usuario, sistema);
+                    } else if (usuario instanceof Promotor) {
+                        sugerirVenue((Promotor) usuario, sistema);
+                    } else {
+                        System.out.println("Opción no válida para este tipo de usuario.");
+                    }
+                    break;
+
                 case 10:
-                	System.out.println("Reembolsando tiquete...");
-                	market.Vercontraofertar(usuario);
-                	break;
-                	
+                    if (usuario instanceof Organizador) {
+                        solicitarCancelacionEvento((Organizador) usuario, sistema);
+                    } else if (usuario instanceof Promotor) {
+                    	verGanancias((Promotor) usuario);
+                    } else {
+                        System.out.println("Opción no válida para este tipo de usuario.");
+                    }
+                    break;
+                    
                 case 11:
-                    if (compradorDueno instanceof Promotor promotor) {
-                        System.out.println("Sugerir un venue...");
-                        promotor.sugerirVenue(venue,  mensaje);
-                    } else if (compradorDueno instanceof Organizador organizador) {
-                        System.out.println("Creando un evento...");
-                        organizador.crearEvento(null, null, null, null, null, organizador.getLogin());
-                    } else {
-                        System.out.println("Opción no válida para este tipo de usuario.");
-                    }
-                    break;
-
-                case 12:
-                    if (compradorDueno instanceof Promotor promotor) {
-                        System.out.println("Viendo ganancias...");
-                        promotor.verGanancias();
-                    } else {
-                        System.out.println("Opción no válida para este tipo de usuario.");
-                    }
-                    break;
-
-             
-                	
-                case 0:
-                	System.out.println("Cerrando sesión ...");
-                	break;
-                default: 
-                	System.out.println("Opción no válida.");
-                	break;
-                
-                	
-            }
-            
-            if (compradorDueno instanceof Promotor) {
-                mostrarOpcionesPromotor();
-                
-            } else if (compradorDueno instanceof Organizador) {
-                mostrarOpcionesOrganizador();
-                
-                
-            } 
-            
-            
-        } while (opcion != 0);
-
-        sc.close();
-     
-        }
-    
-   
-        
-    
-    
-    
-    
-    
-    public static void menuAdministrador(Administrador admin) {
-    	System.out.println("\n========== MENÚ ADMINISTRADOR ==========");
-        System.out.println("1. Crear Venue");
-        System.out.println("2. Aprobar/rechazar Venue");
-        System.out.println("3. Fijar cargos porcentuales de emision");
-        System.out.println("4.ver solicitudes de reembolso");
-        System.out.println("5. Ver ganancias de la tiquetera");
-        System.out.println("6. Ver log de reventas");
-        System.out.println("7. Cancelar evento");
-        System.out.println("8. Cancelar/aceptar cancelacion de evento");
-        System.out.println("----------------------------------");
-        System.out.println("0. Salir");
-        System.out.println("==================================");
-        
-        
-
-    }
-    
-    
-    public static void ejecutarMenuAdministrador(Administrador admin,marketPlaceReventas market) {
-        Scanner sc = new Scanner(System.in);
-        int opcion;
-
-        do {
-            menuAdministrador(admin);
-            
-            System.out.print("Elige una opción: ");
-            while (!sc.hasNextInt()) {
-                System.out.print("Por favor, ingresa un número válido: ");
-                sc.next();
-            }
-            opcion = sc.nextInt();
-            sc.nextLine();
-
-            switch (opcion) {
-                case 1:
-                    System.out.println("Creando Venue...");
-                    admin.crearVenue("Ubicación temporal", 1000, false);
-                    break;
+                	if (usuario instanceof Organizador) {
+                        agregarTiquetesEvento((Organizador) usuario, sistema);
+                	}
                     
-                case 2:
-                    System.out.println("Verificando solicitudes de venue...");
-                    admin.verSolicitudVenue();
-                    break;
-
-                case 3:
-                    System.out.println("Fijando cargos porcentuales de emisión...");
-                    admin.fijarCobroEmisionImpresion(0.15);
-                    break;
                     
-                case 4:
-                    System.out.println("Verificando solicitudes de reembolsos...");
-                    admin.verSolicitud(admin);
-                    break;
-
-                case 5:
-                    System.out.println("Viendo ganancias de tiquetería...");
-                    admin.verGananciasAdministrador(null);
-                    break;
-
-                
-
-                case 6:
-                    System.out.println("Viendo log de reventas...");
-                    market.verLogEventos(admin);
-                    break;
-
-                case 7:
-                    System.out.println("Cancelando evento...");
-                    admin.cancelarEvento(null);
-                    break;
-
-                case 8:
-                    System.out.println("Gestionando solicitud de cancelación de evento...");
-                    admin.verSolicitudCancelacionEvento();
-                    break;
+                  
 
                 case 0:
-                    System.out.println("Saliendo del menú de administrador...");
                     break;
 
                 default:
-                    System.out.println("Opción no válida.");
+                    System.out.println("Opción inválida.");
+            }
+
+            sistema.guardarTodo();
+
+        } while (op != 0);
+    }
+
+    // ----------------------------------------------------------
+    // OPERACIONES DEL MENÚ
+    // ----------------------------------------------------------
+
+    private static void comprarTiquete(IDuenoTiquetes usuario, SistemaPersistencia sistema, Transaccion trans) {
+
+        System.out.println("\n=== COMPRAR TIQUETE ===");
+        System.out.println("Eventos disponibles:");
+        for (Evento e : sistema.getEventos()) {
+            if (!e.getCancelado()) {
+                System.out.println("- " + e.getNombre() + " (" + e.getFecha() + ")");
+            }
+        }
+
+        System.out.print("\nNombre del evento: ");
+        String nombre = sc.nextLine();
+
+        Evento ev = sistema.buscarEventoPorNombre(nombre);
+        if (ev == null) {
+            System.out.println("✗ Evento no encontrado.");
+            return;
+        }
+
+        if (ev.getCancelado()) {
+            System.out.println("✗ Este evento está cancelado.");
+            return;
+        }
+
+        HashMap<String, Tiquete> disponibles = ev.getTiquetes();
+        
+        if (disponibles.isEmpty()) {
+            System.out.println("✗ No hay tiquetes disponibles.");
+            return;
+        }
+
+        // ===== ORGANIZAR TIQUETES POR TIPO =====
+        System.out.println("\n===== TIQUETES DISPONIBLES =====");
+        
+        int opcion = 1;
+        HashMap<Integer, TiqueteOpcion> menuOpciones = new HashMap<>();
+        
+        // 1. Agrupar tiquetes SIMPLES por localidad
+        HashMap<String, ArrayList<TiqueteSimple>> simplesPorLocalidad = new HashMap<>();
+        
+        for (Tiquete t : disponibles.values()) {
+            if (t instanceof TiqueteSimple) {
+                TiqueteSimple ts = (TiqueteSimple) t;
+                String loc = ts.getLocalidadAsociada() != null 
+                    ? ts.getLocalidadAsociada().getNombre() 
+                    : "Sin localidad";
+                
+                simplesPorLocalidad.putIfAbsent(loc, new ArrayList<>());
+                simplesPorLocalidad.get(loc).add(ts);
+            }
+        }
+        
+        // Mostrar tiquetes SIMPLES
+        if (!simplesPorLocalidad.isEmpty()) {
+            System.out.println("\n🎫 TIQUETES SIMPLES:");
+            
+            
+            
+            for (String localidad : simplesPorLocalidad.keySet()) {
+                ArrayList<TiqueteSimple> tiquetes = simplesPorLocalidad.get(localidad);
+                
+                
+                TiqueteSimple ejemplo = tiquetes.get(0);
+                
+                System.out.println("  " + opcion + ". " + localidad + " (SIMPLE)");
+                System.out.println("     Precio base: $" + String.format("%.2f", ejemplo.getPrecioBaseSinCalcular()));
+                System.out.println("     Recargo: " + ejemplo.getRecargo() + "%");
+                System.out.println("     Disponibles: " + (tiquetes.size()));
+                
+                menuOpciones.put(opcion, new TiqueteOpcion("SIMPLE", localidad, ejemplo, (tiquetes.size())));
+                opcion++;
+            }
+        }
+        
+        // 2. Mostrar tiquetes MÚLTIPLES
+        ArrayList<TiqueteMultiple> tiquetesMultiples = new ArrayList<>();
+        
+        for (Tiquete t : disponibles.values()) {
+            if (t instanceof TiqueteMultiple) {
+                tiquetesMultiples.add((TiqueteMultiple) t);
+            }
+        }
+        
+        if (!tiquetesMultiples.isEmpty()) {
+            System.out.println("\n📦 PAQUETES/TIQUETES MÚLTIPLES:");
+            
+            for (TiqueteMultiple tm : tiquetesMultiples) {
+                System.out.println("  " + opcion + ". " + tm.getNombre() + " (MÚLTIPLE)");
+                System.out.println("     Incluye: " + tm.getTiquetes().size() + " tiquetes");
+                System.out.println("     Precio base: $" + String.format("%.2f", tm.getPrecioBaseSinCalcular()));
+                System.out.println("     Recargo: " + tm.getRecargo() + "%");
+                
+                menuOpciones.put(opcion, new TiqueteOpcion("MULTIPLE", tm.getNombre(), tm, 1));
+                opcion++;
+            }
+        }
+
+        System.out.println("\n================================");
+        System.out.print("Seleccione el tiquete que desea comprar (número): ");
+        
+        int seleccion = 0;
+        try {
+            seleccion = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Opción inválida.");
+            return;
+        }
+
+        if (!menuOpciones.containsKey(seleccion)) {
+            System.out.println("✗ Opción no válida.");
+            return;
+        }
+
+        TiqueteOpcion opcionSeleccionada = menuOpciones.get(seleccion);
+        Tiquete tiqueteSeleccionado = opcionSeleccionada.tiquete;
+        
+        // ===== PEDIR CANTIDAD (SOLO SI ES SIMPLE) =====
+        int cantidad = 1;
+        
+        if (opcionSeleccionada.tipo.equals("SIMPLE")) {
+            System.out.print("\n¿Cuántos tiquetes deseas? (máx: " + opcionSeleccionada.disponibles + "): ");
+            try {
+                cantidad = Integer.parseInt(sc.nextLine());
+            } catch (Exception e) {
+                System.out.println("✗ Cantidad inválida.");
+                return;
+            }
+            
+            if (cantidad <= 0 || cantidad > opcionSeleccionada.disponibles) {
+                System.out.println("✗ Cantidad no válida.");
+                return;
+            }
+        } else {
+            System.out.println("\n(Los paquetes múltiples se compran completos, cantidad = 1)");
+        }
+
+        // ===== CALCULAR PRECIO =====
+        double cobroEmision = sistema.getAdministrador().getCobroEmision();
+        double precioUnitario = tiqueteSeleccionado.calcularPrecio(cobroEmision);
+        double precioTotal = (opcionSeleccionada.tipo.equals("MULTIPLE")) 
+            ? precioUnitario 
+            : precioUnitario * cantidad;
+
+        // ===== MOSTRAR RESUMEN =====
+        System.out.println("\n===== RESUMEN DE COMPRA =====");
+        System.out.println("Tipo: " + opcionSeleccionada.tipo);
+        System.out.println("Evento: " + ev.getNombre());
+        
+        if (opcionSeleccionada.tipo.equals("SIMPLE")) {
+            System.out.println("Localidad: " + opcionSeleccionada.nombre);
+            System.out.println("Cantidad: " + cantidad);
+        } else {
+            System.out.println("Paquete: " + opcionSeleccionada.nombre);
+            TiqueteMultiple tm = (TiqueteMultiple) tiqueteSeleccionado;
+            System.out.println("Incluye " + tm.getTiquetes().size() + " tiquetes:");
+            for (Tiquete t : tm.getTiquetes()) {
+                String loc = t.getLocalidadAsociada() != null 
+                    ? t.getLocalidadAsociada().getNombre() 
+                    : "N/A";
+                System.out.println("  - " + loc);
+            }
+        }
+        
+        System.out.println("----------------------------");
+        System.out.println("Precio base: $" + String.format("%.2f", tiqueteSeleccionado.getPrecioBaseSinCalcular()));
+        System.out.println("Recargo: " + tiqueteSeleccionado.getRecargo() + "%");
+        System.out.println("Cobro emisión: " + cobroEmision + "%");
+        System.out.println("----------------------------");
+        
+        if (opcionSeleccionada.tipo.equals("SIMPLE")) {
+            System.out.println("Precio unitario: $" + String.format("%.2f", precioUnitario));
+        }
+        
+        System.out.println("PRECIO TOTAL: $" + String.format("%.2f", precioTotal));
+        System.out.println("----------------------------");
+        System.out.println("Tu saldo actual: $" + String.format("%.2f", usuario.getSaldo()));
+        System.out.println("Saldo después: $" + String.format("%.2f", usuario.getSaldo() - precioTotal));
+        System.out.println("============================\n");
+
+        if (precioTotal > usuario.getSaldo()) {
+            System.out.println("✗ Saldo insuficiente. Te faltan: $" + 
+                String.format("%.2f", precioTotal - usuario.getSaldo()));
+            return;
+        }
+
+        System.out.print("¿Confirmar compra? (s/n): ");
+        String confirmar = sc.nextLine();
+
+        if (!confirmar.equalsIgnoreCase("s")) {
+            System.out.println("Compra cancelada.");
+            return;
+        }
+
+        // ===== PROCEDER CON LA COMPRA =====
+        try {
+            trans.comprarTiquete(tiqueteSeleccionado, (Usuario) usuario, cantidad, ev, cobroEmision, sistema);
+            
+            
+            System.out.println("\n✓ ¡Compra realizada exitosamente!");
+            
+        
+            
+            
+            
+            
+            System.out.println("  Tipo: " + opcionSeleccionada.tipo);
+            
+            if (opcionSeleccionada.tipo.equals("SIMPLE")) {
+                System.out.println("  Localidad: " + opcionSeleccionada.nombre);
+                System.out.println("  Cantidad: " + cantidad + " tiquetes");
+            } else {
+                System.out.println("  Paquete: " + opcionSeleccionada.nombre);
+            }
+            
+            System.out.println("  Total pagado: $" + String.format("%.2f", precioTotal));
+            System.out.println("  Nuevo saldo: $" + String.format("%.2f", usuario.getSaldo()));
+            
+        } catch (TiquetesNoDisponiblesException e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (TransferenciaNoPermitidaException e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (SaldoInsuficienteExeption e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("✗ Error inesperado: " + e.getMessage());
+      
+        }
+    }
+
+    // ===== CLASE AUXILIAR =====
+    private static class TiqueteOpcion {
+        String tipo;          
+        String nombre;        
+        Tiquete tiquete;      
+        int disponibles;      
+        
+        TiqueteOpcion(String tipo, String nombre, Tiquete tiquete, int disponibles) {
+            this.tipo = tipo;
+            this.nombre = nombre;
+            this.tiquete = tiquete;
+            this.disponibles = disponibles;
+        }
+    }
+
+   
+
+    private static void transferirTiquete(IDuenoTiquetes usuario, SistemaPersistencia sistema, Transaccion trans) {
+        System.out.println("\n=== TRANSFERIR TIQUETE ===");
+        
+        // Mostrar tiquetes del usuario
+        System.out.println("Tus tiquetes:");
+        Collection<Tiquete> misTiquetes = usuario.getTiquetes();
+        
+        if (misTiquetes == null || misTiquetes.isEmpty()) {
+            System.out.println("No tienes tiquetes para transferir.");
+            return;
+        }
+        
+        int num = 1;
+        HashMap<Integer, Tiquete> menuTiquetes = new HashMap<>();
+        
+        for (Tiquete t : misTiquetes) {
+            String tipo = t instanceof TiqueteMultiple ? "PAQUETE" : "SIMPLE";
+            String evento = t.getEvento() != null ? t.getEvento().getNombre() : "Sin evento";
+            
+            System.out.println(num + ". [" + tipo + "] " + t.getNombre() + 
+                " | ID: " + t.getId() + " | Evento: " + evento);
+            
+            menuTiquetes.put(num, t);
+            num++;
+        }
+        
+        System.out.print("\nSelecciona el tiquete a transferir (número): ");
+        int seleccion = 0;
+        try {
+            seleccion = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Opción inválida.");
+            return;
+        }
+        
+        if (!menuTiquetes.containsKey(seleccion)) {
+            System.out.println("✗ Opción no válida.");
+            return;
+        }
+        
+        Tiquete tiqueteSeleccionado = menuTiquetes.get(seleccion);
+        
+        // Mostrar detalle del tiquete
+        System.out.println("\n=== DETALLE DEL TIQUETE ===");
+        System.out.println("Tipo: " + (tiqueteSeleccionado instanceof TiqueteMultiple ? "Paquete Múltiple" : "Tiquete Simple"));
+        System.out.println("ID: " + tiqueteSeleccionado.getId());
+        System.out.println("Nombre: " + tiqueteSeleccionado.getNombre());
+        
+        if (tiqueteSeleccionado.getEvento() != null) {
+            System.out.println("Evento: " + tiqueteSeleccionado.getEvento().getNombre());
+            System.out.println("Fecha: " + tiqueteSeleccionado.getEvento().getFecha());
+        }
+        
+        if (tiqueteSeleccionado instanceof TiqueteMultiple) {
+            TiqueteMultiple tm = (TiqueteMultiple) tiqueteSeleccionado;
+            System.out.println("Incluye " + tm.getTiquetes().size() + " tiquetes");
+        }
+        
+        System.out.println("===========================");
+
+        System.out.print("\nLogin del usuario destino: ");
+        String login = sc.nextLine();
+
+        Usuario destino = sistema.buscarUsuario(login);
+        if (destino == null) {
+            System.out.println("✗ Usuario no encontrado.");
+            return;
+        }
+
+        if (!(destino instanceof IDuenoTiquetes)) {
+            System.out.println("✗ El usuario destino no puede recibir tiquetes.");
+            return;
+        }
+        
+        if (destino.getLogin().equals(((Usuario)usuario).getLogin())) {
+            System.out.println("✗ No puedes transferir a ti mismo.");
+            return;
+        }
+
+        // Confirmar transferencia
+        System.out.println("\n=== CONFIRMAR TRANSFERENCIA ===");
+        System.out.println("Tiquete: " + tiqueteSeleccionado.getNombre() + " (" + tiqueteSeleccionado.getId() + ")");
+        System.out.println("De: " + ((Usuario)usuario).getLogin());
+        System.out.println("A: " + destino.getLogin());
+        
+        if (tiqueteSeleccionado instanceof TiqueteMultiple) {
+            System.out.println("NOTA: Se transferirá el paquete completo.");
+        }
+        
+        System.out.println("===============================");
+        System.out.print("¿Confirmar transferencia? (s/n): ");
+
+        if (!sc.nextLine().equalsIgnoreCase("s")) {
+            System.out.println("Transferencia cancelada.");
+            return;
+        }
+
+        // Pedir password para confirmar
+        System.out.print("Ingresa tu password para confirmar: ");
+        String password = sc.nextLine();
+
+        if (!((Usuario)usuario).IsPasswordTrue(password)) {
+            System.out.println("✗ Password incorrecta.");
+            return;
+        }
+
+        try {
+            // Fecha actual en formato YYYY-MM-DD
+            String fechaActual = java.time.LocalDate.now().toString();
+            
+            trans.transferirTiquete(
+                tiqueteSeleccionado, 
+                (Usuario) usuario, 
+                destino, 
+                fechaActual, 
+                sistema
+            );
+            
+            System.out.println("\n================================");
+            System.out.println("✓ TRANSFERENCIA EXITOSA");
+            System.out.println("================================");
+            
+        } catch (TiquetesVencidosTransferidos e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (IDNoEncontrado e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (TransferenciaNoPermitidaException e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("✗ Error inesperado: " + e.getMessage());
+        }
+    }
+
+    private static void crearOferta(IDuenoTiquetes usuario, SistemaPersistencia sistema, Transaccion trans) {
+     
+
+        System.out.print("ID del tiquete para oferta: ");
+        String id = sc.nextLine();
+
+        Tiquete t = sistema.buscarTiquetePorId(id);
+        if (t == null) {
+            System.out.println("Tiquete no encontrado.");
+            return;
+        }
+        
+        Collection<Tiquete> listaTiquetes =usuario.getTiquetes();
+        if(!listaTiquetes.contains(t)) {
+        	System.out.println("Este tiquete no está en su lista de tiquetes.");
+            return;
+        }
+        
+        Queue<HashMap<Tiquete, String>> ofertas = sistema.getMarketplace().getOfertas();
+        for (HashMap<Tiquete, String> mapa : ofertas) {
+            if (mapa.containsKey(t) && t.getId().equals(id)) {
+            	System.out.println("Este tiquete ya fue agrega al sistema.");
+                return;
+            }	
+        }
+        
+        
+        		
+
+        System.out.print("Precio: ");
+        double precio = Double.parseDouble(sc.nextLine());
+
+        trans.revenderTiquete(t, precio, (Usuario) usuario, sistema);
+        System.out.println("Oferta publicada.");
+    }
+
+    private static void comprarMarketplace(IDuenoTiquetes usuario, SistemaPersistencia sistema, Transaccion trans) throws TransferenciaNoPermitidaException {
+        System.out.println("\n=== COMPRAR EN MARKETPLACE ===");
+        
+        marketPlaceReventas marketplace = sistema.getMarketplace();
+        Queue<HashMap<Tiquete,String>> ofertas = marketplace.getOfertas();
+        
+        if (ofertas == null || ofertas.isEmpty()) {
+            System.out.println("No hay ofertas disponibles en el marketplace.");
+            return;
+        }
+        
+        // Mostrar todas las ofertas
+        System.out.println("\n===== OFERTAS DISPONIBLES =====");
+        int num = 1;
+        HashMap<Integer, OfertaInfo> menuOfertas = new HashMap<>();
+        
+        for (HashMap<Tiquete,String> oferta : ofertas) {
+            for (java.util.Map.Entry<Tiquete,String> e : oferta.entrySet()) {
+                Tiquete t = e.getKey();
+                String etiqueta = e.getValue();
+                double precio = marketPlaceReventas.extraerPrecio(etiqueta);
+                
+                // Buscar el vendedor
+                Usuario vendedor = null;
+                for (Usuario u : sistema.getUsuarios()) {
+                    if (u instanceof IDuenoTiquetes) {
+                        IDuenoTiquetes dueno = (IDuenoTiquetes) u;
+                        
+                        for (Tiquete tiq : dueno.getTiquetes()) {
+                            if (tiq.getId().equals(t.getId())) {
+                                vendedor = u;
+                                break;
+                            }
+                        }
+                    }
+                    if (vendedor != null) break;
+                }
+                
+                if (vendedor != null && !vendedor.getLogin().equals(((Usuario)usuario).getLogin())) {
+                    String eventoNombre = t.getEvento() != null ? t.getEvento().getNombre() : "Sin evento";
+                    
+                    System.out.println(num + ". " + t.getNombre() + " - " + eventoNombre);
+                    System.out.println("   ID: " + t.getId());
+                    System.out.println("   Precio: $" + String.format("%.2f", precio));
+                    System.out.println("   Vendedor: " + vendedor.getLogin());
+                    System.out.println();
+                    
+                    menuOfertas.put(num, new OfertaInfo(t, vendedor, precio));
+                    num++;
+                }
+            }
+        }
+        
+        if (menuOfertas.isEmpty()) {
+            System.out.println("No hay ofertas disponibles (o todas son tuyas).");
+            return;
+        }
+        
+        System.out.println("================================");
+        System.out.print("Selecciona la oferta a comprar (número): ");
+        
+        int seleccion = 0;
+        try {
+            seleccion = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Opción inválida.");
+            return;
+        }
+        
+        if (!menuOfertas.containsKey(seleccion)) {
+            System.out.println("✗ Opción no válida.");
+            return;
+        }
+        
+        OfertaInfo ofertaSeleccionada = menuOfertas.get(seleccion);
+        
+        // Mostrar resumen
+        System.out.println("\n===== RESUMEN DE COMPRA =====");
+        System.out.println("Tiquete: " + ofertaSeleccionada.tiquete.getNombre());
+        System.out.println("ID: " + ofertaSeleccionada.tiquete.getId());
+        System.out.println("Precio: $" + String.format("%.2f", ofertaSeleccionada.precio));
+        System.out.println("Vendedor: " + ofertaSeleccionada.vendedor.getLogin());
+        System.out.println("----------------------------");
+        System.out.println("Tu saldo: $" + String.format("%.2f", usuario.getSaldo()));
+        System.out.println("Saldo después: $" + String.format("%.2f", usuario.getSaldo() - ofertaSeleccionada.precio));
+        System.out.println("============================");
+        
+        if (ofertaSeleccionada.precio > usuario.getSaldo()) {
+            System.out.println("✗ Saldo insuficiente.");
+            return;
+        }
+        
+        System.out.print("\n¿Confirmar compra? (s/n): ");
+        if (!sc.nextLine().equalsIgnoreCase("s")) {
+            System.out.println("Compra cancelada.");
+            return;
+        }
+        
+        try {
+            trans.comprarEnMarketplace(
+                ofertaSeleccionada.tiquete,
+                ofertaSeleccionada.vendedor,
+                (Usuario) usuario,
+                sistema
+            );
+            
+            System.out.println("\n✓ ¡Compra en marketplace exitosa!");
+            System.out.println("  Tiquete: " + ofertaSeleccionada.tiquete.getId());
+            System.out.println("  Pagado: $" + String.format("%.2f", ofertaSeleccionada.precio));
+            System.out.println("  Nuevo saldo: $" + String.format("%.2f", usuario.getSaldo()));
+            
+        } catch (TiquetesNoDisponiblesException e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (TransferenciaNoPermitidaException e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (SaldoInsuficienteExeption e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("✗ Error: " + e.getMessage());
+        }
+    }
+
+    // Clase auxiliar
+    private static class OfertaInfo {
+        Tiquete tiquete;
+        Usuario vendedor;
+        double precio;
+        
+        OfertaInfo(Tiquete tiquete, Usuario vendedor, double precio) {
+            this.tiquete = tiquete;
+            this.vendedor = vendedor;
+            this.precio = precio;
+        }
+    }
+
+    private static void solicitarReembolso(IDuenoTiquetes usuario, SistemaPersistencia sistema, Transaccion trans) {
+       
+
+        System.out.print("ID del tiquete para reembolso: ");
+        String id = sc.nextLine();
+
+        Tiquete t = sistema.buscarTiquetePorId(id);
+        if (t == null) {
+            System.out.println("Tiquete no encontrado.");
+            return;
+        }
+
+        System.out.print("Motivo: ");
+        String motivo = sc.nextLine();
+
+        trans.solicitarReembolso(t, motivo, sistema);
+        System.out.println("Solicitud enviada.");
+    }
+
+    private static void recargarSaldo(IDuenoTiquetes usuario) {
+   
+        System.out.print("Cantidad a recargar: ");
+        double valor = Double.parseDouble(sc.nextLine());
+        usuario.actualizarSaldo(usuario.getSaldo() + valor);
+        System.out.println("Saldo actualizado.");
+    }
+    
+
+
+    private static void crearEvento(Organizador organizador, SistemaPersistencia sistema) {
+        System.out.print("Nombre del evento: ");
+        String nombre = sc.nextLine();
+        
+        System.out.print("Fecha (YYYY-MM-DD): ");
+        String fecha = sc.nextLine();
+        
+        System.out.print("Hora (HH:MM): ");
+        String hora = sc.nextLine();
+        
+        // Mostrar venues disponibles (si tienes una lista en el sistema)
+        System.out.println("\nVenues disponibles:");
+        // TODO: Si tienes una lista de venues en SistemaPersistencia, mostrarlos aquí
+        // Por ahora, pedimos la ubicación manualmente
+        
+        System.out.print("Ubicación del venue: ");
+        String ubicacion = sc.nextLine();
+        
+        System.out.print("Capacidad del venue: ");
+        int capacidad = 0;
+        try {
+            capacidad = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("Capacidad inválida.");
+            return;
+        }
+        
+        // Crear venue temporal (o buscarlo si ya existe en tu sistema)
+        Venue venue = new Venue(ubicacion, capacidad, true); // Asumimos aprobado
+        
+        try {
+            // Crear evento con tiquetes vacíos inicialmente
+            HashMap<String, Tiquete> tiquetesDisponibles = new HashMap<>();
+            
+            Evento nuevoEvento = organizador.crearEvento(
+                nombre, 
+                fecha, 
+                hora, 
+                tiquetesDisponibles, 
+                venue, 
+                organizador.getLogin(),
+                sistema
+            );
+            
+            System.out.println("✓ Evento '" + nombre + "' creado exitosamente.");
+            
+        } catch (Exception e) {
+            System.out.println("✗ Error al crear evento: " + e.getMessage());
+        }
+    }
+    
+    private static void agregarTiquetesEvento(Organizador organizador, SistemaPersistencia sistema) {
+        System.out.println("\n=== AGREGAR TIQUETES A EVENTO ===");
+        
+        // Mostrar eventos del organizador
+        System.out.println("Tus eventos:");
+        List<Evento> misEventos = new ArrayList<>();
+        for (Evento e : sistema.getEventos()) {
+            if (e.getLoginOrganizador().equals(organizador.getLogin())) {
+                misEventos.add(e);
+                if(!e.getCancelado()) {
+                System.out.println("- " + e.getNombre());
+                }
+                
+            }
+        }
+        
+        if (misEventos.isEmpty()) {
+            System.out.println("No tienes eventos creados.");
+            return;
+        }
+        
+        System.out.print("\nNombre del evento: ");
+        String nombreEvento = sc.nextLine();
+        
+        Evento evento = sistema.buscarEventoPorNombre(nombreEvento);
+        if (evento == null || !evento.getLoginOrganizador().equals(organizador.getLogin())) {
+            System.out.println("✗ Evento no encontrado o no te pertenece.");
+            return;
+        }
+        
+        // ===== ELEGIR TIPO DE TIQUETE =====
+        System.out.println("\n¿Qué tipo de tiquete deseas crear?");
+        System.out.println("1. Tiquetes simples");
+        System.out.println("2. Paquete/Tiquete múltiple");
+        System.out.print("Seleccione: ");
+        
+        String opcion = sc.nextLine();
+        
+        switch (opcion) {
+            case "1":
+                crearTiquetesSimples(evento, sistema);
+                break;
+            case "2":
+                crearTiqueteMultiple(evento, sistema);
+                break;
+            default:
+                System.out.println("✗ Opción inválida.");
+        }
+    }
+
+    // ===== CREAR TIQUETES SIMPLES =====
+    private static void crearTiquetesSimples(Evento evento, SistemaPersistencia sistema) {
+        System.out.println("\n=== CREAR TIQUETES SIMPLES ===");
+        
+        System.out.print("Nombre de la localidad (ej: VIP, Platea, General): ");
+        String nombreLocalidad = sc.nextLine();
+        
+        System.out.print("Precio base: ");
+        double precio = 0;
+        try {
+            precio = Double.parseDouble(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Precio inválido.");
+            return;
+        }
+        
+        System.out.print("Capacidad de la localidad: ");
+        int capacidad = 0;
+        try {
+            capacidad = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Capacidad inválida.");
+            return;
+        }
+        
+        System.out.print("Tipo (0=NUMERADA, 1=SIN_NUMERAR): ");
+        int tipo = 0;
+        try {
+            tipo = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Tipo inválido.");
+            return;
+        }
+        
+        System.out.print("Recargo (% ej: 10 para 10%): ");
+        double recargo = 0;
+        try {
+            recargo = Double.parseDouble(sc.nextLine());
+        } catch (Exception e) {
+            recargo = 5.0; // Por defecto 5%
+        }
+        
+        // Crear localidad
+        Localidad localidad = new Localidad(nombreLocalidad, precio, capacidad, tipo);
+        
+        System.out.print("¿Cuántos tiquetes generar? (máx: " + capacidad + "): ");
+        int cantidadTiquetes = 0;
+        try {
+            cantidadTiquetes = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Cantidad inválida.");
+            return;
+        }
+        
+        if (cantidadTiquetes > capacidad || cantidadTiquetes <= 0) {
+            System.out.println("✗ Cantidad no válida.");
+            return;
+        }
+        
+        // Generar tiquetes simples
+        int generados = 0;
+        for (int i = 0; i < cantidadTiquetes; i++) {
+            String idTiquete = sistema.generarIdTiquete();
+            
+            TiqueteSimple tiquete = new TiqueteSimple(
+            	    "SIMPLE",              // tipoTiquete
+            	    idTiquete,             // identificador
+            	    evento.getFecha(),     // fechaExpiracion ✅
+            	    precio,                // precio ✅
+            	    nombreLocalidad,       // nombre
+            	    false,                 // transferido
+            	    false,                 // anulado
+            	    evento,                // eventoAsociado
+            	    recargo,               // recargo ✅
+            	    localidad              // localidadAsociada
+            	);
+            
+            try {
+                evento.agregarTiquete(tiquete);
+                sistema.agregarTiquete(tiquete);
+                generados++;
+            } catch (Exception e) {
+                System.out.println("✗ Error al generar tiquete: " + e.getMessage());
+            }
+        }
+        
+        sistema.guardarTodo();
+        System.out.println("✓ Se generaron " + generados + " tiquetes SIMPLES para '" + nombreLocalidad + "'");
+    }
+
+    // ===== CREAR TIQUETE MÚLTIPLE =====
+    private static void crearTiqueteMultiple(Evento evento, SistemaPersistencia sistema) {
+        System.out.println("\n=== CREAR PAQUETE/TIQUETE MÚLTIPLE ===");
+        
+        System.out.print("Nombre del paquete (ej: Paquete VIP Premium, Combo Familiar): ");
+        String nombrePaquete = sc.nextLine();
+        
+        System.out.print("Precio base del paquete: ");
+        double precioPaquete = 0;
+        try {
+            precioPaquete = Double.parseDouble(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Precio inválido.");
+            return;
+        }
+        
+        System.out.print("Recargo del paquete (% ej: 10 para 10%): ");
+        double recargoPaquete = 0;
+        try {
+            recargoPaquete = Double.parseDouble(sc.nextLine());
+        } catch (Exception e) {
+            recargoPaquete = 5.0;
+        }
+        
+        System.out.print("¿Cuántos tiquetes incluye el paquete?: ");
+        int cantidadTiquetes = 0;
+        try {
+            cantidadTiquetes = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Cantidad inválida.");
+            return;
+        }
+        
+        if (cantidadTiquetes <= 0) {
+            System.out.println("✗ Debe incluir al menos 1 tiquete.");
+            return;
+        }
+        
+        // ===== PREGUNTAR UNA SOLA VEZ LA INFORMACIÓN DE LA LOCALIDAD =====
+        System.out.println("\n--- Información de los tiquetes (todos serán iguales) ---");
+        
+        System.out.print("Nombre de la localidad: ");
+        String nombreLocalidad = sc.nextLine();
+        
+        System.out.print("Precio base individual: ");
+        double precioIndividual = 0;
+        try {
+            precioIndividual = Double.parseDouble(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Precio inválido, usando 0.");
+            precioIndividual = 0;
+        }
+        
+        System.out.print("Capacidad: ");
+        int capacidad = 0;
+        try {
+            capacidad = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            capacidad = 100; // Default
+        }
+        
+        System.out.print("Tipo (0=NUMERADA, 1=SIN_NUMERAR): ");
+        int tipoLocalidad = 0;
+        try {
+            tipoLocalidad = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            tipoLocalidad = 0;
+        }
+        
+        // Crear UNA localidad que usarán todos
+        Localidad localidad = new Localidad(nombreLocalidad, precioIndividual, capacidad, tipoLocalidad);
+        
+        // ===== GENERAR LOS TIQUETES (TODOS IGUALES) =====
+        ArrayList<TiqueteSimple> tiquetesDelPaquete = new ArrayList<>();
+        
+        System.out.println("\nGenerando " + cantidadTiquetes + " tiquetes de '" + nombreLocalidad + "'...");
+        
+        for (int i = 1; i <= cantidadTiquetes; i++) {
+            String idTiquete = sistema.generarIdTiquete();
+            
+            TiqueteSimple tiqueteInterno = new TiqueteSimple(
+                "SIMPLE",              // tipoTiquete
+                idTiquete,             // identificador
+                evento.getFecha(),     // fechaExpiracion
+                precioIndividual,      // precio
+                nombreLocalidad,       // nombre
+                false,                 // transferido
+                false,                 // anulado
+                evento,                // eventoAsociado
+                0,                     // recargo (los tiquetes internos no tienen recargo propio)
+                localidad              // localidadAsociada
+            );
+            
+            tiquetesDelPaquete.add(tiqueteInterno);
+            sistema.agregarTiquete(tiqueteInterno);
+            
+            System.out.println("  ✓ Generado: " + idTiquete);
+        }
+        
+        // ===== CREAR EL TIQUETE MÚLTIPLE =====
+        String idPaquete = sistema.generarIdTiquete();
+        
+        TiqueteMultiple paquete = new TiqueteMultiple(
+            "MULTIPLE",
+            idPaquete,
+            evento.getFecha(),
+            precioPaquete,
+            nombrePaquete,
+            false,
+            false,
+            evento,
+            recargoPaquete,
+            null, // o localidad si quieres asociarla al paquete
+            tiquetesDelPaquete
+        );
+        
+        try {
+            evento.agregarTiquete(paquete);
+            sistema.agregarTiquete(paquete);
+            sistema.guardarTodo();
+            
+            System.out.println("\n✓ Paquete '" + nombrePaquete + "' creado exitosamente!");
+            System.out.println("  ID: " + idPaquete);
+            System.out.println("  Incluye " + cantidadTiquetes + " tiquetes de '" + nombreLocalidad + "'");
+            System.out.println("  Precio del paquete: $" + String.format("%.2f", precioPaquete));
+            System.out.println("  Precio individual por tiquete: $" + String.format("%.2f", precioIndividual));
+            
+        } catch (Exception e) {
+            System.out.println("✗ Error al crear paquete: " + e.getMessage());
+        }
+    }
+  
+    private static void solicitarCancelacionEvento(Organizador organizador, SistemaPersistencia sistema) {
+        System.out.println("\n=== TUS EVENTOS ACTIVOS ===");
+        
+        List<Evento> misEventos = new ArrayList<>();
+        for (Evento e : sistema.getEventos()) {
+            if (e.getLoginOrganizador().equals(organizador.getLogin())) {
+                misEventos.add(e);
+                if(!e.getCancelado()) {
+                	System.out.println("- " + e.getNombre() + " (" + e.getFecha() + ")");
+                }
+                
+            }
+        }
+        
+        if (misEventos.isEmpty()) {
+            System.out.println("No tienes eventos creados.");
+            return;
+        }
+        
+        System.out.print("\nNombre del evento a cancelar: ");
+        String nombre = sc.nextLine();
+        
+        Evento evento = sistema.buscarEventoPorNombre(nombre);
+        
+        if (evento == null) {
+            System.out.println("✗ Evento no encontrado.");
+            return;
+        }
+        
+        if (!evento.getLoginOrganizador().equals(organizador.getLogin())) {
+            System.out.println("✗ No puedes cancelar un evento que no es tuyo.");
+            return;
+        }
+        
+        System.out.print("Motivo de cancelación: ");
+        String motivo = sc.nextLine();
+        
+        try {
+            organizador.solicitarCancelacioDeEvento(evento, motivo, sistema);
+            System.out.println("✓ Solicitud de cancelación enviada al administrador.");
+        } catch (Exception e) {
+            System.out.println("✗ Error: " + e.getMessage());
+        }
+    }
+
+    private static void sugerirVenue(Promotor promotor, SistemaPersistencia sistema) {
+        System.out.println("\n=== SUGERIR NUEVO VENUE ===");
+        
+        System.out.print("Ubicación del venue: ");
+        String ubicacion = sc.nextLine();
+        
+        System.out.print("Capacidad máxima: ");
+        int capacidad = 0;
+        try {
+            capacidad = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Capacidad inválida.");
+            return;
+        }
+        
+        System.out.print("Mensaje/descripción para el administrador: ");
+        String mensaje = sc.nextLine();
+        
+        // Crear venue (no aprobado, requiere aprobación del admin)
+        Venue venue = new Venue(ubicacion, capacidad, false);
+        
+        try {
+            promotor.sugerirVenue(venue, mensaje, sistema);
+            System.out.println("✓ Venue sugerido exitosamente. El administrador lo revisará.");
+        } catch (Exception e) {
+            System.out.println("✗ Error: " + e.getMessage());
+        }
+    }
+
+    private static void verGanancias(Promotor promotor) {
+        System.out.println("\n=== CALCULANDO GANANCIAS ===");
+        
+        System.out.print("Ingrese el cobro de emisión a aplicar: ");
+        double cobroEmision = 0.0;
+        try {
+            cobroEmision = Double.parseDouble(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("Usando cobro de emisión por defecto: 0.0");
+            cobroEmision = 0.0;
+        }
+        
+        promotor.verGanancias(cobroEmision);
+        
+        System.out.println("\nPresiona Enter para continuar...");
+        sc.nextLine();
+    }
+
+
+
+
+
+    // ----------------------------------------------------------
+    // MENÚ ADMINISTRADOR
+    // ----------------------------------------------------------
+    private static void menuAdministrador(Administrador admin, SistemaPersistencia sistema) {
+
+  
+        int op = -1;
+
+        do {
+            System.out.println("\n====== MENÚ ADMINISTRADOR ======");
+            System.out.println("1. Crear Venue");
+            System.out.println("2. Revisar solicitudes Venue");
+            System.out.println("3. Ver reembolsos");
+            System.out.println("4. Ver reventas (log marketplace)");
+            System.out.println("5. Cancelar evento");
+            System.out.println("6. Gestionar solicitudes de cancelación de evento");
+            System.out.println("7. fijar cobro emision");
+            System.out.println("8. fijar recargo");
+            System.out.println("0. Salir");
+            System.out.print("Seleccione: ");
+
+            try { op = Integer.parseInt(sc.nextLine()); }
+            catch (Exception e) { op = -1; }
+
+            switch (op) {
+                case 1: {
+                    System.out.print("Ubicación del Venue: ");
+                    String ubic = sc.nextLine();
+                    System.out.print("Capacidad máxima: ");
+                    int cap = 0;
+                    try { cap = Integer.parseInt(sc.nextLine()); } catch (Exception ignored) {}
+                    System.out.print("¿Aprobado por defecto? (s/n): ");
+                    String apr = sc.nextLine();
+                    boolean aprobado = "s".equalsIgnoreCase(apr);
+                    Venue v = admin.crearVenue(ubic, cap, aprobado);
+                    System.out.println("Venue creado: " + v.getUbicacion() + " (aprobado=" + aprobado + ")");
+                    // Si quieres guardar venues en algún repositorio, hazlo desde SistemaPersistencia.
+                    sistema.guardarTodo();
+                    break;
+                }
+
+                case 2:
+                    // Procesa y persiste cambios en las solicitudes de venues
+                    admin.verSolicitudVenue();
+                    sistema.guardarTodo();
+                    break;
+
+                case 3:
+                    // Reembolsos: usa admin.verSolicitud pasando un "dueno" apropiado.
+                    // En la implementación actual el método espera un Usuario dueño (para devolver el dinero).
+                    // Aquí mostramos las solicitudes y permitimos que admin procese.
+                    admin.verSolicitud(admin); // le pasamos admin solo para que use la lógica de devolución.
+                    sistema.guardarTodo();
+                    break;
+
+                case 4:
+                    // Mostrar log del marketplace (requiere que SistemaPersistencia exponga el marketplace)
+                    if (sistema.getMarketplace() != null) {
+                        sistema.getMarketplace().verLogEventos(admin);
+                    } else {
+                        System.out.println("Marketplace no disponible en el sistema.");
+                    }
+                    break;
+
+                case 5: {
+                    // Cancelar evento: pedir nombre y cancelar
+                    System.out.println("Eventos actuales:");
+                    for (Evento e : sistema.getEventos()) {
+                    	if(!e.getCancelado()) {
+                    		System.out.println("- " + e.getNombre());
+                    	}
+                        
+                    }
+                    System.out.print("Nombre del evento a cancelar: ");
+                    String nombreEv = sc.nextLine();
+                    Evento ev = sistema.buscarEventoPorNombre(nombreEv);
+                    if (ev == null) {
+                        System.out.println("Evento no encontrado.");
+                    } else {
+                        admin.cancelarEvento(ev);
+                        // actualizar evento en lista del sistema y persistir
+                        List<Evento> lista = sistema.getEventos();
+                        for (int i = 0; i < lista.size(); i++) {
+                            if (lista.get(i).getNombre().equals(ev.getNombre())) {
+                                lista.set(i, ev);
+                                break;
+                            }
+                        }
+                        sistema.guardarTodo();
+                        System.out.println("Evento cancelado y persistido.");
+                    }
+                    break;
+                }
+
+                case 6:
+                    // Usar la implementación del admin que gestiona solicitudes de cancelación y que necesita SistemaPersistencia
+                    admin.verSolicitudCancelacionEvento(sistema);
+                    // el método internamente persiste cuando corresponde, pero forzamos guardar por seguridad
+                    sistema.guardarTodo();
+                    break;
+                    
+                case 7:
+                	System.out.print("Ingrese el cobro de emision: ");
+                    double cobro = 	Double.parseDouble(sc.nextLine());
+                    admin.fijarCobroEmisionImpresion(cobro);
+                    sistema.guardarTodo();
+                    break;
+                    
+                    
+                case 8:
+                	System.out.print("Ingrese el recargo: ");
+                    double recargo = Double.parseDouble(sc.nextLine());
+                    admin.cobrarPorcentajeAdicional(recargo);
+                    sistema.guardarTodo();
+                    break;
+
+                case 0:
+                    System.out.println("Saliendo del menú administrador...");
+                    break;
+
+                default:
+                    System.out.println("Opción inválida.");
                     break;
             }
 
-        } while (opcion != 0);
-
-        sc.close();
+        } while (op != 0);
     }
-   
-    
-    
     
 }
-

@@ -1,55 +1,40 @@
 package tiquete;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import Evento.Evento;
-import Persistencia.PersistenciaUsuarios;
-import usuario.Administrador;
+import Evento.Localidad;
 
 public class TiqueteMultiple extends Tiquete{
 	private ArrayList<TiqueteSimple> tiquetesInternos;
 	private ArrayList<Evento> eventosAsociados;
 
-	public TiqueteMultiple(String tipoTiquete, double recargo, String identificador, String fechaExpiracion, 
-			double precio, String nombre, boolean transferido, boolean anulado, Evento evento) {
-		super(tipoTiquete, recargo, identificador, fechaExpiracion, precio, nombre, transferido, anulado,evento);
-		this.tiquetesInternos = new ArrayList<>();
+	public TiqueteMultiple(String tipoTiquete, String identificador, String fechaExpiracion, 
+			double precio, String nombre, boolean transferido, boolean anulado, Evento eventoAsociado, double recargo,Localidad localidadAsociada,ArrayList<TiqueteSimple> tiquetesInternos2) {
+		super(tipoTiquete,identificador, fechaExpiracion, precio, nombre, transferido, anulado,eventoAsociado, recargo, localidadAsociada);
+		this.tiquetesInternos = tiquetesInternos2;
 	}
 
 	
 
 	@Override
 	//Se permite que tenga un descuento o un precio especial sobre la suma
-	public double calcularPrecio() {
-		double precioTotal = 0;
+	public double calcularPrecio(double cobroEmision) {
+	    double precioTotal = 0;
 
 	    for (Tiquete t : tiquetesInternos) {
-	        precioTotal += t.calcularPrecio();
+	        precioTotal += t.calcularPrecio(cobroEmision);
 	    }
 
 	    double precioConDescuento = precioTotal * 0.9;
 
-	    double precioConRecargo = precioConDescuento + (precioConDescuento * (recargo / 100));
+	    precioConDescuento += precioConDescuento * (recargo / 100);
 
-	    PersistenciaUsuarios persistencia = new PersistenciaUsuarios();
-	    Administrador admin = persistencia.recuperarAdministrador();
+	    precioConDescuento += precioConDescuento * (cobroEmision / 100);
 
-	    if (admin != null) {
-	        double cobroEmision = admin.getCobroEmision();
-	        precioConRecargo += (precioConDescuento * (cobroEmision / 100));
-	       
-	    }
-
-	    return precioConRecargo;
+	    return precioConDescuento;
+	    
 	}
-	
-	public Collection<TiqueteSimple> getTiquetes( )
-    {
-        return tiquetesInternos;
-	
-	
-    }
 	
 	public void agregarTiquete(TiqueteSimple tiquete) {
 		tiquetesInternos.add(tiquete);
@@ -88,6 +73,12 @@ public class TiqueteMultiple extends Tiquete{
 	 @Override
 	 public String getTipoTiquete() {
 		return "MULTIPLE";
+	 }
+
+
+
+	 public ArrayList<TiqueteSimple> getTiquetes() {
+		return tiquetesInternos;
 	 }
 	
 

@@ -63,13 +63,22 @@ public class Evento  {
         return tiquetesDisponibles.values( );
     }
 	
+	
+	public HashMap<String, Tiquete> getTiquetes( )
+    {
+        return tiquetesDisponibles;
+    }
+	
 	public Tiquete getTiquetePorId(String id) {
         return tiquetesDisponibles.get(id);
     }
 
     
     public void venderTiquete(String id) {
-        tiquetesDisponibles.remove(id);
+    	Tiquete t = tiquetesDisponibles.remove(id); 
+        if (t != null) {
+            t.setTransferido(true);
+        }
     }
 	public Venue getVenueAsociado() {
 		return venueAsociado;

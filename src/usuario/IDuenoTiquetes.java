@@ -9,12 +9,20 @@ import java.util.Map;
 import tiquete.Tiquete;
 
 public interface IDuenoTiquetes {
+	
 	Collection<Tiquete> getTiquetes();
 	void agregarTiquete(Tiquete tiquete);
 	void eliminarTiquete(Tiquete tiquete);
 	public double getSaldo();
 	public void actualizarSaldo(double precioNuevo);
 	
+	List<String> getIdsTiquetes();
+
+    void setIdsTiquetes(List<String> ids);
+
+    void agregarIdTiquete(String id);
+
+    void eliminarIdTiquete(String id);
 	
 	List<HashMap<Tiquete, String>> getListaOfertas();
 

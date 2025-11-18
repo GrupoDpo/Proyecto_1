@@ -6,15 +6,15 @@ public class Localidad {
 	public static final int VIP = 3;
 	
 	private String nombre;
-	private int precio;
+	private double precio;
 	private boolean numerada;
 	private int capacidad;
 	private int tipo;
 	
 	
-	public Localidad(String nombre,int precio,int capacidad, int tipo) {
+	public Localidad(String nombre,double precio2,int capacidad, int tipo) {
 		this.setNombre(nombre);
-		this.precio= precio;
+		this.precio= precio2;
 		this.capacidad = capacidad;
 		this.tipo = tipo;
 		setNumerada(true);
@@ -49,9 +49,9 @@ public class Localidad {
 	}
 
 	// cuando es VIP se le suma 50000 de cargo, cuando es tipo grada se le suma 20000 y en general no se le suma nada de cargo.
-	public int calcularPrecio() {
+	public double calcularPrecio() {
 		
-		int precioCalculado = precio;
+		double precioCalculado = precio;
 	
 		if(getTipo()==VIP) {
 			precioCalculado +=50000;

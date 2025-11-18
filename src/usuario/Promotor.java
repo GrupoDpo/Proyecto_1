@@ -7,7 +7,7 @@ import java.util.List;
 
 import Evento.Evento;
 import Evento.Venue;
-import Persistencia.PersistenciaUsuarios;
+import Persistencia.SistemaPersistencia;
 import tiquete.Tiquete;
 
 public class Promotor extends Usuario implements IDuenoTiquetes {
@@ -15,17 +15,20 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 	private double saldo;
 	private ArrayList<Tiquete> tiquetes;
 	private List<HashMap<Tiquete, String>> listaOfertas;
+	private List<String> idsTiquetes = new ArrayList<>();
 
 	public Promotor(String login, String password, double saldo, String tipoUsuario) {
 		super(login, password, tipoUsuario);
 		this.saldo = saldo;
+		this.tiquetes = new ArrayList<Tiquete>();
+		this.idsTiquetes = new ArrayList<String>();
 	}
 	
 	public double getSaldo() {
 		return this.saldo;
 	}
 	
-	public void verGanancias() {
+	public void verGanancias(double cobroEmision) {
 	    double gananciaTotal = 0.0;
 	    int totalVendidos = 0;
 	    int totalDisponibles = 0;
@@ -36,7 +39,7 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 
 	    for (Tiquete t : tiquetes) {
 	        Evento evento = t.getEvento();
-	        double precioBase = t.calcularPrecio();
+	        double precioBase = t.calcularPrecio(cobroEmision);
 
 	        // Si está vendido, sumamos a ganancias
 	        if (t.isTransferido()) {
@@ -94,11 +97,34 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 		return this.tiquetes;
 	}
 	
-	public void agregarTiquete(Tiquete tiquete) {
-        tiquetes.add(tiquete);
+	public void agregarTiquete(Tiquete t) {
+        tiquetes.add(t);
+        agregarIdTiquete(t.getId());
     }
-	public void eliminarTiquete(Tiquete tiquete) {
-        tiquetes.remove(tiquete);
+
+    public void eliminarTiquete(Tiquete t) {
+        tiquetes.remove(t);
+        eliminarIdTiquete(t.getId());
+    }
+
+    @Override
+    public List<String> getIdsTiquetes() {
+        return idsTiquetes;
+    }
+
+    @Override
+    public void setIdsTiquetes(List<String> ids) {
+        this.idsTiquetes = ids;
+    }
+
+    @Override
+    public void agregarIdTiquete(String id) {
+        if (!idsTiquetes.contains(id)) idsTiquetes.add(id);
+    }
+
+    @Override
+    public void eliminarIdTiquete(String id) {
+        idsTiquetes.remove(id);
     }
 
 	@Override
@@ -120,23 +146,23 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 		return listaOfertas;
 	}
 
-	public void sugerirVenue(Venue venue, String mensaje) {
+	public void sugerirVenue(Venue venue, String mensaje,SistemaPersistencia sistema) {
+		 Administrador admin = sistema.getAdministrador();
 	    HashMap<Venue, String> solicitud = new HashMap<>();
 	    solicitud.put(venue, mensaje);
 
-	    PersistenciaUsuarios persistencia = new PersistenciaUsuarios();
-	    Administrador admin = persistencia.recuperarAdministrador();
-
+	   
 	    if (admin != null) {
 	        admin.getSolicitudesVenue().add(solicitud);
 
-	        persistencia.agregar(admin);
+	        sistema.guardarTodo();
 
 	        System.out.println("Solicitud enviada correctamente al administrador.");
 	    } else {
 	        System.out.println("Error: no se encontró al administrador en el sistema.");
 	    }
 	}
-
+	
+	
 	
 }

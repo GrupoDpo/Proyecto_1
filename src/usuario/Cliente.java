@@ -12,10 +12,12 @@ public class Cliente extends Usuario implements IDuenoTiquetes  {
 	private double saldo;
 	private ArrayList<Tiquete> tiquetes;
 	private List<HashMap<Tiquete, String>> listaOfertas;
+	private List<String> idsTiquetes = new ArrayList<>();
 	public Cliente(String login, String password, double saldo, String tipoUsuario) {
 		super(login, password, tipoUsuario);
 		this.saldo = saldo;
 		this.tiquetes = new ArrayList<Tiquete>();
+		this.idsTiquetes = new ArrayList<String>();
 		
 	}
 	
@@ -26,14 +28,35 @@ public class Cliente extends Usuario implements IDuenoTiquetes  {
 	public Collection<Tiquete> getTiquetes() {
 		return this.tiquetes;
 	}
-	public void agregarTiquete(Tiquete tiquete) {
-        tiquetes.add(tiquete);
+	public void agregarTiquete(Tiquete t) {
+        tiquetes.add(t);
+        agregarIdTiquete(t.getId());
     }
-	public void eliminarTiquete(Tiquete tiquete) {
-        tiquetes.remove(tiquete);
+
+    public void eliminarTiquete(Tiquete t) {
+        tiquetes.remove(t);
+        eliminarIdTiquete(t.getId());
     }
-	
-	
+
+    @Override
+    public List<String> getIdsTiquetes() {
+        return idsTiquetes;
+    }
+
+    @Override
+    public void setIdsTiquetes(List<String> ids) {
+        this.idsTiquetes = ids;
+    }
+
+    @Override
+    public void agregarIdTiquete(String id) {
+        if (!idsTiquetes.contains(id)) idsTiquetes.add(id);
+    }
+
+    @Override
+    public void eliminarIdTiquete(String id) {
+        idsTiquetes.remove(id);
+    }
 
 	@Override
 	public String getTipoUsuario() {
@@ -54,7 +77,6 @@ public class Cliente extends Usuario implements IDuenoTiquetes  {
 	public List<HashMap<Tiquete, String>> getListaOfertas() {
 		return  listaOfertas;
 	}
-	
 	
 	
 
