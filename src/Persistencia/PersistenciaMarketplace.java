@@ -115,6 +115,7 @@ public class PersistenciaMarketplace {
         // reconstruir ofertas
         String bloqueOfertas = TextoUtils.obtenerBloque(raw, "\"ofertas\"");
         List<String> bloques = TextoUtils.dividirBloques(bloqueOfertas);
+        
 
         for (String b : bloques) {
 
@@ -123,28 +124,30 @@ public class PersistenciaMarketplace {
 
             if (id == null || id.isEmpty()) continue;
 
-            // Aquí NO reconstruimos Tiquete real
-            // Sólo guardamos el id en un "tiquete fantasma"
-            // que luego SistemaPersistencia reemplaza por el tiquete real.
-
+            // Tiquete placeholder
             Tiquete tiquetePlaceholder = new TiquetePlaceholder(id);
 
             HashMap<Tiquete,String> map = new HashMap<>();
-            map.put(tiquetePlaceholder, info);
+            map.put(tiquetePlaceholder, TextoUtils.unescape(info)); // ✅ Unescape aquí también
 
             market.getOfertas().add(map);
         }
 
-        // reconstruir logEventos
+        // ✅ CORREGIDO: reconstruir logEventos
         String bloqueLogs = TextoUtils.obtenerBloque(raw, "\"logEventos\"");
-        List<String> listaLogs = TextoUtils.dividirBloques(bloqueLogs);
+        
+        if (!bloqueLogs.isEmpty()) {
+            // Usar dividirArraySimple para arrays de strings simples
+            List<String> listaLogs = TextoUtils.dividirArraySimple(bloqueLogs);
 
-        for (String l : listaLogs) {
-            String valor = TextoUtils.obtener(l, "");
-            if (valor != null && !valor.isEmpty()) {
-                market.getLogEventos().add(valor);
+            for (String log : listaLogs) {
+                if (log != null && !log.isEmpty()) {
+                    market.getLogEventos().add(log); // Ya viene sin escape de dividirArraySimple
+                }
             }
         }
+        
+
 
         return market;
     }

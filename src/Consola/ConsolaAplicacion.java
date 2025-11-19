@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 
@@ -14,6 +15,7 @@ import Finanzas.Transaccion;
 import Finanzas.marketPlaceReventas;
 import Persistencia.SistemaPersistencia;
 import excepciones.IDNoEncontrado;
+import excepciones.OfertaNoDIsponibleException;
 import excepciones.SaldoInsuficienteExeption;
 import excepciones.TiquetesNoDisponiblesException;
 import excepciones.TiquetesVencidosTransferidos;
@@ -170,28 +172,30 @@ public class ConsolaAplicacion {
 
         do {
             System.out.println("\n====== MENÚ USUARIO ======");
-            System.out.println("Saldo: " + usuario.getSaldo());
+            System.out.println("Saldo: $" + String.format("%.2f", usuario.getSaldo()));
             System.out.println("1. Comprar tiquete");
             System.out.println("2. Comprar Paquete Deluxe");
             System.out.println("3. Transferir tiquete");
             System.out.println("4. Crear oferta de reventa");
-            System.out.println("5. Comprar en marketplace");
-            System.out.println("6. Contraofertar");
-            System.out.println("7. Recargar saldo");
-            System.out.println("8. Solicitar reembolso");
-            
+            System.out.println("5. Cancelar oferta de reventa");
+            System.out.println("6. Comprar en marketplace");
+            System.out.println("7. Contraofertar");
+            System.out.println("8. Ver contraofertas recibidas");
+            System.out.println("9. Recargar saldo");
+            System.out.println("10. Solicitar reembolso");
+
             // Opciones específicas por tipo de usuario
             if (usuario instanceof Organizador) {
-                System.out.println("9. Crear evento");
-                System.out.println("10. Solicitar cancelación de evento");
-                System.out.println("11. Agregar tiquetes al evento");
+                System.out.println("11. Crear evento");
+                System.out.println("12. Solicitar cancelación de evento");
+                System.out.println("13. Agregar tiquetes al evento");
             }
-            
+
             if (usuario instanceof Promotor) {
-                System.out.println("9. Sugerir venue");
-                System.out.println("10. Ver ganancias");
+                System.out.println("11. Sugerir venue");
+                System.out.println("12. Ver ganancias");
             }
-            
+
             System.out.println("0. Salir");
             System.out.print("Seleccione: ");
 
@@ -217,22 +221,31 @@ public class ConsolaAplicacion {
                     break;
 
                 case 5:
-                    comprarMarketplace(usuario, sistema, trans);
+                    cancelarOferta(usuario, sistema, market);
                     break;
 
                 case 6:
-                    market.contraofertar((Usuario) usuario, sistema);
+                    comprarMarketplace(usuario, sistema, trans);
                     break;
 
                 case 7:
-                    recargarSaldo(usuario);
+                    contraofertar(usuario, sistema, market);
                     break;
-
+                    
+                    
                 case 8:
-                    solicitarReembolso(usuario, sistema, trans);
+                	verContraofertas(usuario, sistema,market);
                     break;
 
                 case 9:
+                    recargarSaldo(usuario);
+                    break;
+
+                case 10:
+                    solicitarReembolso(usuario, sistema, trans);
+                    break;
+
+                case 11:
                     if (usuario instanceof Organizador) {
                         crearEvento((Organizador) usuario, sistema);
                     } else if (usuario instanceof Promotor) {
@@ -242,23 +255,23 @@ public class ConsolaAplicacion {
                     }
                     break;
 
-                case 10:
+                case 12:
                     if (usuario instanceof Organizador) {
                         solicitarCancelacionEvento((Organizador) usuario, sistema);
                     } else if (usuario instanceof Promotor) {
-                    	verGanancias((Promotor) usuario);
+                        verGanancias((Promotor) usuario);
                     } else {
                         System.out.println("Opción no válida para este tipo de usuario.");
                     }
                     break;
-                    
-                case 11:
-                	if (usuario instanceof Organizador) {
+
+                case 13:
+                    if (usuario instanceof Organizador) {
                         agregarTiquetesEvento((Organizador) usuario, sistema);
-                	}
-                    
-                    
-                  
+                    } else {
+                        System.out.println("Opción no válida para este tipo de usuario.");
+                    }
+                    break;
 
                 case 0:
                     break;
@@ -689,6 +702,363 @@ public class ConsolaAplicacion {
 
         trans.revenderTiquete(t, precio, (Usuario) usuario, sistema);
         System.out.println("Oferta publicada.");
+    }
+    
+    
+    
+    private static void cancelarOferta(IDuenoTiquetes usuario, SistemaPersistencia sistema, marketPlaceReventas market) {
+        System.out.println("\n=== CANCELAR OFERTA DE REVENTA ===");
+        
+        Queue<HashMap<Tiquete,String>> todasOfertas = market.getOfertas();
+        
+        if (todasOfertas == null || todasOfertas.isEmpty()) {
+            System.out.println("No hay ofertas en el marketplace.");
+            return;
+        }
+        
+        // Buscar ofertas del usuario
+        List<OfertaInfo> misOfertas = new ArrayList<>();
+        
+        for (HashMap<Tiquete,String> oferta : todasOfertas) {
+            for (Map.Entry<Tiquete,String> e : oferta.entrySet()) {
+                Tiquete t = e.getKey();
+                String info = e.getValue();
+                
+                // Extraer login del vendedor de la info
+                String loginVendedor = info.split(" - ")[0];
+                
+                if (loginVendedor.equals(((Usuario)usuario).getLogin())) {
+                    double precio = 0;
+                    try {
+                        precio = marketPlaceReventas.extraerPrecio(info);
+                    } catch (Exception ex) {
+                        precio = 0;
+                    }
+                    misOfertas.add(new OfertaInfo(t, (Usuario)usuario, precio));
+                }
+            }
+        }
+        
+        if (misOfertas.isEmpty()) {
+            System.out.println("No tienes ofertas publicadas.");
+            return;
+        }
+        
+        // Mostrar ofertas del usuario
+        System.out.println("\nTus ofertas:");
+        for (int i = 0; i < misOfertas.size(); i++) {
+            OfertaInfo oferta = misOfertas.get(i);
+            String eventoNombre = oferta.tiquete.getEvento() != null 
+                ? oferta.tiquete.getEvento().getNombre() 
+                : "Sin evento";
+            
+            System.out.println((i + 1) + ". " + oferta.tiquete.getNombre() + " - " + eventoNombre);
+            System.out.println("   ID: " + oferta.tiquete.getId());
+            System.out.println("   Precio: $" + String.format("%.2f", oferta.precio));
+        }
+        
+        System.out.print("\nSelecciona la oferta a cancelar (número): ");
+        int seleccion = 0;
+        try {
+            seleccion = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("Opción inválida.");
+            return;
+        }
+        
+        if (seleccion < 1 || seleccion > misOfertas.size()) {
+            System.out.println("Opción no válida.");
+            return;
+        }
+        
+        OfertaInfo ofertaSeleccionada = misOfertas.get(seleccion - 1);
+        
+        // Confirmar cancelación
+        System.out.println("\n=== CONFIRMAR CANCELACIÓN ===");
+        System.out.println("Tiquete: " + ofertaSeleccionada.tiquete.getNombre());
+        System.out.println("ID: " + ofertaSeleccionada.tiquete.getId());
+        System.out.println("Precio publicado: $" + String.format("%.2f", ofertaSeleccionada.precio));
+        System.out.println("============================");
+        System.out.print("¿Confirmar cancelación? (s/n): ");
+        
+        if (!sc.nextLine().equalsIgnoreCase("s")) {
+            System.out.println("Cancelación abortada.");
+            return;
+        }
+        
+        try {
+            market.eliminarOferta(ofertaSeleccionada.tiquete, (Usuario)usuario, sistema);
+            System.out.println("\n✓ Oferta cancelada exitosamente.");
+            
+        } catch (OfertaNoDIsponibleException e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("✗ Error: " + e.getMessage());
+        }
+    }
+    
+    private static void contraofertar(IDuenoTiquetes usuario, SistemaPersistencia sistema, marketPlaceReventas market) {
+        System.out.println("\n=== HACER CONTRAOFERTA ===");
+        
+        Queue<HashMap<Tiquete,String>> todasOfertas = market.getOfertas();
+        
+        if (todasOfertas == null || todasOfertas.isEmpty()) {
+            System.out.println("No hay ofertas disponibles.");
+            return;
+        }
+        
+        // Filtrar ofertas (excluir las propias)
+        System.out.println("\n===== OFERTAS DISPONIBLES =====");
+        int num = 1;
+        HashMap<Integer, OfertaInfo> menuOfertas = new HashMap<>();
+        
+        for (HashMap<Tiquete,String> oferta : todasOfertas) {
+            for (Map.Entry<Tiquete,String> e : oferta.entrySet()) {
+                Tiquete t = e.getKey();
+                String info = e.getValue();
+                
+                // Extraer login del vendedor
+                String loginVendedor = info.split(" - ")[0];
+                
+                // No mostrar ofertas propias
+                if (loginVendedor.equals(((Usuario)usuario).getLogin())) {
+                    continue;
+                }
+                
+                Usuario vendedor = sistema.buscarUsuario(loginVendedor);
+                
+                if (vendedor != null) {
+                    double precioActual = 0;
+                    try {
+                        precioActual = marketPlaceReventas.extraerPrecio(info);
+                    } catch (Exception ex) {
+                        precioActual = 0;
+                    }
+                    
+                    String eventoNombre = t.getEvento() != null 
+                        ? t.getEvento().getNombre() 
+                        : "Sin evento";
+                    
+                    System.out.println(num + ". " + t.getNombre() + " - " + eventoNombre);
+                    System.out.println("   ID: " + t.getId());
+                    System.out.println("   Precio actual: $" + String.format("%.2f", precioActual));
+                    System.out.println("   Vendedor: " + loginVendedor);
+                    System.out.println();
+                    
+                    menuOfertas.put(num, new OfertaInfo(t, vendedor, precioActual));
+                    num++;
+                }
+            }
+        }
+        
+        if (menuOfertas.isEmpty()) {
+            System.out.println("No hay ofertas disponibles (o todas son tuyas).");
+            return;
+        }
+        
+        System.out.println("================================");
+        System.out.print("Selecciona la oferta para contraofertar (número): ");
+        
+        int seleccion = 0;
+        try {
+            seleccion = Integer.parseInt(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Opción inválida.");
+            return;
+        }
+        
+        if (!menuOfertas.containsKey(seleccion)) {
+            System.out.println("✗ Opción no válida.");
+            return;
+        }
+        
+        OfertaInfo ofertaSeleccionada = menuOfertas.get(seleccion);
+        
+        // Mostrar detalle
+        System.out.println("\n=== DETALLE DE LA OFERTA ===");
+        System.out.println("Tiquete: " + ofertaSeleccionada.tiquete.getNombre());
+        System.out.println("ID: " + ofertaSeleccionada.tiquete.getId());
+        System.out.println("Precio actual: $" + String.format("%.2f", ofertaSeleccionada.precio));
+        System.out.println("Vendedor: " + ofertaSeleccionada.vendedor.getLogin());
+        System.out.println("============================");
+        
+        System.out.print("\nIngresa tu contraoferta (precio): $");
+        double nuevoPrecio = 0;
+        try {
+            nuevoPrecio = Double.parseDouble(sc.nextLine());
+        } catch (Exception e) {
+            System.out.println("✗ Precio inválido.");
+            return;
+        }
+        
+        if (nuevoPrecio <= 0) {
+            System.out.println("✗ El precio debe ser mayor a 0.");
+            return;
+        }
+        
+        // Confirmar contraoferta
+        System.out.println("\n=== CONFIRMAR CONTRAOFERTA ===");
+        System.out.println("Tiquete: " + ofertaSeleccionada.tiquete.getNombre());
+        System.out.println("Precio actual: $" + String.format("%.2f", ofertaSeleccionada.precio));
+        System.out.println("Tu contraoferta: $" + String.format("%.2f", nuevoPrecio));
+        
+        if (nuevoPrecio >= ofertaSeleccionada.precio) {
+            System.out.println("⚠ Tu contraoferta es igual o mayor al precio actual.");
+            System.out.println("   ¿Prefieres comprar directamente?");
+        }
+        
+        System.out.println("==============================");
+        System.out.print("¿Enviar contraoferta? (s/n): ");
+        
+        if (!sc.nextLine().equalsIgnoreCase("s")) {
+            System.out.println("Contraoferta cancelada.");
+            return;
+        }
+        
+        try {
+            market.registrarContraoferta(
+                ofertaSeleccionada.tiquete,
+                ofertaSeleccionada.vendedor,
+                (Usuario) usuario,
+                nuevoPrecio,
+                sistema
+            );
+            
+            System.out.println("\n✓ Contraoferta enviada al vendedor.");
+            System.out.println("  El vendedor puede aceptar o rechazar tu oferta.");
+            
+        } catch (TransferenciaNoPermitidaException e) {
+            System.out.println("✗ " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("✗ Error: " + e.getMessage());
+        }
+    }
+    
+    private static void verContraofertas(IDuenoTiquetes usuario, SistemaPersistencia sistema, marketPlaceReventas market) {
+        System.out.println("\n=== CONTRAOFERTAS RECIBIDAS ===");
+        
+        List<HashMap<Tiquete,String>> contraofertas = usuario.getListaOfertas();
+        
+        if (contraofertas == null || contraofertas.isEmpty()) {
+            System.out.println("No tienes contraofertas pendientes.");
+            return;
+        }
+        
+        List<HashMap<Tiquete,String>> procesadas = new ArrayList<>();
+        int num = 1;
+        
+        for (HashMap<Tiquete,String> contraoferta : contraofertas) {
+            for (Map.Entry<Tiquete,String> e : contraoferta.entrySet()) {
+                Tiquete tiq = e.getKey();
+                String info = e.getValue();
+                
+                // Extraer comprador y precio
+                String[] partes = info.split(" - ");
+                if (partes.length < 2) continue;
+                
+                String loginComprador = partes[0];
+                
+                double precio = 0;
+                try {
+                    precio = marketPlaceReventas.extraerPrecio(info);
+                } catch (Exception ex) {
+                    System.out.println("⚠ Error extrayendo precio de: " + info);
+                    continue;
+                }
+                
+                // Buscar comprador
+                Usuario comprador = sistema.buscarUsuario(loginComprador);
+                
+                if (comprador == null) {
+                    System.out.println("⚠ Comprador no encontrado: " + loginComprador);
+                    continue;
+                }
+                
+                // Buscar tiquete real
+                Tiquete tiqueteReal = sistema.buscarTiquetePorId(tiq.getId());
+                
+                if (tiqueteReal == null) {
+                    System.out.println("⚠ Tiquete no encontrado: " + tiq.getId());
+                    procesadas.add(contraoferta);
+                    continue;
+                }
+                
+                // Mostrar contraoferta
+                System.out.println("\n--- Contraoferta #" + num + " ---");
+                System.out.println("Tiquete: " + tiqueteReal.getNombre());
+                System.out.println("ID: " + tiqueteReal.getId());
+                
+                if (tiqueteReal.getEvento() != null) {
+                    System.out.println("Evento: " + tiqueteReal.getEvento().getNombre());
+                }
+                
+                System.out.println("De: " + loginComprador);
+                System.out.println("Precio ofrecido: $" + String.format("%.2f", precio));
+                
+                // Verificar saldo del comprador
+                if (comprador instanceof IDuenoTiquetes) {
+                    double saldoComprador = ((IDuenoTiquetes) comprador).getSaldo();
+                    System.out.println("Saldo del comprador: $" + String.format("%.2f", saldoComprador));
+                    
+                    if (saldoComprador < precio) {
+                        System.out.println("El comprador NO tiene saldo suficiente.");
+                    }
+                }
+                
+                System.out.println("----------------------");
+                System.out.println("[1] Aceptar");
+                System.out.println("[2] Rechazar");
+                System.out.print("Opción: ");
+                
+                int opcion = 0;
+                try {
+                    opcion = Integer.parseInt(sc.nextLine());
+                } catch (Exception ex) {
+                    opcion = 2;
+                }
+                
+                try {
+                    if (opcion == 1) {
+                        // Aceptar contraoferta
+                        market.procesarContraoferta(
+                            tiqueteReal,
+                            (Usuario) usuario,
+                            comprador,
+                            true,
+                            precio,
+                            sistema
+                        );
+                        
+                        System.out.println("\n✓ Contraoferta aceptada exitosamente.");
+                        System.out.println("  Recibiste: $" + String.format("%.2f", precio));
+                        System.out.println("  Nuevo saldo: $" + String.format("%.2f", usuario.getSaldo()));
+                        
+                    } else {
+                        market.procesarContraoferta(
+                            tiqueteReal,
+                            (Usuario) usuario,
+                            comprador,
+                            false,
+                            precio,
+                            sistema
+                        );
+                    }
+                    
+                    procesadas.add(contraoferta);
+                    
+                } catch (TransferenciaNoPermitidaException ex) {
+                    System.out.println("✗ Error: " + ex.getMessage());
+                    procesadas.add(contraoferta);
+                }
+                
+                num++;
+            }
+        }
+        
+        contraofertas.removeAll(procesadas);
+        sistema.guardarTodo();
+        
+        System.out.println("\n✓ Todas las contraofertas fueron procesadas.");
     }
 
     private static void comprarMarketplace(IDuenoTiquetes usuario, SistemaPersistencia sistema, Transaccion trans) throws TransferenciaNoPermitidaException {

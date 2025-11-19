@@ -26,6 +26,7 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 		this.eventos = new ArrayList<>();
 		this.tiquetes = new ArrayList<Tiquete>();
 		this.idsTiquetes = new ArrayList<String>();
+		this.listaOfertas = new ArrayList<>();
 	}
 	
 	public Collection<Tiquete> getTiquetes() {

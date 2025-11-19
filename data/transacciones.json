@@ -1,4 +1,53 @@
 {
   "transacciones": [
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-11-18T18:47:33.834540400",
+      "valor": 110000.0,
+      "dueno": "mateo12",
+      "idTiquete": "TIQ-00000007"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-11-18T18:52:21.672383600",
+      "valor": 110000.0,
+      "dueno": "JuanL",
+      "idTiquete": "TIQ-00000004"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-11-18T18:57:51.976364500",
+      "valor": 1375000.0,
+      "dueno": "Harry2",
+      "idTiquete": "TIQ-00000020"
+    },
+    {
+      "tipo": "TRANSFERENCIA",
+      "fecha": "2025-11-18T18:58:27.481565400",
+      "valor": 0.0,
+      "dueno": "Harry2",
+      "idTiquete": "TIQ-00000018"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-11-18T18:58:52.572380800",
+      "valor": 0.0,
+      "dueno": "Harry2",
+      "idTiquete": "TIQ-00000019"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-11-18T19:15:40.003606",
+      "valor": 0.0,
+      "dueno": "mateo12",
+      "idTiquete": "TIQ-00000007"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-11-18T19:24:09.256085200",
+      "valor": 0.0,
+      "dueno": "JuanL",
+      "idTiquete": "TIQ-00000004"
+    }
   ]
 }

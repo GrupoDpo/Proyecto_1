@@ -18,6 +18,7 @@ public class Cliente extends Usuario implements IDuenoTiquetes  {
 		this.saldo = saldo;
 		this.tiquetes = new ArrayList<Tiquete>();
 		this.idsTiquetes = new ArrayList<String>();
+		this.listaOfertas = new ArrayList<>();
 		
 	}
 	

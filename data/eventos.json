@@ -1,4 +1,24 @@
 {
   "eventos": [
+    {
+      "nombre": "Concierto Duki",
+      "fecha": "2026-05-22",
+      "hora": "21:00",
+      "loginOrganizador": "Samuel12",
+      "cancelado": false,
+      "venueUbicacion": "Movistar Arena",
+      "venueCapMax": 25000,
+      "venueAprobado": false
+    },
+    {
+      "nombre": "Final Mundial",
+      "fecha": "2026-06-25",
+      "hora": "22:00",
+      "loginOrganizador": "Samuel12",
+      "cancelado": false,
+      "venueUbicacion": "EEUU",
+      "venueCapMax": 60000,
+      "venueAprobado": false
+    }
   ]
 }

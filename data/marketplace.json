@@ -1,6 +1,17 @@
 {
   "ofertas": [
+    {
+      "tiqueteId": "TIQ-00000019",
+      "info": "Harry2 - Precio: $30000.0"
+    }
   ],
   "logEventos": [
+    "[2025-11-18 18:58:52] Oferta creada por Harry2 para tiquete TIQ-00000019 con precio $30000.0",
+    "[2025-11-18 19:15:39] Oferta creada por mateo12 para tiquete TIQ-00000007 con precio $40000.0",
+    "[2025-11-18 19:24:09] Oferta creada por JuanL para tiquete TIQ-00000004 con precio $50000.0",
+    "[2025-11-18 19:24:32] Oferta eliminada por JuanL para tiquete TIQ-00000004",
+    "[2025-11-18 19:56:52] JuanL hizo una contraoferta a Harry2 por el tiquete TIQ-00000019 con precio $28000.0",
+    "[2025-11-18 20:01:48] Harry2 hizo una contraoferta a mateo12 por el tiquete TIQ-00000007 con precio $35000.0",
+    "[2025-11-18 20:02:18] Contraoferta ACEPTADA: mateo12 vendió tiquete TIQ-00000007 a Harry2 por $35000.0"
   ]
 }
