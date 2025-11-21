@@ -16,8 +16,8 @@
       "login": "mateo12",
       "password": "mateo123",
       "tipo": "CLIENTE",
-      "saldo": 5925000.0,
-      "idsTiquetes": ["TIQ-00000008", "TIQ-00000009", "TIQ-00000003"]
+      "saldo": 5975000.0,
+      "idsTiquetes": ["TIQ-00000008", "TIQ-00000009"]
     },
     {
       "login": "Samuel12",

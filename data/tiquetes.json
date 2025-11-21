@@ -37,7 +37,7 @@
       "recargo": 10.0,
       "fechaExpiracion": "2026-05-22",
       "nombre": "Platea",
-      "transferido": true,
+      "transferido": false,
       "anulado": false,
       "eventoAsociado": "Concierto Duki",
       "localidadNombre": "Platea",
