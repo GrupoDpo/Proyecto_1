@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Map.Entry;
@@ -13,6 +14,7 @@ import Evento.SolicitudCancelacion;
 import Evento.Venue;
 import Persistencia.PersistenciaEventos;
 import Persistencia.SistemaPersistencia;
+import excepciones.TransferenciaNoPermitidaException;
 import tiquete.Tiquete;
 
 public class Administrador extends Usuario {
@@ -100,47 +102,84 @@ public class Administrador extends Usuario {
     
    
   
-    public void verSolicitud(Usuario dueno) {
-        try (Scanner sc = new Scanner(System.in)) {
-			List<HashMap<Tiquete, String>> procesados = new ArrayList<>();
+    public void verSolicitudReembolso(Usuario dueno, Tiquete tiqueteReembolso, SistemaPersistencia sistema, boolean aceptada) throws TransferenciaNoPermitidaException {
+       
+    	if (!(dueno instanceof IDuenoTiquetes)) {
+            throw new TransferenciaNoPermitidaException("El usuario no puede tener tiquetes.");
+        }
+    	IDuenoTiquetes duenoTiquete = (IDuenoTiquetes) dueno;
+    	
+    	Tiquete tiqueteReal = sistema.buscarTiquetePorId(tiqueteReembolso.getId());
+    	
+    	if (tiqueteReal == null) {
+            throw new TransferenciaNoPermitidaException("Tiquete no encontrado.");
+        }
+    	
+    	boolean esDueno = false;
+        for (Tiquete t : duenoTiquete.getTiquetes()) {
+            if (t.getId().equals(tiqueteReal.getId())) {
+                esDueno = true;
+                break;
+            }
+        }
 
-			for (HashMap<Tiquete, String> mapa : rembolsosSolicitados) {
-			    for (Entry<Tiquete, String> entry : mapa.entrySet()) {
-			        Tiquete tiqueteRembolso = entry.getKey();
-			        String motivo = entry.getValue();
+        if (!esDueno) {
+            throw new TransferenciaNoPermitidaException(
+                "El usuario no es dueño de este tiquete.");
+        }
+    	
+    	
+    		duenoTiquete.actualizarSaldo(duenoTiquete.getSaldo() + tiqueteReal.getPrecioBaseSinCalcular());
+    		duenoTiquete.eliminarTiquete(tiqueteReal);
+    	
+    	
+    		HashMap<Tiquete,String> solicitudEliminar = null;
+   
+    		for (HashMap<Tiquete,String> solicitud : rembolsosSolicitados) {
+    	        for (Map.Entry<Tiquete,String> entry : solicitud.entrySet()) {
+    	            if (entry.getKey().getId().equals(tiqueteReal.getId())) {
+    	                solicitudEliminar = solicitud;
+    	                break;
+    	            }
+    	        }
+    	        if (solicitudEliminar != null) break;
+    	    }
 
-			        System.out.println("--- Solicitud de reembolso ---");
-			        System.out.println("Tiquete: " + tiqueteRembolso.getId());
-			        System.out.println("Motivo: " + motivo);
-			        System.out.println("[1] Aceptar");
-			        System.out.println("[2] Rechazar");
-			        System.out.print("Seleccione una opción: ");
+    	    if (solicitudEliminar == null) {
+    	        throw new TransferenciaNoPermitidaException(
+    	            "No se encontró la solicitud de reembolso.");
+    	    }
+        
+    	    if (aceptada) {
+    
+    	        
+    	        double montoReembolso = tiqueteReal.getPrecioBaseSinCalcular();
+    	        
+    	        duenoTiquete.actualizarSaldo(duenoTiquete.getSaldo() + montoReembolso);
+    	        
 
-			        int opcion = sc.nextInt(); 
-			        sc.nextLine(); 
+    	        duenoTiquete.eliminarTiquete(tiqueteReal);
+    	        
+    
+    	        if (tiqueteReal.getEvento() != null) {
+    	            tiqueteReal.setTransferido(false); 
+    	            tiqueteReal.getEvento().agregarTiquete(tiqueteReal);
+    	        }
+    	        
+    	        System.out.println("Reembolso ACEPTADO");
+    	        System.out.println("Monto devuelto: $" + String.format("%.2f", montoReembolso));
+    	        System.out.println("Nuevo saldo: $" + String.format("%.2f", duenoTiquete.getSaldo()));
+    	        
+    	    } else {
+    
+    	        System.out.println("✗ Reembolso RECHAZADO");
+    	        System.out.println("  El tiquete permanece con el usuario.");
+    	    }
 
-			        if (opcion == 1) {
-			            if (dueno instanceof IDuenoTiquetes) {
-			                IDuenoTiquetes duenoTiquete = (IDuenoTiquetes) dueno;
-			                double dineroReembolso = tiqueteRembolso.calcularPrecio(cobroEmision)
-			                        - (tiqueteRembolso.calcularPrecio(cobroEmision) * porcentajeAdicional)
-			                        - cobroEmision;
-			                duenoTiquete.actualizarSaldo(dineroReembolso);
-			                duenoTiquete.eliminarTiquete(tiqueteRembolso);
-			                System.out.println("Reembolso aceptado. Dinero devuelto: $" + dineroReembolso);
-			            }
-			        } else if (opcion == 2) {
-			            System.out.println("Reembolso rechazado.");
-			        }
+    	    rembolsosSolicitados.remove(solicitudEliminar);
 
-			        procesados.add(mapa);
-			    }
-			}
-
-			rembolsosSolicitados.removeAll(procesados);
-		}
-        System.out.println("No hay más solicitudes pendientes.");
-    }
+    	    sistema.guardarTodo();
+    	}
     
     
     public Queue<HashMap<Tiquete, String>> getSolicitudes() {

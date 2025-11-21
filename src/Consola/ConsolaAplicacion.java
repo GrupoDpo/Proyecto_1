@@ -1688,15 +1688,11 @@ public class ConsolaAplicacion {
                 case 2:
                     // Procesa y persiste cambios en las solicitudes de venues
                     admin.verSolicitudVenue();
-                    sistema.guardarTodo();
                     break;
 
                 case 3:
-                    // Reembolsos: usa admin.verSolicitud pasando un "dueno" apropiado.
-                    // En la implementación actual el método espera un Usuario dueño (para devolver el dinero).
-                    // Aquí mostramos las solicitudes y permitimos que admin procese.
-                    admin.verSolicitud(admin); // le pasamos admin solo para que use la lógica de devolución.
-                    sistema.guardarTodo();
+                	verSolicitudesReembolso(admin, sistema); 
+           
                     break;
 
                 case 4:
@@ -1742,7 +1738,7 @@ public class ConsolaAplicacion {
                     // Usar la implementación del admin que gestiona solicitudes de cancelación y que necesita SistemaPersistencia
                     admin.verSolicitudCancelacionEvento(sistema);
                     // el método internamente persiste cuando corresponde, pero forzamos guardar por seguridad
-                    sistema.guardarTodo();
+       
                     break;
                     
                 case 7:
@@ -1770,6 +1766,105 @@ public class ConsolaAplicacion {
             }
 
         } while (op != 0);
+    }
+    
+    
+    private static void verSolicitudesReembolso(Administrador admin, SistemaPersistencia sistema) {
+        System.out.println("\n=== SOLICITUDES DE REEMBOLSO ===");
+        
+    
+        Queue<HashMap<Tiquete,String>> solicitudes = admin.getSolicitudes();
+        
+        if (solicitudes == null || solicitudes.isEmpty()) {
+            System.out.println("No hay solicitudes de reembolso pendientes.");
+            return;
+        }
+        
+        List<HashMap<Tiquete,String>> procesadas = new ArrayList<>();
+        int num = 1;
+        
+        for (HashMap<Tiquete,String> solicitud : solicitudes) {
+            for (Map.Entry<Tiquete,String> entry : solicitud.entrySet()) {
+                Tiquete tiq = entry.getKey();
+                String motivo = entry.getValue();
+                
+                // Buscar tiquete real
+                Tiquete tiqueteReal = sistema.buscarTiquetePorId(tiq.getId());
+                
+                if (tiqueteReal == null) {
+                    System.out.println(" Tiquete no encontrado: " + tiq.getId());
+                    procesadas.add(solicitud);
+                    continue;
+                }
+                
+                // Buscar el dueño del tiquete
+                Usuario dueno = null;
+                for (Usuario u : sistema.getUsuarios()) {
+                    if (u instanceof IDuenoTiquetes) {
+                        IDuenoTiquetes duenoT = (IDuenoTiquetes) u;
+                        
+                        for (Tiquete t : duenoT.getTiquetes()) {
+                            if (t.getId().equals(tiqueteReal.getId())) {
+                                dueno = u;
+                                break;
+                            }
+                        }
+                    }
+                    if (dueno != null) break;
+                }
+                
+                if (dueno == null) {
+                    System.out.println(" No se encontró dueño para tiquete: " + tiq.getId());
+                    procesadas.add(solicitud);
+                    continue;
+                }
+                
+                // Mostrar solicitud
+                System.out.println("\n--- Solicitud #" + num + " ---");
+                System.out.println("Usuario: " + dueno.getLogin());
+                System.out.println("Tiquete: " + tiqueteReal.getNombre());
+                System.out.println("ID: " + tiqueteReal.getId());
+                
+                if (tiqueteReal.getEvento() != null) {
+                    System.out.println("Evento: " + tiqueteReal.getEvento().getNombre());
+                    System.out.println("Fecha evento: " + tiqueteReal.getEvento().getFecha());
+                }
+                
+                double precioBase = tiqueteReal.getPrecioBaseSinCalcular();
+                
+                System.out.println("Precio base: $" + String.format("%.2f", precioBase));
+                System.out.println("Motivo: " + motivo);
+                System.out.println("----------------------");
+                System.out.println("[1] Aceptar reembolso");
+                System.out.println("[2] Rechazar");
+                System.out.print("Opción: ");
+                
+                int opcion = 0;
+                try {
+                    opcion = Integer.parseInt(sc.nextLine());
+                } catch (Exception e) {
+                    opcion = 2;
+                }
+                
+                try {
+                    if (opcion == 1) {
+                        admin.verSolicitudReembolso(dueno, tiqueteReal, sistema, true);
+                    } else {
+                        admin.verSolicitudReembolso(dueno, tiqueteReal, sistema, false);
+                    }
+                    
+                    procesadas.add(solicitud);
+                    
+                } catch (TransferenciaNoPermitidaException e) {
+                    System.out.println(" Error: " + e.getMessage());
+                    procesadas.add(solicitud);
+                }
+                
+                num++;
+            }
+        }
+        
+        System.out.println("\n Todas las solicitudes fueron procesadas.");
     }
     
 }
