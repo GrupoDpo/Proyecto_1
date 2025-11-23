@@ -1,44 +1,18 @@
 {
   "usuarios": [
     {
-      "login": "David22",
-      "password": "david123",
-      "tipo": "ADMINISTRADOR"
-    },
-    {
-      "login": "JuanL",
-      "password": "juan123",
+      "login": "vendedor",
+      "password": "pass1",
       "tipo": "CLIENTE",
-      "saldo": 6.989E7,
-      "idsTiquetes": ["TIQ-00000004", "TIQ-00000005", "TIQ-00000006", "TIQ-00000010", "TIQ-00000018"]
-    },
-    {
-      "login": "mateo12",
-      "password": "mateo123",
-      "tipo": "CLIENTE",
-      "saldo": 5975000.0,
-      "idsTiquetes": ["TIQ-00000008", "TIQ-00000009"]
-    },
-    {
-      "login": "Samuel12",
-      "password": "samuel123",
-      "tipo": "ORGANIZADOR",
-      "saldo": 0.0,
+      "saldo": 100000.0,
       "idsTiquetes": []
     },
     {
-      "login": "Andres22",
-      "password": "andres123",
-      "tipo": "PROMOTOR",
-      "saldo": 0.0,
-      "idsTiquetes": []
-    },
-    {
-      "login": "Harry2",
-      "password": "harry123",
+      "login": "comprador",
+      "password": "pass2",
       "tipo": "CLIENTE",
-      "saldo": 3590000.0,
-      "idsTiquetes": ["TIQ-00000020", "TIQ-00000019", "TIQ-00000014", "TIQ-00000015", "TIQ-00000007"]
+      "saldo": 200000.0,
+      "idsTiquetes": ["TIQ-T01"]
     }
   ]
 }
