@@ -35,6 +35,17 @@ public class Evento  {
 		this.estadoFinanciero = new EstadosFinancieros();
 	}
 	
+	public EstadosFinancieros getEstadoFinanciero() {
+        return estadoFinanciero;
+    }
+	
+	public void registrarVenta(double precioSinRecargos, double ingresoAdmin) {
+        if (estadoFinanciero == null) {
+            estadoFinanciero = new EstadosFinancieros();
+        }
+        estadoFinanciero.acumularVenta(precioSinRecargos, ingresoAdmin);
+    }
+	
 	public void setCancelado(boolean estado) {
 		this.cancelado = estado;
 	}
