@@ -32,7 +32,7 @@ public class Evento  {
 		tiquetesDisponibles = new HashMap<String, Tiquete>();
 		this.loginOrganizador = loginOrganizador;
 		this.cancelado = false;
-		
+		this.estadoFinanciero = new EstadosFinancieros();
 	}
 	
 	public void setCancelado(boolean estado) {

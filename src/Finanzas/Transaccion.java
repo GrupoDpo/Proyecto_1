@@ -132,6 +132,9 @@ public class Transaccion {
 
             System.out.println("✓ Tiquete transferido exitosamente.");
         }
+        
+        
+        
 
         // ===== REGISTRAR TRANSACCIÓN =====
         Registro registro = new Registro(dueno, tiquete, usuarioDestino);
@@ -237,6 +240,30 @@ public class Transaccion {
                     "Solo hay " + compradosCount + " tiquetes disponibles de esta localidad.");
             }
         }
+        
+        double precioBaseTotal;
+        double precioFinalTotal;
+
+        if (tiqueteComprar instanceof TiqueteMultiple) {
+            // Asumimos que la cantidad de paquetes es 1 en este flujo
+            double precioBaseUnitario = tiqueteComprar.getPrecioBaseSinCalcular();
+            double precioFinalUnitario = tiqueteComprar.calcularPrecio(cobroEmision);
+
+            precioBaseTotal = precioBaseUnitario;
+            precioFinalTotal = precioFinalUnitario;
+        } else {
+            double precioBaseUnitario = tiqueteComprar.getPrecioBaseSinCalcular();
+            double precioFinalUnitario = tiqueteComprar.calcularPrecio(cobroEmision);
+
+            precioBaseTotal = precioBaseUnitario * cantidad;
+            precioFinalTotal = precioFinalUnitario * cantidad;
+        }
+
+        // Lo que gana la tiquetera: SOLO sobrecargos fijados por el admin
+        double ingresoAdminTotal = precioFinalTotal - precioBaseTotal;
+
+        // Llamamos al helper que actualiza el EstadosFinancieros del evento y persiste
+        actualizarEstadosFinancierosEvento(eventoAsociado, precioBaseTotal, ingresoAdminTotal);
 
         Registro registro = new Registro(comprador, tiqueteComprar, null);
 
@@ -498,4 +525,33 @@ public class Transaccion {
         r.add(tiquetePublicado);
         return r;
     }
+    
+ // ---- Helper para actualizar estados financieros y persistir ----
+    private void actualizarEstadosFinancierosEvento(Evento evento,
+                                                    double precioBaseTotal,
+                                                    double ingresoAdminTotal) {
+        if (evento == null) return;
+
+        // Actualizar objeto en memoria
+        evento.registrarVenta(precioBaseTotal, ingresoAdminTotal);
+
+        // Persistir lista de eventos
+        SistemaPersistencia pers = new SistemaPersistencia();
+        List<Evento> eventos = pers.getEventos();
+
+        for (int i = 0; i < eventos.size(); i++) {
+            Evento ev = eventos.get(i);
+            if (ev.getNombre().equals(evento.getNombre()) &&
+                ev.getFecha().equals(evento.getFecha())) {
+                eventos.set(i, evento);
+                break;
+            }
+        }
+
+        pers.guardarTodo();
+    }
+
+    
+    
+    
 }

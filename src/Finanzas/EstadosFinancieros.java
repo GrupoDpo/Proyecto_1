@@ -1,7 +1,9 @@
 package Finanzas;
-public class EstadosFinancieros   {
 
+import java.io.Serializable;
 
+public class EstadosFinancieros implements Serializable  {
+	private static final long serialVersionUID = 1L;
 
 	public double preciosSinRecargos;
 	public double ganancias;
@@ -13,6 +15,10 @@ public class EstadosFinancieros   {
 		this.costoProduccion = costoProduccion;
 	}
 	
+	public EstadosFinancieros() {
+		this(0.0, 0.0, 0.0);
+	}
+	
 	public double getGanancias() {
 		
 		return this.ganancias;
@@ -22,14 +28,16 @@ public class EstadosFinancieros   {
 		return this.costoProduccion;
 	}
 	
-	public double getGananciasEvento() {
-		return (getGanancias() - getCostoProduccion());
-	}
 	
 	public double getPreciosSinRecargos() {
 		return this.preciosSinRecargos;
+	}
 	
+	public void acumularVenta(double precioSinRecargos, double ingresoAdministrador) {
+        this.preciosSinRecargos += precioSinRecargos;
+        this.ganancias += ingresoAdministrador;
+    }
 
-}
 
-}
+
+} 

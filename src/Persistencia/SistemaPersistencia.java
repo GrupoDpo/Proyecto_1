@@ -41,6 +41,7 @@ public class SistemaPersistencia {
     private PersistenciaTiquetes perTiquetes;
     private PersistenciaTransacciones perTrans;
     private PersistenciaMarketplace perMarket;
+    private PersistenciaVenues perVenues;
 
     // Datos en memoria
     private List<Usuario> usuarios;
@@ -48,21 +49,24 @@ public class SistemaPersistencia {
     private List<Tiquete> tiquetes;
     private List<Transaccion> transacciones;
     private marketPlaceReventas marketplace;
+    private List<Venue> venues;
 
     public SistemaPersistencia() {
-
+    	
+    	
         perUsuarios = new PersistenciaUsuarios();
         perEventos = new PersistenciaEventos();
         perTiquetes = new PersistenciaTiquetes();
         perTrans = new PersistenciaTransacciones();
         perMarket = new PersistenciaMarketplace();
+        perVenues  = new PersistenciaVenues();
 
         usuarios = new ArrayList<>();
         eventos = new ArrayList<>();
         tiquetes = new ArrayList<>();
         transacciones = new ArrayList<>();
         marketplace = new marketPlaceReventas();
-        
+        venues = new ArrayList<>();
         
     }
 
@@ -70,6 +74,10 @@ public class SistemaPersistencia {
     //                 CARGA COMPLETA DEL SISTEMA
     // ===============================================================
     public void cargarTodo() {
+    	
+    	String rawVenues = perVenues.cargar();
+        venues = perVenues.reconstruir(rawVenues);
+
 
         // 1) Eventos
         String rawEventos = perEventos.cargar();
@@ -237,6 +245,28 @@ public class SistemaPersistencia {
         perTiquetes.guardar(generarJsonTiquetes());
         perTrans.guardar(generarJsonTransacciones());
         perMarket.guardar(marketplace);
+        perVenues.guardar(generarJsonVenues());
+    }
+    
+    private String generarJsonVenues() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n  \"venues\": [\n");
+
+        for (int i = 0; i < venues.size(); i++) {
+            Venue v = venues.get(i);
+
+            sb.append("    {\n");
+            sb.append("      \"ubicacion\": \"" + TextoUtils.escape(v.getUbicacion()) + "\",\n");
+            sb.append("      \"capacidadMax\": " + v.getCapacidadMax() + ",\n");
+            sb.append("      \"aprobado\": " + v.isAprobado() + "\n");
+            sb.append("    }");
+            if (i < venues.size() - 1) sb.append(",");
+            sb.append("\n");
+        }
+
+        sb.append("  ]\n}");
+        return sb.toString();
     }
 
     // ===============================================================
@@ -283,10 +313,20 @@ public class SistemaPersistencia {
     // ===============================================================
     //       MÉTODOS PARA AGREGAR ELEMENTOS EN MEMORIA
     // ===============================================================
-    public void agregarUsuario(Usuario u) { usuarios.add(u); }
-    public void agregarEvento(Evento e) { eventos.add(e); }
-    public void agregarTiquete(Tiquete t) { tiquetes.add(t); }
-    public void agregarTransaccion(Transaccion t) { transacciones.add(t); }
+    public void agregarUsuario(Usuario u) { 
+    	usuarios.add(u); 
+    	}
+    public void agregarEvento(Evento e) { 
+    	eventos.add(e);
+    	}
+    public void agregarTiquete(Tiquete t) { 
+    	tiquetes.add(t);
+}
+    public void agregarTransaccion(Transaccion t) { transacciones.add(t); 
+    }
+    public void agregarVenue(Venue v) {
+    	venues.add(v);
+    }
 
     // ===============================================================
     //        ACCESO AL MARKETPLACE CENTRALIZADO
@@ -480,10 +520,19 @@ public class SistemaPersistencia {
     // ===============================================================
     //             GETTERS PARA CONSOLA / LÓGICA
     // ===============================================================
-    public List<Usuario> getUsuarios() { return usuarios; }
-    public List<Evento> getEventos() { return eventos; }
-    public List<Tiquete> getTiquetes() { return tiquetes; }
-    public List<Transaccion> getTransacciones() { return transacciones; }
+    public List<Usuario> getUsuarios() { 
+    	return usuarios; 
+    	}
+    public List<Evento> getEventos() {
+    	return eventos; 
+    	}
+    public List<Tiquete> getTiquetes() { 
+    	return tiquetes; 
+    	}
+    public List<Transaccion> getTransacciones() {
+    	return transacciones; 
+    	}
+    
     
     
 

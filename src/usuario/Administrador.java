@@ -373,5 +373,71 @@ public class Administrador extends Usuario {
 
 
 }
+	public void verSolicitudVenue(
+	        Venue venueSolicitado,
+	        String mensaje,
+	        SistemaPersistencia sistema,
+	        boolean aceptada
+	) {
+	    if (venueSolicitado == null) {
+	        System.out.println("ERROR: venue no encontrado.");
+	        return;
+	    }
+
+	    // Buscar solicitud exacta dentro de la cola
+	    HashMap<Venue, String> solicitudEliminar = null;
+
+	    for (HashMap<Venue, String> solicitud : solicitudesVenue) {
+	        for (Map.Entry<Venue, String> entry : solicitud.entrySet()) {
+	            Venue v = entry.getKey();
+	            String msg = entry.getValue();
+
+	            boolean mismoVenue =
+	                    v.getUbicacion().equals(venueSolicitado.getUbicacion()) &&
+	                    v.getCapacidadMax() == venueSolicitado.getCapacidadMax();
+
+	            boolean mismoMensaje =
+	                    msg.equals(mensaje);
+
+	            if (mismoVenue && mismoMensaje) {
+	                solicitudEliminar = solicitud;
+	                break;
+	            }
+	        }
+	        if (solicitudEliminar != null) break;
+	    }
+
+	    if (solicitudEliminar == null) {
+	        System.out.println("No se encontró la solicitud de venue.");
+	        return;
+	    }
+
+	    // ---------- LÓGICA DE APROBACIÓN ----------
+	    if (aceptada) {
+
+	        // Marcarlo como aprobado
+	        venueSolicitado.setAprobado(true);
+
+	        // Registrar venue aprobado en la persistencia
+	        sistema.agregarVenue(venueSolicitado);
+
+	        System.out.println("Venue ACEPTADO");
+	        System.out.println("Ubicación: " + venueSolicitado.getUbicacion());
+	        System.out.println("Capacidad: " + venueSolicitado.getCapacidadMax());
+
+	    } else {
+
+	        System.out.println("✗ Venue RECHAZADO");
+	        System.out.println("Ubicación: " + venueSolicitado.getUbicacion());
+	        System.out.println("Capacidad: " + venueSolicitado.getCapacidadMax());
+	        venueSolicitado.setAprobado(false);
+	    }
+
+	    // Quitar solicitud de la cola
+	    solicitudesVenue.remove(solicitudEliminar);
+
+	    // Guardar cambios finales
+	    sistema.guardarTodo();
+	}
 	
 }
