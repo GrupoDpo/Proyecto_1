@@ -13,6 +13,18 @@
       "tipo": "CLIENTE",
       "saldo": 200000.0,
       "idsTiquetes": ["TIQ-T01"]
+    },
+    {
+      "login": "David22",
+      "password": "david123",
+      "tipo": "ADMINISTRADOR"
+    },
+    {
+      "login": "JuanL",
+      "password": "juan123",
+      "tipo": "PROMOTOR",
+      "saldo": 0.0,
+      "idsTiquetes": []
     }
   ]
 }

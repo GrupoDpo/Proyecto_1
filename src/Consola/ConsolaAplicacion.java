@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Scanner;
 
@@ -1687,7 +1688,7 @@ public class ConsolaAplicacion {
 
                 case 2:
                     // Procesa y persiste cambios en las solicitudes de venues
-                    admin.verSolicitudVenue();
+                	verSolicitudVenue(admin, sistema);
                     break;
 
                 case 3:
@@ -1766,6 +1767,30 @@ public class ConsolaAplicacion {
             }
 
         } while (op != 0);
+    }
+    
+    private static void verSolicitudVenue(Administrador admin, SistemaPersistencia sistema) {
+    	Queue<HashMap<Venue,String>> pendientes = admin.getSolicitudesVenue();
+
+    	for (HashMap<Venue,String> s : pendientes) {
+    	    for (Entry<Venue,String> entry : s.entrySet()) {
+    	        Venue v = entry.getKey();
+    	        String msg = entry.getValue();
+
+    	        System.out.println("Solicitud de Venue:");
+    	        System.out.println("Ubicación: " + v.getUbicacion());
+    	        System.out.println("Capacidad: " + v.getCapacidadMax());
+    	        System.out.println("Mensaje: " + msg);
+
+    	        System.out.println("[1] Aceptar");
+    	        System.out.println("[2] Rechazar");
+    	        int opcion = sc.nextInt(); sc.nextLine();
+
+    	        boolean aceptada = (opcion == 1);
+
+    	        admin.verSolicitudVenue(v, msg, sistema, aceptada);
+    	    }
+    	}
     }
     
     

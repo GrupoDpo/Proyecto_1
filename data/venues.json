@@ -1,0 +1,9 @@
+{
+  "venues": [
+    {
+      "ubicacion": "Neiva",
+      "capacidadMax": 10000,
+      "aprobado": true
+    }
+  ]
+}
