@@ -42,6 +42,7 @@ public class SistemaPersistencia {
     private PersistenciaTransacciones perTrans;
     private PersistenciaMarketplace perMarket;
     private PersistenciaVenues perVenues;
+    private PersistenciaPaquetesDeluxe perPaquetes;
 
     // Datos en memoria
     private List<Usuario> usuarios;
@@ -50,23 +51,26 @@ public class SistemaPersistencia {
     private List<Transaccion> transacciones;
     private marketPlaceReventas marketplace;
     private List<Venue> venues;
+    private List<PaqueteDeluxe> paquetesDeluxe; 
 
     public SistemaPersistencia() {
     	
     	
-        perUsuarios = new PersistenciaUsuarios();
-        perEventos = new PersistenciaEventos();
-        perTiquetes = new PersistenciaTiquetes();
-        perTrans = new PersistenciaTransacciones();
-        perMarket = new PersistenciaMarketplace();
-        perVenues  = new PersistenciaVenues();
+    	 perUsuarios = new PersistenciaUsuarios();
+         perEventos = new PersistenciaEventos();
+         perTiquetes = new PersistenciaTiquetes();
+         perTrans = new PersistenciaTransacciones();
+         perMarket = new PersistenciaMarketplace();
+         perVenues  = new PersistenciaVenues();
+         perPaquetes = new PersistenciaPaquetesDeluxe();   // << NUEVO
 
-        usuarios = new ArrayList<>();
-        eventos = new ArrayList<>();
-        tiquetes = new ArrayList<>();
-        transacciones = new ArrayList<>();
-        marketplace = new marketPlaceReventas();
-        venues = new ArrayList<>();
+         usuarios = new ArrayList<>();
+         eventos = new ArrayList<>();
+         tiquetes = new ArrayList<>();
+         transacciones = new ArrayList<>();
+         marketplace = new marketPlaceReventas();
+         venues = new ArrayList<>();
+         paquetesDeluxe = new ArrayList<>();    
         
     }
 
@@ -87,7 +91,8 @@ public class SistemaPersistencia {
         String rawTiq = perTiquetes.cargar();
         tiquetes = perTiquetes.reconstruir(rawTiq, eventos);
         
-        
+        String rawPaquetes = perPaquetes.cargar();                        
+        paquetesDeluxe = perPaquetes.reconstruir(rawPaquetes, tiquetes); 
         
     
         System.out.println("Total tiquetes en sistema: " + tiquetes.size());
@@ -246,6 +251,7 @@ public class SistemaPersistencia {
         perTrans.guardar(generarJsonTransacciones());
         perMarket.guardar(marketplace);
         perVenues.guardar(generarJsonVenues());
+        perPaquetesDeluxe.guardar(generarJsonPaquetesDeluxe());
     }
     
     private String generarJsonVenues() {
@@ -262,6 +268,56 @@ public class SistemaPersistencia {
             sb.append("      \"aprobado\": " + v.isAprobado() + "\n");
             sb.append("    }");
             if (i < venues.size() - 1) sb.append(",");
+            sb.append("\n");
+        }
+
+        sb.append("  ]\n}");
+        return sb.toString();
+    }
+    
+    private String generarJsonPaquetesDeluxe() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n  \"paquetesDeluxe\": [\n");
+
+        for (int i = 0; i < paquetesDeluxe.size(); i++) {
+            PaqueteDeluxe p = paquetesDeluxe.get(i);
+
+            sb.append("    {\n");
+            sb.append("      \"mercanciaYBeneficios\": \"")
+              .append(TextoUtils.escape(p.getMercanciaYBeneficios()))
+              .append("\",\n");
+            sb.append("      \"precioPaquete\": ")
+              .append(p.getPrecioPaquete())
+              .append(",\n");
+            sb.append("      \"anulado\": ")
+              .append(p.isAnulado())
+              .append(",\n");
+
+            // IDs de tiquetes principales
+            sb.append("      \"idsTiquetes\": [");
+            if (p.getTiquetes() != null) {
+                int idx = 0;
+                for (Tiquete t : p.getTiquetes()) {
+                    if (idx++ > 0) sb.append(", ");
+                    sb.append("\"").append(TextoUtils.escape(t.getId())).append("\"");
+                }
+            }
+            sb.append("],\n");
+
+            // IDs de tiquetes adicionales
+            sb.append("      \"idsTiquetesAdicionales\": [");
+            if (p.getTiquetesAdicionales() != null) {
+                int idx = 0;
+                for (Tiquete t : p.getTiquetesAdicionales()) {
+                    if (idx++ > 0) sb.append(", ");
+                    sb.append("\"").append(TextoUtils.escape(t.getId())).append("\"");
+                }
+            }
+            sb.append("]\n");
+
+            sb.append("    }");
+            if (i < paquetesDeluxe.size() - 1) sb.append(",");
             sb.append("\n");
         }
 
@@ -326,6 +382,12 @@ public class SistemaPersistencia {
     }
     public void agregarVenue(Venue v) {
     	venues.add(v);
+    }
+    
+    public void agregarPaqueteDeluxe(PaqueteDeluxe p) {
+        if (p != null && !paquetesDeluxe.contains(p)) {
+            paquetesDeluxe.add(p);
+        }
     }
 
     // ===============================================================
@@ -532,6 +594,10 @@ public class SistemaPersistencia {
     public List<Transaccion> getTransacciones() {
     	return transacciones; 
     	}
+    
+    public List<PaqueteDeluxe> getPaquetesDeluxe() {
+        return paquetesDeluxe;
+    }
     
     
     

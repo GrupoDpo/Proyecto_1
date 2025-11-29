@@ -6,11 +6,9 @@ import usuario.Usuario;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
-import java.util.Scanner;
 
 import Evento.Evento;
 import Persistencia.SistemaPersistencia;
@@ -19,11 +17,10 @@ import excepciones.SaldoInsuficienteExeption;
 import excepciones.TiquetesNoDisponiblesException;
 import excepciones.TiquetesVencidosTransferidos;
 import excepciones.TransferenciaNoPermitidaException;
-import excepciones.UsuarioPasswordIncorrecto;
 import tiquete.PaqueteDeluxe;
 import tiquete.Tiquete;
 import tiquete.TiqueteMultiple;
-import tiquete.TiqueteSimple;
+
 
 public class Transaccion {
 
@@ -212,7 +209,7 @@ public class Transaccion {
             
             HashMap<String, Tiquete> disponibles = eventoAsociado.getTiquetes();
             
-            // ✅ SOLUCIÓN: Crear una COPIA de los valores para iterar
+           
             ArrayList<Tiquete> listaDisponibles = new ArrayList<>(disponibles.values());
             
             for (Tiquete t : listaDisponibles) {  // ← Iterar sobre la copia
@@ -289,9 +286,9 @@ public class Transaccion {
             SistemaPersistencia sistema)
             throws TransferenciaNoPermitidaException, TiquetesNoDisponiblesException, SaldoInsuficienteExeption {
 
-        ArrayList<Tiquete> tiquetesComprados = new ArrayList<Tiquete>();
+        ArrayList<Tiquete> tiquetesComprados = new ArrayList<>();
 
-        // Validaciones básicas
+        // --- Validaciones básicas ---
         if (paquete == null || comprador == null || eventoAsociado == null) {
             throw new TransferenciaNoPermitidaException("Datos inconsistentes para la compra.");
         }
@@ -301,20 +298,25 @@ public class Transaccion {
         if (cantidad > NUMERO_MAX_TRANSACCION) {
             throw new TransferenciaNoPermitidaException("Supera el número máximo de tiquetes por transacción.");
         }
+        // Por enunciado y por simplicidad: 1 paquete por transacción
         if (cantidad != 1) {
             throw new TransferenciaNoPermitidaException("Solo se soporta comprar 1 Paquete Deluxe por transacción.");
         }
 
-        // Reunir todos los tiquetes que trae el paquete
-        ArrayList<Tiquete> tiqsPaquete = new ArrayList<Tiquete>();
+        // --- Reunir todos los tiquetes que trae el paquete ---
+        ArrayList<Tiquete> tiqsPaquete = new ArrayList<>();
         if (paquete.getTiquetes() != null) {
             for (Tiquete t : paquete.getTiquetes()) {
-                if (t != null) tiqsPaquete.add(t);
+                if (t != null) {
+                	tiqsPaquete.add(t);
+                }
             }
         }
         if (paquete.getTiquetesAdicionales() != null) {
             for (Tiquete t : paquete.getTiquetesAdicionales()) {
-                if (t != null) tiqsPaquete.add(t);
+                if (t != null) {
+                	tiqsPaquete.add(t);
+                }
             }
         }
 
@@ -322,23 +324,24 @@ public class Transaccion {
             throw new TiquetesNoDisponiblesException("El paquete deluxe no contiene tiquetes.");
         }
 
-        // Verificar que cada tiquete esté disponible en el evento
+        // --- Verificar disponibilidad en el evento ---
         for (Tiquete t : tiqsPaquete) {
             Tiquete enEvento = eventoAsociado.getTiquetePorId(t.getId());
             if (enEvento == null) {
-                throw new TiquetesNoDisponiblesException("No hay disponible el tiquete en el evento: " + t.getId());
+                throw new TiquetesNoDisponiblesException(
+                    "No hay disponible el tiquete en el evento: " + t.getId());
             }
         }
 
-        // Calcular total
+        // --- Calcular total a pagar ---
         double total = paquete.getPrecioPaquete();
 
-        // Si el comprador es ORGANIZADOR, es cortesía -> total = 0
+        // Si el comprador es ORGANIZADOR, es cortesía → total = 0
         if ("ORGANIZADOR".equalsIgnoreCase(comprador.getTipoUsuario())) {
             total = 0.0;
         }
 
-        // Verificar saldo y actualizar
+        // --- Verificar saldo y actualizar ---
         if (!(comprador instanceof IDuenoTiquetes)) {
             throw new TransferenciaNoPermitidaException("El comprador no puede poseer tiquetes.");
         }
@@ -354,8 +357,10 @@ public class Transaccion {
             dueno.actualizarSaldo(saldo - total);
         }
 
-        // Marcar tiquetes como transferidos y asignarlos al comprador, además removerlos del evento
+        // --- Marcar tiquetes como transferidos y asignarlos al comprador ---
         for (Tiquete t : tiqsPaquete) {
+            // Por enunciado: tiquetes de Paquete Deluxe NO se pueden transferir luego.
+            // Aquí podrías marcar un flag adicional en Tiquete si quieres reforzar esa regla.
             t.setTransferido(true);
         }
 
@@ -365,9 +370,26 @@ public class Transaccion {
             tiquetesComprados.add(t);
         }
 
-        // Registrar transacción en el sistema
-        Registro registro = new Registro(comprador, null, null); // receptor null en compra de paquete
-        Transaccion trans = new Transaccion("COMPRA_PAQUETE_DELUXE", null, comprador, LocalDateTime.now(), registro, total);
+        // --- Actualizar estados financieros del evento ---
+        double precioBaseTotal = 0.0;
+        for (Tiquete t : tiqsPaquete) {
+            precioBaseTotal += t.getPrecioBaseSinCalcular();
+        }
+
+        double precioFinalTotal = paquete.getPrecioPaquete();
+        double ingresoAdminTotal = Math.max(0.0, precioFinalTotal - precioBaseTotal);
+
+        actualizarEstadosFinancierosEvento(eventoAsociado, precioBaseTotal, ingresoAdminTotal);
+
+        // --- Registrar transacción en el sistema ---
+        Registro registro = new Registro(comprador, null, null); 
+        Transaccion trans = new Transaccion(
+                "COMPRA_PAQUETE_DELUXE",
+                null,
+                comprador,
+                LocalDateTime.now(),
+                registro,
+                total);
 
         sistema.agregarTransaccion(trans);
         sistema.guardarTodo();
