@@ -21,7 +21,7 @@ import excepciones.SaldoInsuficienteExeption;
 import excepciones.TiquetesNoDisponiblesException;
 import excepciones.TiquetesVencidosTransferidos;
 import excepciones.TransferenciaNoPermitidaException;
-
+import tiquete.PaqueteDeluxe;
 import tiquete.Tiquete;
 import tiquete.TiqueteMultiple;
 import tiquete.TiqueteSimple;
@@ -210,7 +210,7 @@ public class ConsolaAplicacion {
                     break;
 
                 case 2:
-                    System.out.println("Todavía no está listo.");
+                    comprarPaqueteDeluxe(usuario, sistema, trans);
                     break;
 
                 case 3:
@@ -533,6 +533,149 @@ public class ConsolaAplicacion {
             this.disponibles = disponibles;
         }
     }
+    
+    private static void comprarPaqueteDeluxe(IDuenoTiquetes usuario, SistemaPersistencia sistema, Transaccion trans) {
+        try {
+            System.out.println("\n=== COMPRA DE PAQUETE DELUXE ===");
+            
+            System.out.print("Ingrese el ID del usuario comprador: ");
+            String idComprador = sc.nextLine();
+            Usuario comprador = sistema.buscarUsuario(idComprador);
+            
+            if (comprador == null) {
+                System.out.println("Error: Usuario no encontrado.");
+                return;
+            }
+            
+            // Verificar que el comprador puede poseer tiquetes
+            if (!(comprador instanceof IDuenoTiquetes)) {
+                System.out.println("Error: Este usuario no puede comprar tiquetes.");
+                return;
+            }
+            
+            // Mostrar saldo actual
+            IDuenoTiquetes dueno = (IDuenoTiquetes) comprador;
+            System.out.println("Saldo actual: $" + dueno.getSaldo());
+            
+            // 2. Solicitar ID del evento
+            System.out.print("Ingrese el ID del evento: ");
+            String idEvento = sc.nextLine();
+            Evento evento = sistema.buscarEventoPorNombre(idEvento);
+            
+            if (evento == null) {
+                System.out.println("Error: Evento no encontrado.");
+                return;
+            }
+            
+            // 3. Mostrar paquetes deluxe disponibles del evento
+            ArrayList<PaqueteDeluxe> paquetesDisponibles = evento.getPaquetesDeluxe();
+            
+            if (paquetesDisponibles == null || paquetesDisponibles.isEmpty()) {
+                System.out.println("Error: No hay paquetes deluxe disponibles para este evento.");
+                return;
+            }
+            
+            System.out.println("\nPaquetes Deluxe disponibles:");
+            for (int i = 0; i < paquetesDisponibles.size(); i++) {
+                PaqueteDeluxe paq = paquetesDisponibles.get(i);
+                int totalTiquetes = paq.getTiquetes().size() + paq.getTiquetesAdicionales().size();
+                
+                System.out.println("\n" + (i + 1) + ". PAQUETE DELUXE");
+                System.out.println("   Precio: $" + paq.getPrecioPaquete());
+                System.out.println("   Mercancía y Beneficios: " + paq.getMercanciaYBeneficios());
+                System.out.println("   Total de tiquetes: " + totalTiquetes);
+                System.out.println("   - Tiquetes base: " + paq.getTiquetes().size());
+                System.out.println("   - Tiquetes adicionales: " + paq.getTiquetesAdicionales().size());
+                System.out.println("   Estado: " + (paq.isAnulado() ? "ANULADO" : "DISPONIBLE"));
+            }
+            
+            // 4. Seleccionar paquete
+            System.out.print("\nSeleccione el número del paquete a comprar: ");
+            int opcionPaquete = Integer.parseInt(sc.nextLine());
+            
+            if (opcionPaquete < 1 || opcionPaquete > paquetesDisponibles.size()) {
+                System.out.println("Error: Opción inválida.");
+                return;
+            }
+            
+            PaqueteDeluxe paqueteSeleccionado = paquetesDisponibles.get(opcionPaquete - 1);
+            
+            // Verificar que no esté anulado
+            if (paqueteSeleccionado.isAnulado()) {
+                System.out.println("Error: Este paquete está anulado y no se puede comprar.");
+                return;
+            }
+            
+            // 5. Confirmar cantidad (debe ser 1 según el método)
+            System.out.print("Cantidad a comprar (debe ser 1): ");
+            int cantidad = Integer.parseInt(sc.nextLine());
+            
+            if (cantidad != 1) {
+                System.out.println("Error: Solo se permite comprar 1 paquete deluxe por transacción.");
+                return;
+            }
+            
+            // 6. Mostrar resumen de la compra
+            System.out.println("\n--- RESUMEN DE COMPRA ---");
+            System.out.println("Mercancía y Beneficios: " + paqueteSeleccionado.getMercanciaYBeneficios());
+            System.out.println("Tiquetes incluidos: " + 
+                (paqueteSeleccionado.getTiquetes().size() + paqueteSeleccionado.getTiquetesAdicionales().size()));
+            
+            if ("ORGANIZADOR".equalsIgnoreCase(comprador.getTipoUsuario())) {
+                System.out.println("Precio original: $" + paqueteSeleccionado.getPrecioPaquete());
+                System.out.println("*** CORTESÍA ORGANIZADOR - Total a pagar: $0.00 ***");
+            } else {
+                System.out.println("Total a pagar: $" + paqueteSeleccionado.getPrecioPaquete());
+            }
+            
+            // 7. Confirmar compra
+            System.out.print("\n¿Confirmar compra? (S/N): ");
+            String confirmacion = sc.nextLine();
+            
+            if (!confirmacion.equalsIgnoreCase("S")) {
+                System.out.println("Compra cancelada.");
+                return;
+            }
+            
+            // 8. Realizar la compra
+            ArrayList<Tiquete> tiquetesComprados = comprarPaqueteDeluxe(
+                paqueteSeleccionado,
+                comprador,
+                cantidad,
+                evento,
+                sistema
+            );
+            
+            // 9. Mostrar resultado exitoso
+            System.out.println("\n¡COMPRA REALIZADA EXITOSAMENTE!");
+            System.out.println("═══════════════════════════════════");
+            System.out.println("Paquete Deluxe adquirido");
+            System.out.println("Beneficios: " + paqueteSeleccionado.getMercanciaYBeneficios());
+            System.out.println("Total de tiquetes: " + tiquetesComprados.size());
+            
+            System.out.println("\nDetalle de tiquetes:");
+            for (Tiquete t : tiquetesComprados) {
+                System.out.println("  • ID: " + t.getId() + 
+                                 " | Localidad: " + t.getLocalidadAsociada() +
+                                 " | Precio base: $" + t.getPrecioBaseSinCalcular());
+            }
+            
+            System.out.println("\nNuevo saldo: $" + dueno.getSaldo());
+            System.out.println("═══════════════════════════════════");
+            
+        } catch (TransferenciaNoPermitidaException e) {
+            System.out.println("Error en la transacción: " + e.getMessage());
+        } catch (TiquetesNoDisponiblesException e) {
+            System.out.println("Error de disponibilidad: " + e.getMessage());
+        } catch (SaldoInsuficienteExeption e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Debe ingresar un número válido.");
+        } catch (Exception e) {
+            System.out.println("Error inesperado: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
    
 
@@ -668,6 +811,9 @@ public class ConsolaAplicacion {
             System.out.println("✗ Error inesperado: " + e.getMessage());
         }
     }
+    
+    
+    
 
     private static void crearOferta(IDuenoTiquetes usuario, SistemaPersistencia sistema, Transaccion trans) {
      
