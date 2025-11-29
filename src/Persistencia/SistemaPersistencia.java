@@ -576,6 +576,50 @@ public class SistemaPersistencia {
         return sb.toString();
     }
     
+    public List<PaqueteDeluxe> getPaquetesDeluxePorEvento(Evento evento) {
+        List<PaqueteDeluxe> resultado = new ArrayList<>();
+
+        if (evento == null || paquetesDeluxe == null) {
+            return resultado;
+        }
+
+        for (PaqueteDeluxe paquete : paquetesDeluxe) {
+            if (paquete == null || paquete.isAnulado()) {
+                continue;
+            }
+
+            boolean perteneceAlEvento = false;
+
+            // Revisar tiquetes "base" del paquete
+            if (paquete.getTiquetes() != null) {
+                for (Tiquete t : paquete.getTiquetes()) {
+                    if (t != null && t.getEvento() != null &&
+                        t.getEvento().getNombre().equals(evento.getNombre())) {
+                        perteneceAlEvento = true;
+                        break;
+                    }
+                }
+            }
+
+            // Si no se encontró aún, revisar tiquetes adicionales
+            if (!perteneceAlEvento && paquete.getTiquetesAdicionales() != null) {
+                for (Tiquete t : paquete.getTiquetesAdicionales()) {
+                    if (t != null && t.getEvento() != null &&
+                        t.getEvento().getNombre().equals(evento.getNombre())) {
+                        perteneceAlEvento = true;
+                        break;
+                    }
+                }
+            }
+
+            if (perteneceAlEvento) {
+                resultado.add(paquete);
+            }
+        }
+
+        return resultado;
+    }
+    
     
     
     // ===============================================================

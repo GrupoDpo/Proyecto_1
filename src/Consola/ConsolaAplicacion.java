@@ -568,7 +568,8 @@ public class ConsolaAplicacion {
             }
             
             // 3. Mostrar paquetes deluxe disponibles del evento
-            ArrayList<PaqueteDeluxe> paquetesDisponibles = evento.getPaquetesDeluxe();
+            ArrayList<PaqueteDeluxe> paquetesDisponibles =
+                    new ArrayList<>(sistema.getPaquetesDeluxePorEvento(evento));
             
             if (paquetesDisponibles == null || paquetesDisponibles.isEmpty()) {
                 System.out.println("Error: No hay paquetes deluxe disponibles para este evento.");
@@ -638,14 +639,7 @@ public class ConsolaAplicacion {
             }
             
             // 8. Realizar la compra
-            ArrayList<Tiquete> tiquetesComprados = comprarPaqueteDeluxe(
-                paqueteSeleccionado,
-                comprador,
-                cantidad,
-                evento,
-                sistema
-            );
-            
+            ArrayList<Tiquete> tiquetesComprados = trans.comprarPaqueteDeluxe(paqueteSeleccionado, comprador, cantidad, evento, sistema);
             // 9. Mostrar resultado exitoso
             System.out.println("\n¡COMPRA REALIZADA EXITOSAMENTE!");
             System.out.println("═══════════════════════════════════");
