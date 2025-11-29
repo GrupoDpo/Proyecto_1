@@ -1,7 +1,6 @@
 package Persistencia;
 
 import java.util.*;
-import java.time.LocalDateTime;
 
 import usuario.Usuario;
 import usuario.IDuenoTiquetes;
@@ -251,7 +250,7 @@ public class SistemaPersistencia {
         perTrans.guardar(generarJsonTransacciones());
         perMarket.guardar(marketplace);
         perVenues.guardar(generarJsonVenues());
-        perPaquetesDeluxe.guardar(generarJsonPaquetesDeluxe());
+        perPaquetes.guardar(generarJsonPaquetesDeluxe());
     }
     
     private String generarJsonVenues() {

@@ -51,56 +51,84 @@ public class PersistenciaPaquetesDeluxe {
     public List<PaqueteDeluxe> reconstruir(String json, List<Tiquete> todosTiquetes) {
         List<PaqueteDeluxe> paquetes = new ArrayList<>();
 
-        // bloque [ { ... }, { ... } ]
+        if (json == null || json.isBlank()) {
+            return paquetes;
+        }
+
+        // 1) Obtener bloque principal: "paquetesDeluxe": [ {...}, {...} ]
         String bloque = TextoUtils.obtenerBloque(json, "\"paquetesDeluxe\"");
+        if (bloque == null || bloque.isBlank()) {
+            return paquetes;
+        }
+
+        // 2) Dividir cada objeto paquete
         List<String> objetos = TextoUtils.dividirBloques(bloque);
 
         for (String obj : objetos) {
-        	String mercancia = TextoUtils.obtener(obj, "mercanciaYBeneficios");
-        	String precioStr = TextoUtils.obtener(obj, "precioPaquete");
-        	String anuladoStr = TextoUtils.obtener(obj, "anulado");
 
-        	double precio = 0.0;
-        	boolean anulado = false;
+            // ---- Atributos básicos del paquete ----
+            String mercancia   = TextoUtils.obtener(obj, "mercanciaYBeneficios");
+            String precioStr   = TextoUtils.obtener(obj, "precioPaquete");
+            String anuladoStr  = TextoUtils.obtener(obj, "anulado");
 
-        	try {
-        	    if (precioStr != null && !precioStr.isBlank()) {
-        	        precio = Double.parseDouble(precioStr);
-        	    }
-        	} catch (NumberFormatException e) {
-        	    precio = 0.0;
-        	}
+            if (mercancia == null) mercancia = "";
 
-        	if (anuladoStr != null && !anuladoStr.isBlank()) {
-        	    anulado = Boolean.parseBoolean(anuladoStr);
-        	}
+            double precio = 0.0;
+            boolean anulado = false;
 
-        	PaqueteDeluxe paquete = new PaqueteDeluxe(mercancia, precio);
+            try {
+                if (precioStr != null && !precioStr.isBlank()) {
+                    precio = Double.parseDouble(precioStr);
+                }
+            } catch (NumberFormatException e) {
+                precio = 0.0;
+            }
 
-        	paquete.setAnulado(anulado);
+            try {
+                if (anuladoStr != null && !anuladoStr.isBlank()) {
+                    anulado = Boolean.parseBoolean(anuladoStr);
+                }
+            } catch (Exception e) {
+                anulado = false;
+            }
 
-            // ---- IDs de tiquetes principales ----
-            String bloqueIdsPrincipales = TextoUtils.obtenerBloque(obj, "\"idsTiquetes\"");
-            List<String> idsPrincipales = TextoUtils.dividirArraySimple(bloqueIdsPrincipales);
+            // Crear el paquete con mercancia y precio
+            PaqueteDeluxe paquete = new PaqueteDeluxe(mercancia, precio);
+            // Si tienes setter de anulado, úsalo:
+            // paquete.setAnulado(anulado);
 
-            for (String literal : idsPrincipales) {
-                String id = TextoUtils.obtener(literal, null); // valor literal del string
-                Tiquete encontrado = buscarTiquetePorId(todosTiquetes, id);
-                if (encontrado != null && paquete.getTiquetes() instanceof ArrayList) {
-                    ((ArrayList<Tiquete>) paquete.getTiquetes()).add(encontrado);
+            // ---- Reconstruir TIQUETES PRINCIPALES ----
+            String bloqueIds = TextoUtils.obtenerBloque(obj, "\"idsTiquetes\"");
+            if (bloqueIds != null && !bloqueIds.isBlank()) {
+
+                List<String> ids = TextoUtils.dividirArraySimple(bloqueIds);
+
+                for (String idRef : ids) {
+                    // Igual que en PersistenciaUsuarios: obtener valor literal del string
+                    String id = TextoUtils.obtener(idRef, null);
+                    if (id == null || id.isBlank()) continue;
+
+                    Tiquete encontrado = buscarTiquetePorId(todosTiquetes, id);
+                    if (encontrado != null && paquete.getTiquetes() instanceof ArrayList) {
+                        ((ArrayList<Tiquete>) paquete.getTiquetes()).add(encontrado);
+                    }
                 }
             }
 
-            // ---- IDs de tiquetes adicionales ----
-            String bloqueIdsAdicionales = TextoUtils.obtenerBloque(obj, "\"idsTiquetesAdicionales\"");
-            List<String> idsAdicionales = TextoUtils.dividirArraySimple(bloqueIdsAdicionales);
+            // ---- Reconstruir TIQUETES ADICIONALES ----
+            String bloqueIdsAd = TextoUtils.obtenerBloque(obj, "\"idsTiquetesAdicionales\"");
+            if (bloqueIdsAd != null && !bloqueIdsAd.isBlank()) {
 
-            for (String literal : idsAdicionales) {
-                String id = TextoUtils.obtener(literal, null);
-                Tiquete encontrado = buscarTiquetePorId(todosTiquetes, id);
-                if (encontrado != null) {
-                    // en tu clase, agregarTiquete mete en la lista de adicionales
-                    paquete.agregarTiquete(encontrado);
+                List<String> idsAd = TextoUtils.dividirArraySimple(bloqueIdsAd);
+
+                for (String idRef : idsAd) {
+                    String id = TextoUtils.obtener(idRef, null);
+                    if (id == null || id.isBlank()) continue;
+
+                    Tiquete encontrado = buscarTiquetePorId(todosTiquetes, id);
+                    if (encontrado != null && paquete.getTiquetesAdicionales() instanceof ArrayList) {
+                        ((ArrayList<Tiquete>) paquete.getTiquetesAdicionales()).add(encontrado);
+                    }
                 }
             }
 
@@ -111,10 +139,13 @@ public class PersistenciaPaquetesDeluxe {
         return paquetes;
     }
 
+    // Helper privado dentro de PersistenciaPaquetesDeluxe
     private Tiquete buscarTiquetePorId(List<Tiquete> todos, String id) {
         if (id == null) return null;
         for (Tiquete t : todos) {
-            if (id.equals(t.getId())) return t;
+            if (id.equals(t.getId())) {
+                return t;
+            }
         }
         return null;
     }
