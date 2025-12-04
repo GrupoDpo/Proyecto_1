@@ -9,13 +9,13 @@ import java.awt.event.ActionEvent;
 
 
 
-public class ventanaMenuComprador extends JFrame {
+public class ventanaMenuAdministrador extends JFrame {
 	private static final long serialVersionUID = 1L;
     private JButton btnNewButton_1;
     
     
 
-    public ventanaMenuComprador() {
+    public ventanaMenuAdministrador() {
         ArrayList<String> tiposUsuario = new ArrayList<String>();
     	
     	tiposUsuario.add("Cliente");
@@ -28,7 +28,11 @@ public class ventanaMenuComprador extends JFrame {
         panel.setBounds(0, 0, 400, 10);
         getContentPane().add(panel);
         
-        btnNewButton_1 = new JButton("Comprar Tiquete");
+        btnNewButton_1 = new JButton("Crear Venue");
+        btnNewButton_1.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        	}
+        });
         btnNewButton_1.setBounds(157, 55, 148, 26);
         getContentPane().add(btnNewButton_1);
         
@@ -36,19 +40,23 @@ public class ventanaMenuComprador extends JFrame {
         lblNewLabel.setBounds(196, 11, 62, 33);
         getContentPane().add(lblNewLabel);
         
-        JButton btnNewButton_1_1 = new JButton("Comprar Paquete Deluxe");
+        JButton btnNewButton_1_1 = new JButton("Revisar Solicitudes de Venue");
         btnNewButton_1_1.setBounds(134, 92, 187, 26);
         getContentPane().add(btnNewButton_1_1);
         
-        JButton btnNewButton_1_2 = new JButton("Transferir Tiquete");
+        JButton btnNewButton_1_2 = new JButton("Ver rembolsos");
         btnNewButton_1_2.setBounds(157, 129, 148, 26);
         getContentPane().add(btnNewButton_1_2);
         
-        JButton btnNewButton_1_2_1 = new JButton("Crear oferta reventa");
+        JButton btnNewButton_1_2_1 = new JButton("Ver reventas");
+        btnNewButton_1_2_1.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        	}
+        });
         btnNewButton_1_2_1.setBounds(157, 166, 148, 26);
         getContentPane().add(btnNewButton_1_2_1);
         
-        JButton btnNewButton_1_2_2 = new JButton("Eliminar oferta reventa");
+        JButton btnNewButton_1_2_2 = new JButton("Cancelar evento");
         btnNewButton_1_2_2.setBounds(157, 203, 148, 26);
         btnNewButton_1_2_2.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
@@ -56,7 +64,7 @@ public class ventanaMenuComprador extends JFrame {
         });
         getContentPane().add(btnNewButton_1_2_2);
         
-        JButton btnNewButton_1_2_3 = new JButton("Comprar en Marketplace");
+        JButton btnNewButton_1_2_3 = new JButton("Gestionar Solicitudes de Cancelar evento");
         btnNewButton_1_2_3.setBounds(145, 240, 176, 26);
         btnNewButton_1_2_3.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
@@ -64,34 +72,18 @@ public class ventanaMenuComprador extends JFrame {
         });
         getContentPane().add(btnNewButton_1_2_3);
         
-        JButton btnNewButton_1_2_4 = new JButton("Contraofertar");
+        JButton btnNewButton_1_2_4 = new JButton("Fijar cobro de emision");
         btnNewButton_1_2_4.setBounds(157, 277, 148, 26);
         getContentPane().add(btnNewButton_1_2_4);
         
-        JButton btnNewButton_1_2_4_1 = new JButton("Ver contraofertas ");
+        JButton btnNewButton_1_2_4_1 = new JButton("Fijar recargo");
         btnNewButton_1_2_4_1.setBounds(157, 314, 148, 26);
         getContentPane().add(btnNewButton_1_2_4_1);
-        
-        JButton btnNewButton_1_2_4_1_1 = new JButton("Solicitar Reembolso");
-        btnNewButton_1_2_4_1_1.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        btnNewButton_1_2_4_1_1.setBounds(157, 388, 148, 26);
-        getContentPane().add(btnNewButton_1_2_4_1_1);
-        
-        JButton btnNewButton_1_2_4_1_1_1 = new JButton("Recargar Saldo");
-        btnNewButton_1_2_4_1_1_1.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        btnNewButton_1_2_4_1_1_1.setBounds(157, 351, 148, 26);
-        getContentPane().add(btnNewButton_1_2_4_1_1_1);
 
        
-        setTitle("BOLETAMASTER: Menu Comprador");
+        setTitle("BOLETAMASTER: Menu Promotor");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(449, 499);
+        setSize(449, 400);
         setVisible(true);
     }
 
@@ -99,3 +91,5 @@ public class ventanaMenuComprador extends JFrame {
         new ventanaMenuComprador();
     }
 }
+
+

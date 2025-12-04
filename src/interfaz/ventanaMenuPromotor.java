@@ -97,7 +97,7 @@ public class ventanaMenuPromotor extends JFrame {
         getContentPane().add(btnNewButton_1_2_4_1_1_3);
 
        
-        setTitle("BOLETAMASTER: Iniciar Sesion");
+        setTitle("BOLETAMASTER: Menu Promotor");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(449, 571);
         setVisible(true);

@@ -66,7 +66,7 @@ public class ventanaRegistro extends JFrame {
         getContentPane().add(lblTipoUsuario);
 
        
-        setTitle("BOLETAMASTER: Iniciar Sesion");
+        setTitle("BOLETAMASTER: Registrar Usuario");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(399, 351);
         setVisible(true);
