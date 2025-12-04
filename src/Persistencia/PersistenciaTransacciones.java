@@ -7,8 +7,8 @@ import java.util.*;
 
 import Finanzas.Registro;
 import Finanzas.Transaccion;
-import usuario.Usuario;
 import tiquete.Tiquete;
+import usuario.Usuario;
 
 public class PersistenciaTransacciones {
 

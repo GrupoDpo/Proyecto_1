@@ -8,8 +8,6 @@ import Finanzas.EstadosFinancieros;
 import tiquete.Tiquete;
 import usuario.Organizador;
 
-import tiquete.Tiquete;
-
 public class Evento  {
 	private String nombre;
 	private String fecha;
