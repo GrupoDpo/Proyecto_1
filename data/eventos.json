@@ -9,6 +9,16 @@
       "venueUbicacion": "Arena",
       "venueCapMax": 500,
       "venueAprobado": false
+    },
+    {
+      "nombre": "Mundial",
+      "fecha": "2026-01-01",
+      "hora": "18:00",
+      "loginOrganizador": "org",
+      "cancelado": false,
+      "venueUbicacion": "España",
+      "venueCapMax": 2000000,
+      "venueAprobado": false
     }
   ]
 }

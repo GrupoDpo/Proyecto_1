@@ -12,7 +12,7 @@ import java.util.List;
 
 import Finanzas.EstadosFinancieros;
 
-public class PersistenciaEstadosFinan implements IPersistencia<EstadosFinancieros>  {
+public class PersistenciaEstadosFinan  {
 
 	private static final String ARCHIVO_ESTADOS_FINANCIEROS = "data/EstadosFinancieros.dat";
 

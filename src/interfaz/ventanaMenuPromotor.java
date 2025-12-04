@@ -9,13 +9,13 @@ import java.awt.event.ActionEvent;
 
 
 
-public class ventanaMenuComprador extends JFrame {
+public class ventanaMenuPromotor extends JFrame {
 	private static final long serialVersionUID = 1L;
     private JButton btnNewButton_1;
     
     
 
-    public ventanaMenuComprador() {
+    public ventanaMenuPromotor() {
         ArrayList<String> tiposUsuario = new ArrayList<String>();
     	
     	tiposUsuario.add("Cliente");
@@ -87,11 +87,19 @@ public class ventanaMenuComprador extends JFrame {
         });
         btnNewButton_1_2_4_1_1_1.setBounds(157, 351, 148, 26);
         getContentPane().add(btnNewButton_1_2_4_1_1_1);
+        
+        JButton btnNewButton_1_2_4_1_1_2 = new JButton("Sugerir Venue");
+        btnNewButton_1_2_4_1_1_2.setBounds(157, 425, 148, 26);
+        getContentPane().add(btnNewButton_1_2_4_1_1_2);
+        
+        JButton btnNewButton_1_2_4_1_1_3 = new JButton("Ver ganancias");
+        btnNewButton_1_2_4_1_1_3.setBounds(157, 470, 148, 26);
+        getContentPane().add(btnNewButton_1_2_4_1_1_3);
 
        
         setTitle("BOLETAMASTER: Iniciar Sesion");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(449, 499);
+        setSize(449, 571);
         setVisible(true);
     }
 
@@ -99,3 +107,5 @@ public class ventanaMenuComprador extends JFrame {
         new ventanaMenuComprador();
     }
 }
+
+

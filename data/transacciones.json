@@ -2,10 +2,59 @@
   "transacciones": [
     {
       "tipo": "TRANSFERENCIA",
-      "fecha": "2025-11-23T11:32:51.770007100",
+      "fecha": "2025-11-29T09:39:09.254139100",
       "valor": 0.0,
       "dueno": "vendedor",
       "idTiquete": "TIQ-T01"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-11-29T09:48:53.072380200",
+      "valor": 110000.0,
+      "dueno": "david22",
+      "idTiquete": "TIQ-00000007"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-11-29T09:50:04.154225",
+      "valor": 0.0,
+      "dueno": "david22",
+      "idTiquete": "TIQ-00000007"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-02T11:00:35.212339400",
+      "valor": 110000.0,
+      "dueno": "mateo12",
+      "idTiquete": "TIQ-00000004"
+    },
+    {
+      "tipo": "TRANSFERENCIA",
+      "fecha": "2025-12-02T11:12:47.691635400",
+      "valor": 0.0,
+      "dueno": "mateo12",
+      "idTiquete": "TIQ-00000005"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-12-02T11:13:12.661945600",
+      "valor": 0.0,
+      "dueno": "mateo12",
+      "idTiquete": "TIQ-00000006"
+    },
+    {
+      "tipo": "COMPRA_MARKETPLACE",
+      "fecha": "2025-12-02T11:42:30.239384400",
+      "valor": 40000.0,
+      "dueno": "david22",
+      "idTiquete": "TIQ-00000007"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-12-02T11:55:38.964931200",
+      "valor": 0.0,
+      "dueno": "Disneygpt",
+      "idTiquete": "TIQ-00000005"
     }
   ]
 }
