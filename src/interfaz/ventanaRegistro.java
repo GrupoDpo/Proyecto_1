@@ -42,7 +42,7 @@ public class ventanaRegistro extends JFrame {
         getContentPane().add(passwordField);
         
         btnNewButton_1 = new JButton("Registrar Usuario");
-        btnNewButton_1.setBounds(123, 277, 148, 26);
+        btnNewButton_1.setBounds(252, 291, 148, 26);
         getContentPane().add(btnNewButton_1);
         
         JLabel lblNewLabel = new JLabel("Login");
@@ -64,6 +64,10 @@ public class ventanaRegistro extends JFrame {
         JLabel lblTipoUsuario = new JLabel("Tipo de Usuario");
         lblTipoUsuario.setBounds(30, 178, 100, 16);
         getContentPane().add(lblTipoUsuario);
+        
+        JButton btnNewButton_1_1 = new JButton("Salir");
+        btnNewButton_1_1.setBounds(6, 291, 79, 26);
+        getContentPane().add(btnNewButton_1_1);
 
        
         setTitle("BOLETAMASTER: Registrar Usuario");
