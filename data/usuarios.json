@@ -60,6 +60,13 @@
       "tipo": "CLIENTE",
       "saldo": 0.0,
       "idsTiquetes": []
+    },
+    {
+      "login": "hola12",
+      "password": "hola123",
+      "tipo": "CLIENTE",
+      "saldo": 0.0,
+      "idsTiquetes": []
     }
   ]
 }

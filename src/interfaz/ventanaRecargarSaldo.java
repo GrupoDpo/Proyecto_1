@@ -52,7 +52,9 @@ public class ventanaRecargarSaldo extends JFrame {
         JSpinner spinner = new JSpinner();
         spinner.setBounds(177, 50, 95, 26);
         getContentPane().add(spinner);
-
+        
+        
+   
        
         setTitle("BOLETAMASTER: Recargo Saldo");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
