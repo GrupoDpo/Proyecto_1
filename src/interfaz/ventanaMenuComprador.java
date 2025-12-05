@@ -138,7 +138,8 @@ public class ventanaMenuComprador extends JFrame {
     
     private void abrirVentanaComprarTiquete() {
         // TODO: Implementar ventana de compra de tiquetes
-        JOptionPane.showMessageDialog(this, "Ventana Comprar Tiquete - En desarrollo");
+    	ventanaComprarTiquete ventana = new ventanaComprarTiquete(sistema, usuarioActual);
+        ventana.setVisible(true);
     }
 
     private void abrirVentanaComprarPaqueteDeluxe() {

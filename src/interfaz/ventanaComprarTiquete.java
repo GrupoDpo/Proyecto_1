@@ -1,9 +1,21 @@
 package interfaz;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import Evento.Evento;
+import Finanzas.Transaccion;
+import Persistencia.SistemaPersistencia;
+import excepciones.SaldoInsuficienteExeption;
+import excepciones.TiquetesNoDisponiblesException;
+import tiquete.Tiquete;
+import usuario.IDuenoTiquetes;
+import usuario.Usuario;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,263 +25,431 @@ import java.util.Map;
 public class ventanaComprarTiquete extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    // Modelos y componentes
     private JList<String> listaEventos;
-    private JList<TiqueteEjemplo> listaTiquetes;
+    private JList<String> listaTiquetes;
     private DefaultListModel<String> modeloEventos;
-    private DefaultListModel<TiqueteEjemplo> modeloTiquetes;
+    private DefaultListModel<String> modeloTiquetes;
+    
+    private JLabel lblSaldoActual;
+    private JSpinner spinnerCantidad;
+    private JButton btnComprar;
+    private JButton btnCancelar;
 
-    // Mapa: nombreEvento -> lista de tiquetes asociados
-    private Map<String, List<TiqueteEjemplo>> tiquetesPorEvento;
+    // Modelo
+    private SistemaPersistencia sistema;
+    private Usuario comprador;
+    private List<Evento> eventosDisponibles;
+    private List<Tiquete> tiquetesDisponibles;
+    private Map<String, Evento> mapaEventos;
+    private Map<String, Tiquete> mapaTiquetes;
 
-    public ventanaComprarTiquete() {
+    public ventanaComprarTiquete(SistemaPersistencia sistema, Usuario comprador) {
+    	
+    	this.comprador = comprador;
+        this.sistema = sistema;
+        this.eventosDisponibles = new ArrayList<>();
+        this.tiquetesDisponibles = new ArrayList<>();
+        this.mapaEventos = new HashMap<>();
+        this.mapaTiquetes = new HashMap<>();
+        
+        inicializarComponentes();
+        cargarEventos();
+        
+    }
+    private void inicializarComponentes() {
+      
+        
+        
+        setTitle("BOLETAMASTER: Comprar Tiquetes");
+        setSize(900, 650);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
         getContentPane().setLayout(null);
 
-        // ---------- 1. Datos de ejemplo ----------
-        inicializarDatosEjemplo();
+     // ========================================
+        // PANEL SUPERIOR - Información del usuario
+        // ========================================
+        JPanel panelSuperior = new JPanel();
+        panelSuperior.setBackground(new Color(52, 152, 219));
+        panelSuperior.setBounds(0, 0, 600, 50);
+        panelSuperior.setLayout(null);
+        getContentPane().add(panelSuperior);
 
-        // ---------- 2. Etiquetas ----------
-        JLabel lblNewLabel = new JLabel("Escoja el evento de su interés:");
-        lblNewLabel.setBounds(175, 22, 250, 20);
-        getContentPane().add(lblNewLabel);
+        JLabel lblBienvenida = new JLabel("Comprador: " + comprador.getLogin());
+        lblBienvenida.setFont(new Font("Arial", Font.BOLD, 14));
+        lblBienvenida.setForeground(Color.WHITE);
+        lblBienvenida.setBounds(20, 15, 300, 20);
+        panelSuperior.add(lblBienvenida);
 
-        JLabel lblTiquetesAsociadosAl = new JLabel("Tiquetes asociados al evento:");
-        lblTiquetesAsociadosAl.setBounds(175, 156, 250, 20);
-        getContentPane().add(lblTiquetesAsociadosAl);
+        lblSaldoActual = new JLabel("Saldo: $0.00");
+        lblSaldoActual.setFont(new Font("Arial", Font.BOLD, 14));
+        lblSaldoActual.setForeground(Color.WHITE);
+        lblSaldoActual.setBounds(400, 15, 180, 20);
+        panelSuperior.add(lblSaldoActual);
+        actualizarSaldo();
 
-        JLabel lblCantidad = new JLabel("Cantidad:");
-        lblCantidad.setBounds(233, 313, 70, 33);
-        getContentPane().add(lblCantidad);
+        // ========================================
+        // EVENTOS
+        // ========================================
+        JLabel lblEventos = new JLabel("Escoja el evento de su interés:");
+        lblEventos.setFont(new Font("Arial", Font.BOLD, 12));
+        lblEventos.setBounds(50, 65, 250, 20);
+        getContentPane().add(lblEventos);
 
-        JPanel panel = new JPanel();
-        panel.setBounds(0, 0, 581, 10);
-        getContentPane().add(panel);
-
-        // ---------- 3. Lista scrolleable de eventos ----------
+        // Lista scrolleable de eventos
         modeloEventos = new DefaultListModel<>();
-        for (String evento : tiquetesPorEvento.keySet()) {
-            modeloEventos.addElement(evento);
-        }
-
         listaEventos = new JList<>(modeloEventos);
         listaEventos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        listaEventos.setFont(new Font("Monospaced", Font.PLAIN, 11));
 
         JScrollPane scrollEventos = new JScrollPane(listaEventos);
-        scrollEventos.setBounds(126, 50, 302, 75);
+        scrollEventos.setBounds(50, 90, 500, 100);
         getContentPane().add(scrollEventos);
+        
+     // ========================================
+        // TIQUETES
+        // ========================================
+        JLabel lblTiquetes = new JLabel("Tiquetes asociados al evento:");
+        lblTiquetes.setFont(new Font("Arial", Font.BOLD, 12));
+        lblTiquetes.setBounds(50, 205, 250, 20);
+        getContentPane().add(lblTiquetes);
 
-        // ---------- 4. Lista de tiquetes (SIMPLE / MÚLTIPLE) ----------
+        // Lista de tiquetes
         modeloTiquetes = new DefaultListModel<>();
         listaTiquetes = new JList<>(modeloTiquetes);
         listaTiquetes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        listaTiquetes.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        listaTiquetes.setEnabled(false);
 
         JScrollPane scrollTiquetes = new JScrollPane(listaTiquetes);
-        scrollTiquetes.setBounds(126, 201, 302, 75);
+        scrollTiquetes.setBounds(50, 230, 500, 100);
         getContentPane().add(scrollTiquetes);
 
-        // ---------- 5. Spinner de cantidad (solo positivos) ----------
-        SpinnerNumberModel modelCantidad = new SpinnerNumberModel(1, 1, 100, 1);
-        JSpinner spinner = new JSpinner(modelCantidad);
-        spinner.setBounds(301, 316, 50, 26);
-        getContentPane().add(spinner);
+        // ========================================
+        // CANTIDAD Y BOTONES
+        // ========================================
+        JLabel lblCantidad = new JLabel("Cantidad:");
+        lblCantidad.setFont(new Font("Arial", Font.BOLD, 12));
+        lblCantidad.setBounds(50, 350, 80, 25);
+        getContentPane().add(lblCantidad);
 
-        // ---------- 6. Botón confirmar (lógica se implementará luego) ----------
-        JButton btnNewButton = new JButton("Confirmar");
-        btnNewButton.setBounds(218, 387, 117, 29);
-        getContentPane().add(btnNewButton);
+        spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
+        spinnerCantidad.setFont(new Font("Arial", Font.PLAIN, 12));
+        spinnerCantidad.setBounds(140, 350, 60, 25);
+        ((JSpinner.DefaultEditor) spinnerCantidad.getEditor()).getTextField().setEditable(false);
+        getContentPane().add(spinnerCantidad);
 
-        // ---------- 7. Listener: seleccionar evento -> cargar tiquetes ----------
+        btnComprar = new JButton("COMPRAR");
+        btnComprar.setFont(new Font("Arial", Font.BOLD, 13));
+        btnComprar.setBackground(new Color(46, 204, 113));
+        btnComprar.setForeground(Color.WHITE);
+        btnComprar.setFocusPainted(false);
+        btnComprar.setBounds(250, 400, 140, 35);
+        btnComprar.setEnabled(false);
+        getContentPane().add(btnComprar);
+
+        btnCancelar = new JButton("CANCELAR");
+        btnCancelar.setFont(new Font("Arial", Font.BOLD, 13));
+        btnCancelar.setBackground(new Color(231, 76, 60));
+        btnCancelar.setForeground(Color.WHITE);
+        btnCancelar.setFocusPainted(false);
+        btnCancelar.setBounds(410, 400, 140, 35);
+        getContentPane().add(btnCancelar);
+        
         listaEventos.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    String eventoSeleccionado = listaEventos.getSelectedValue();
-                    actualizarTiquetesAsociados(eventoSeleccionado);
+                    eventoSeleccionado();
                 }
             }
         });
 
-        setTitle("BOLETAMASTER: Comprar Tiquete");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(581, 471);
-        setLocationRelativeTo(null);
-        setVisible(true);
+        // Listener: seleccionar tiquete -> habilitar compra
+        listaTiquetes.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    tiqueteSeleccionado();
+                }
+            }
+        });
+
+        // Listener: botón comprar
+        btnComprar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                realizarCompra();
+            }
+        });
+
+        // Listener: botón cancelar
+        btnCancelar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
     }
+    
+    private void cargarEventos() {
+        modeloEventos.clear();
+        mapaEventos.clear();
+        eventosDisponibles.clear();
 
-    /**
-     * Clase interna de ejemplo para representar un tipo de tiquete
-     * con su tipo (SIMPLE o MÚLTIPLE) y su descripción.
-     */
-    private static class TiqueteEjemplo {
-        private String nombre;
-        private String tipo;   // "SIMPLE" o "MÚLTIPLE"
-        private String precio; // para mostrar bonito
-
-        public TiqueteEjemplo(String nombre, String tipo, String precio) {
-            this.nombre = nombre;
-            this.tipo = tipo;
-            this.precio = precio;
-        }
-
-        @Override
-        public String toString() {
-            // Así es como se verá en la lista
-            return "[" + tipo + "] " + nombre + " - " + precio;
-        }
-
-        // Getters si luego quieres usarlos para la lógica real
-        public String getNombre() { return nombre; }
-        public String getTipo() { return tipo; }
-        public String getPrecio() { return precio; }
-    }
-
-    /**
-     * Inicializa una lista de eventos de ejemplo y sus tiquetes asociados,
-     * marcando cada tiquete como SIMPLE o MÚLTIPLE.
-     */
-    private void inicializarDatosEjemplo() {
-        tiquetesPorEvento = new HashMap<>();
-
-        // --- Evento 1 ---
-        tiquetesPorEvento.put("Concierto Rock Bogotá 2025", List.of(
-            new TiqueteEjemplo("General", "SIMPLE", "$80.000"),
-            new TiqueteEjemplo("VIP", "SIMPLE", "$150.000"),
-            new TiqueteEjemplo("Combo 4 personas", "MÚLTIPLE", "$300.000")
-        ));
-
-        // --- Evento 2 ---
-        tiquetesPorEvento.put("Obra de Teatro - Hamlet", List.of(
-            new TiqueteEjemplo("Platea", "SIMPLE", "$60.000"),
-            new TiqueteEjemplo("Balcón", "SIMPLE", "$40.000"),
-            new TiqueteEjemplo("Paquete Cena + Obra", "MÚLTIPLE", "$180.000")
-        ));
-
-        // --- Evento 3 ---
-        tiquetesPorEvento.put("Partido Final Liga Colombiana", List.of(
-            new TiqueteEjemplo("Lateral Norte", "SIMPLE", "$50.000"),
-            new TiqueteEjemplo("Oriental", "SIMPLE", "$90.000"),
-            new TiqueteEjemplo("Occidental VIP", "SIMPLE", "$120.000"),
-            new TiqueteEjemplo("Abono 3 partidos", "MÚLTIPLE", "$250.000")
-        ));
-
-        // --- MUCHOS EVENTOS PARA EL SCROLL ---
-        tiquetesPorEvento.put("Festival de Jazz Medellín", List.of(
-            new TiqueteEjemplo("General", "SIMPLE", "$70.000"),
-            new TiqueteEjemplo("Backstage", "MÚLTIPLE", "$220.000")
-        ));
-
-        tiquetesPorEvento.put("Feria del Libro Bogotá", List.of(
-            new TiqueteEjemplo("Ingreso Día", "SIMPLE", "$15.000"),
-            new TiqueteEjemplo("Pasaporte 5 días", "MÚLTIPLE", "$55.000")
-        ));
-
-        tiquetesPorEvento.put("Comic Con Colombia", List.of(
-            new TiqueteEjemplo("General", "SIMPLE", "$50.000"),
-            new TiqueteEjemplo("Meet & Greet", "SIMPLE", "$200.000"),
-            new TiqueteEjemplo("Full Pass 3 días", "MÚLTIPLE", "$120.000")
-        ));
-
-        tiquetesPorEvento.put("Festival Vallenato Valledupar", List.of(
-            new TiqueteEjemplo("Preferencial", "SIMPLE", "$120.000"),
-            new TiqueteEjemplo("VIP", "SIMPLE", "$180.000")
-        ));
-
-        tiquetesPorEvento.put("Carrera 10K Bogotá", List.of(
-            new TiqueteEjemplo("Inscripción General", "SIMPLE", "$40.000"),
-            new TiqueteEjemplo("Kit Competidor", "MÚLTIPLE", "$80.000")
-        ));
-
-        tiquetesPorEvento.put("Expo Fitness Colombia", List.of(
-            new TiqueteEjemplo("Ingreso Diario", "SIMPLE", "$25.000"),
-            new TiqueteEjemplo("Full Weekend", "MÚLTIPLE", "$60.000")
-        ));
-
-        tiquetesPorEvento.put("Torneo Gamer Medellín", List.of(
-            new TiqueteEjemplo("Ingreso General", "SIMPLE", "$35.000"),
-            new TiqueteEjemplo("Competidor Oficial", "MÚLTIPLE", "$95.000")
-        ));
-
-        tiquetesPorEvento.put("Clásicos del Metal Tour", List.of(
-            new TiqueteEjemplo("General", "SIMPLE", "$90.000"),
-            new TiqueteEjemplo("VIP", "SIMPLE", "$160.000")
-        ));
-
-        tiquetesPorEvento.put("Festival de Salsa Cali", List.of(
-            new TiqueteEjemplo("Platea", "SIMPLE", "$70.000"),
-            new TiqueteEjemplo("VIP", "SIMPLE", "$140.000"),
-            new TiqueteEjemplo("Pareja Full Experience", "MÚLTIPLE", "$200.000")
-        ));
-
-        tiquetesPorEvento.put("Maratón de las Flores Medellín", List.of(
-            new TiqueteEjemplo("5K", "SIMPLE", "$30.000"),
-            new TiqueteEjemplo("10K", "SIMPLE", "$40.000"),
-            new TiqueteEjemplo("21K + Kit Premium", "MÚLTIPLE", "$90.000")
-        ));
-
-        tiquetesPorEvento.put("Feria Gastronómica Sabor a Colombia", List.of(
-            new TiqueteEjemplo("Ingreso Día", "SIMPLE", "$20.000"),
-            new TiqueteEjemplo("Full Weekend", "MÚLTIPLE", "$45.000")
-        ));
-
-        tiquetesPorEvento.put("Festival EDM Bogotá", List.of(
-            new TiqueteEjemplo("General", "SIMPLE", "$100.000"),
-            new TiqueteEjemplo("VIP", "SIMPLE", "$180.000"),
-            new TiqueteEjemplo("Combo Amigos (5)", "MÚLTIPLE", "$420.000")
-        ));
-
-        tiquetesPorEvento.put("Copa Libertadores – Partido Internacional", List.of(
-            new TiqueteEjemplo("Norte", "SIMPLE", "$50.000"),
-            new TiqueteEjemplo("Sur", "SIMPLE", "$50.000"),
-            new TiqueteEjemplo("Occidental", "SIMPLE", "$150.000"),
-            new TiqueteEjemplo("Abono Libertadores", "MÚLTIPLE", "$300.000")
-        ));
-
-        tiquetesPorEvento.put("Conferencia Innovación Tech", List.of(
-            new TiqueteEjemplo("General", "SIMPLE", "$80.000"),
-            new TiqueteEjemplo("Full Pass + Workshops", "MÚLTIPLE", "$180.000")
-        ));
-
-        tiquetesPorEvento.put("Festival de Cine Independiente", List.of(
-            new TiqueteEjemplo("Entrada Individual", "SIMPLE", "$12.000"),
-            new TiqueteEjemplo("Pasaporte Cine", "MÚLTIPLE", "$45.000")
-        ));
-
-        tiquetesPorEvento.put("Concierto Sinfónica Filarmónica", List.of(
-            new TiqueteEjemplo("General", "SIMPLE", "$55.000"),
-            new TiqueteEjemplo("Preferencial", "SIMPLE", "$85.000")
-        ));
-
-        tiquetesPorEvento.put("Show de Stand-Up Comedy", List.of(
-            new TiqueteEjemplo("General", "SIMPLE", "$30.000"),
-            new TiqueteEjemplo("Pareja", "MÚLTIPLE", "$55.000")
-        ));
-
-        tiquetesPorEvento.put("Festival Urbano Medellín", List.of(
-            new TiqueteEjemplo("General", "SIMPLE", "$90.000"),
-            new TiqueteEjemplo("VIP", "SIMPLE", "$180.000"),
-            new TiqueteEjemplo("Backstage", "MÚLTIPLE", "$350.000")
-        ));
-    }
-
-    /**
-     * Actualiza la lista de tiquetes según el evento seleccionado.
-     * Aquí ya se ve si el tiquete es SIMPLE o MÚLTIPLE.
-     */
-    private void actualizarTiquetesAsociados(String eventoSeleccionado) {
-        modeloTiquetes.clear();
-        if (eventoSeleccionado == null) {
+        if (sistema == null || sistema.getEventos() == null) {
+            modeloEventos.addElement("No hay eventos disponibles");
             return;
         }
 
-        List<TiqueteEjemplo> tiquetes = tiquetesPorEvento.get(eventoSeleccionado);
-        if (tiquetes != null) {
-            for (TiqueteEjemplo t : tiquetes) {
-                modeloTiquetes.addElement(t);
+        for (Evento evento : sistema.getEventos()) {
+            // Solo mostrar eventos no cancelados con tiquetes disponibles
+            if (!evento.getCancelado() && tieneTiquetesDisponibles(evento)) {
+                eventosDisponibles.add(evento);
+                
+                String key = String.format("%-30s | %s | %s", 
+                    truncar(evento.getNombre(), 30),
+                    evento.getFecha(),
+                    evento.getVenueAsociado());
+                
+                modeloEventos.addElement(key);
+                mapaEventos.put(key, evento);
             }
+        }
+
+        if (modeloEventos.isEmpty()) {
+            modeloEventos.addElement("No hay eventos con tiquetes disponibles");
         }
     }
 
-    public static void main(String[] args) {
-        new ventanaComprarTiquete();
+    /**
+     * Verifica si un evento tiene tiquetes disponibles
+     */
+    private boolean tieneTiquetesDisponibles(Evento evento) {
+        if (evento.getTiquetes() == null) return false;
+        
+        for (Tiquete t : evento.getTiquetesDisponibles()) {
+            if (!t.isTransferido() && !t.isAnulado()) {
+                return true;
+            }
+        }
+        return false;
     }
+
+    /**
+     * Maneja la selección de un evento
+     */
+    private void eventoSeleccionado() {
+        String seleccion = listaEventos.getSelectedValue();
+        
+        if (seleccion == null || !mapaEventos.containsKey(seleccion)) {
+            listaTiquetes.setEnabled(false);
+            modeloTiquetes.clear();
+            btnComprar.setEnabled(false);
+            return;
+        }
+
+        Evento evento = mapaEventos.get(seleccion);
+        cargarTiquetesDeEvento(evento);
+    }
+
+    private void cargarTiquetesDeEvento(Evento evento) {
+        modeloTiquetes.clear();
+        mapaTiquetes.clear();
+        tiquetesDisponibles.clear();
+
+        if (evento.getTiquetes() == null || evento.getTiquetes().isEmpty()) {
+            modeloTiquetes.addElement("No hay tiquetes disponibles");
+            listaTiquetes.setEnabled(false);
+            return;
+        }
+
+        // Mostrar CADA tiquete individualmente
+        int contador = 1;
+        for (Tiquete t : evento.getTiquetesDisponibles()) {
+            if (!t.isTransferido() && !t.isAnulado()) {
+                tiquetesDisponibles.add(t);
+                
+                // Formato: [TIPO] ID | Localidad | Precio
+                String key = String.format("#%-3d [%s] %-12s | %-20s | $%.2f",
+                    contador++,
+                    t.getTipoTiquete(),
+                    truncar(t.getId(), 12),
+                    truncar(t.getLocalidadAsociada().getNombre(), 20),
+                    t.getPrecioBaseSinCalcular());
+                
+                modeloTiquetes.addElement(key);
+                mapaTiquetes.put(key, t);
+            }
+        }
+
+        if (tiquetesDisponibles.isEmpty()) {
+            modeloTiquetes.addElement("No hay tiquetes disponibles");
+            listaTiquetes.setEnabled(false);
+            return;
+        }
+
+        listaTiquetes.setEnabled(true);
+    }
+
+    /**
+     * Maneja la selección de un tiquete
+     */
+    private void tiqueteSeleccionado() {
+        String seleccion = listaTiquetes.getSelectedValue();
+        
+        if (seleccion == null || !mapaTiquetes.containsKey(seleccion)) {
+            btnComprar.setEnabled(false);
+            return;
+        }
+
+        // Habilitar compra de 1 tiquete
+        btnComprar.setEnabled(true);
+    }
+
+    /**
+     * Realiza la compra del tiquete seleccionado
+     */
+    private void realizarCompra() {
+        // Validar selecciones
+        String seleccionEvento = listaEventos.getSelectedValue();
+        String seleccionTiquete = listaTiquetes.getSelectedValue();
+        
+        if (seleccionEvento == null || !mapaEventos.containsKey(seleccionEvento)) {
+            JOptionPane.showMessageDialog(this,
+                "Debe seleccionar un evento",
+                "Error",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        if (seleccionTiquete == null || !mapaTiquetes.containsKey(seleccionTiquete)) {
+            JOptionPane.showMessageDialog(this,
+                "Debe seleccionar un tiquete",
+                "Error",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Evento evento = mapaEventos.get(seleccionEvento);
+        Tiquete tiquete = mapaTiquetes.get(seleccionTiquete);
+        
+        // Precio del tiquete
+        double precio = tiquete.getPrecioBaseSinCalcular();
+        
+        // Verificar saldo
+        if (comprador instanceof IDuenoTiquetes) {
+            IDuenoTiquetes dueno = (IDuenoTiquetes) comprador;
+            if (precio > dueno.getSaldo()) {
+                JOptionPane.showMessageDialog(this,
+                    String.format("Saldo insuficiente\n\nSaldo actual: $%.2f\nPrecio del tiquete: $%.2f",
+                        dueno.getSaldo(), precio),
+                    "Saldo Insuficiente",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        
+        // Confirmar compra
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+            String.format("¿Confirmar compra del tiquete?\n\n" +
+                         "ID: %s\n" +
+                         "Evento: %s\n" +
+                         "Localidad: %s\n" +
+                         "Tipo: %s\n" +
+                         "Precio: $%.2f",
+                         tiquete.getId(),
+                         evento.getNombre(), 
+                         tiquete.getLocalidadAsociada(),
+                         tiquete.getTipoTiquete(),
+                         precio),
+            "Confirmar Compra",
+            JOptionPane.YES_NO_OPTION);
+        
+        if (confirmacion != JOptionPane.YES_OPTION) {
+            return;
+        }
+        int cantidad = (int) spinnerCantidad.getValue();
+
+        // Realizar compra de 1 tiquete
+        try {
+        	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
+            
+            ArrayList<Tiquete> comprados = trans.comprarTiquete(tiquete,comprador,cantidad,
+                evento,
+                sistema.getAdministrador().getCobroEmision(),
+                sistema
+                
+            );
+
+            // Actualizar saldo
+            actualizarSaldo();
+
+            // Mostrar éxito con información del tiquete comprado
+            Tiquete tiqueteComprado = comprados.get(0);
+            
+            JOptionPane.showMessageDialog(this,
+                String.format("✓ Compra realizada exitosamente!\n\n" +
+                             "ID del tiquete: %s\n" +
+                             "Localidad: %s\n" +
+                             "Tipo: %s\n" +
+                             "Precio pagado: $%.2f\n" +
+                             "Nuevo saldo: $%.2f",
+                             tiqueteComprado.getId(),
+                             tiqueteComprado.getLocalidadAsociada(),
+                             tiqueteComprado.getTipoTiquete(),
+                             precio,
+                             ((IDuenoTiquetes)comprador).getSaldo()),
+                "Compra Exitosa",
+                JOptionPane.INFORMATION_MESSAGE);
+
+            // Recargar eventos y limpiar selección
+            cargarEventos();
+            modeloTiquetes.clear();
+            listaTiquetes.setEnabled(false);
+            btnComprar.setEnabled(false);
+
+        } catch (SaldoInsuficienteExeption e) {
+            JOptionPane.showMessageDialog(this,
+                "Saldo insuficiente\n\n" + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        } catch (TiquetesNoDisponiblesException e) {
+            JOptionPane.showMessageDialog(this,
+                "Tiquete no disponible\n\n" + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            // Recargar para actualizar disponibilidad
+            cargarEventos();
+            modeloTiquetes.clear();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Error al realizar la compra:\n" + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Actualiza el label del saldo
+     */
+    private void actualizarSaldo() {
+        if (comprador instanceof IDuenoTiquetes) {
+            IDuenoTiquetes dueno = (IDuenoTiquetes) comprador;
+            lblSaldoActual.setText(String.format("Saldo: $%.2f", dueno.getSaldo()));
+        }
+    }
+
+    /**
+     * Trunca un texto a una longitud máxima
+     */
+    private String truncar(String texto, int maxLength) {
+        if (texto == null) return "";
+        if (texto.length() <= maxLength) return texto;
+        return texto.substring(0, maxLength - 3) + "...";
+    }
+
+    
 }
