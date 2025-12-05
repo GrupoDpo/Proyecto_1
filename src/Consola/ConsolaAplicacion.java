@@ -1364,6 +1364,9 @@ public class ConsolaAplicacion {
         System.out.println("Saldo actualizado.");
     }
     
+    
+    
+    
 
 
     private static void crearEvento(Organizador organizador, SistemaPersistencia sistema) {

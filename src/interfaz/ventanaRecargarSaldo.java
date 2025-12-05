@@ -2,6 +2,15 @@ package interfaz;
 
 import java.awt.*;
 import javax.swing.*;
+
+import Persistencia.SistemaPersistencia;
+import usuario.Administrador;
+import usuario.Cliente;
+import usuario.IDuenoTiquetes;
+import usuario.Organizador;
+import usuario.Promotor;
+import usuario.Usuario;
+
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
@@ -12,16 +21,19 @@ import java.awt.event.ActionEvent;
 public class ventanaRecargarSaldo extends JFrame {
 	private static final long serialVersionUID = 1L;
     private JButton btnNewButton_1;
+    private JTextField textField;
+    private SistemaPersistencia sistema;
+    private Usuario usuarioActual;
     
     
 
-    public ventanaRecargarSaldo() {
-        ArrayList<String> tiposUsuario = new ArrayList<String>();
+    public ventanaRecargarSaldo(SistemaPersistencia sistema, Usuario usuarioActual) {
+        
+    	this.usuarioActual = usuarioActual;
+    	this.sistema = sistema;
     	
-    	tiposUsuario.add("Cliente");
-    	tiposUsuario.add("Promotor");
-    	tiposUsuario.add("Organizador");
-    	tiposUsuario.add("Administrador");
+    	IDuenoTiquetes metodosComprador = (IDuenoTiquetes) usuarioActual;
+   
     	
     	getContentPane().setLayout(null);
         
@@ -33,7 +45,17 @@ public class ventanaRecargarSaldo extends JFrame {
         btnNewButton_1.setBounds(177, 129, 131, 26);
         getContentPane().add(btnNewButton_1);
         
-        JLabel lblNewLabel = new JLabel("Saldo actual: ");
+        btnNewButton_1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                recargarSaldo();
+            }
+        });
+        
+        
+        
+        
+        JLabel lblNewLabel = new JLabel("Saldo actual: " + metodosComprador.getSaldo());
         lblNewLabel.setBounds(40, 27, 149, 16);
         getContentPane().add(lblNewLabel);
         
@@ -44,25 +66,51 @@ public class ventanaRecargarSaldo extends JFrame {
         JButton btnNewButton_1_1 = new JButton("Salir");
         btnNewButton_1_1.setBounds(6, 129, 79, 26);
         getContentPane().add(btnNewButton_1_1);
+       
         
-        JTextPane textPane = new JTextPane();
-        textPane.setBounds(127, 27, 124, 16);
-        getContentPane().add(textPane);
+        btnNewButton_1_1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                volverAlMenu();
+            }
+        });
         
-        JSpinner spinner = new JSpinner();
-        spinner.setBounds(177, 50, 95, 26);
-        getContentPane().add(spinner);
-        
-        
-   
+        textField = new JTextField();
+        textField.setBounds(177, 50, 106, 26);
+        getContentPane().add(textField);
+        textField.setColumns(10);
+
        
         setTitle("BOLETAMASTER: Recargo Saldo");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(318, 206);
         setVisible(true);
     }
-
-    public static void main(String[] args) {
-        new ventanaRecargarSaldo();
+    
+    private void recargarSaldo() {
+    	String valorRecarga = textField.getText();
+    	int recarga = Integer.parseInt(valorRecarga);
+    	IDuenoTiquetes usuario = (IDuenoTiquetes) usuarioActual;
+    	usuario.actualizarSaldo(recarga);
+    	
+    	JOptionPane.showMessageDialog(this, "Saldo exitosamente recargado");
+    		
+    	
     }
+    
+    private void volverAlMenu() {
+        
+    	
+    	dispose();
+    	
+        if (usuarioActual instanceof Promotor) {
+            new ventanaMenuPromotor((Promotor) usuarioActual, sistema).setVisible(true);
+        } else if (usuarioActual instanceof Organizador) {
+            new ventanaMenuOrganizador((Organizador) usuarioActual, sistema).setVisible(true);
+        } else if (usuarioActual instanceof Cliente) {
+        	 new ventanaMenuComprador((Cliente) usuarioActual ,sistema).setVisible(true);
+        }
+             
+    }
+    
 }
