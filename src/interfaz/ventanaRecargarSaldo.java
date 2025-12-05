@@ -110,68 +110,7 @@ public class ventanaRecargarSaldo extends JFrame {
         } else if (usuarioActual instanceof Cliente) {
         	 new ventanaMenuComprador((Cliente) usuarioActual ,sistema).setVisible(true);
         }
-        
-  
-       
-    }
-    
-    
-    
-    
-    
-    private void recargarSaldo() {
-    	String valorRecarga = textField.getText();
-    	int recarga = Integer.parseInt(valorRecarga);
-    	IDuenoTiquetes usuario = (IDuenoTiquetes) usuarioActual;
-    	usuario.actualizarSaldo(recarga);
-    	
-    	JOptionPane.showMessageDialog(this, "Saldo exitosamente recargado");
-    		
-    	
-    }
-    
-    private void volverAlMenu() {
-        
-    	
-    	dispose();
-    	
-        if (usuarioActual instanceof Promotor) {
-            new ventanaMenuPromotor((Promotor) usuarioActual, sistema).setVisible(true);
-        } else if (usuarioActual instanceof Organizador) {
-            new ventanaMenuOrganizador((Organizador) usuarioActual, sistema).setVisible(true);
-        } else if (usuarioActual instanceof Cliente) {
-        	 new ventanaMenuComprador((Cliente) usuarioActual ,sistema).setVisible(true);
-        }
              
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     
 }
