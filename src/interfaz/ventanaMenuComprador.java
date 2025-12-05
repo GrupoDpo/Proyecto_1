@@ -107,6 +107,11 @@ public class ventanaMenuComprador extends JFrame {
         btnRecargarSaldo.addActionListener(e -> abrirVentanaRecargarSaldo());
         getContentPane().add(btnRecargarSaldo);
         y += 40;
+        
+     
+        
+        
+        
 
         JButton btnSolicitarReembolso = new JButton("Solicitar Reembolso");
         btnSolicitarReembolso.setBounds(150, y, 180, 30);
@@ -178,7 +183,8 @@ public class ventanaMenuComprador extends JFrame {
 
     private void abrirVentanaRecargarSaldo() {
         // TODO: Implementar ventana recargar saldo
-        JOptionPane.showMessageDialog(this, "Ventana Recargar Saldo - En desarrollo");
+    	dispose();
+    	new ventanaRecargarSaldo(sistema, usuarioActual).setVisible(true);
     }
 
     private void abrirVentanaSolicitarReembolso() {
