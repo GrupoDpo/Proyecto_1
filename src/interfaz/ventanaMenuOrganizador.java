@@ -166,7 +166,7 @@ public class ventanaMenuOrganizador extends JFrame {
 
     private void abrirVentanaAgregarTiquetes() {
         dispose();
-        new ventanaCrearTiqueteSimple(sistema);
+        new ventanaCrearTiqueteSimple(sistema,organizador);
     }
 
    
