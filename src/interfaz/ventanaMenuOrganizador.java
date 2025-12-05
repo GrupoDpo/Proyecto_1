@@ -162,7 +162,8 @@ public class ventanaMenuOrganizador extends JFrame {
     }
 
     private void abrirVentanaAgregarTiquetes() {
-        JOptionPane.showMessageDialog(this, "Agregar Tiquetes - En desarrollo");
+        dispose();
+        new ventanaCrearTiqueteSimple(sistema);
     }
 
    
