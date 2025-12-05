@@ -111,10 +111,8 @@ public class ventanaRecargarSaldo extends JFrame {
         } else if (usuarioActual instanceof Cliente) {
         	 new ventanaMenuComprador((Cliente) usuarioActual ,sistema).setVisible(true);
         }
-        
-  
-       
+             
     }
     
-    
+
 }
