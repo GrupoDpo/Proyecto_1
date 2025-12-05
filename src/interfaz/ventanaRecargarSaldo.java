@@ -92,6 +92,7 @@ public class ventanaRecargarSaldo extends JFrame {
     	int recarga = Integer.parseInt(valorRecarga);
     	IDuenoTiquetes usuario = (IDuenoTiquetes) usuarioActual;
     	usuario.actualizarSaldo(recarga);
+    	sistema.guardarTodo();
     	
     	JOptionPane.showMessageDialog(this, "Saldo exitosamente recargado");
     		
@@ -116,7 +117,4 @@ public class ventanaRecargarSaldo extends JFrame {
     }
     
     
-    
-    
-
 }
