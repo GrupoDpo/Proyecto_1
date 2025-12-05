@@ -2,100 +2,200 @@ package interfaz;
 
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.awt.event.ActionEvent;
+
+import Persistencia.SistemaPersistencia;
 
 
+
+import usuario.IDuenoTiquetes;
+import usuario.Usuario;
 
 
 public class ventanaMenuComprador extends JFrame {
-	private static final long serialVersionUID = 1L;
-    private JButton btnNewButton_1;
+    private static final long serialVersionUID = 1L;
     
-    
+    private Usuario usuarioActual;
+    private SistemaPersistencia sistema;
 
-    public ventanaMenuComprador() {
-        ArrayList<String> tiposUsuario = new ArrayList<String>();
-    	
-    	tiposUsuario.add("Cliente");
-    	tiposUsuario.add("Promotor");
-    	tiposUsuario.add("Organizador");
-    	tiposUsuario.add("Administrador");
+    public ventanaMenuComprador(Usuario usuario, SistemaPersistencia sistema) {
+        this.usuarioActual = usuario;
+        this.sistema = sistema;
+        
         getContentPane().setLayout(null);
-        
-        JPanel panel = new JPanel();
-        panel.setBounds(0, 0, 400, 10);
-        getContentPane().add(panel);
-        
-        btnNewButton_1 = new JButton("Comprar Tiquete");
-        btnNewButton_1.setBounds(157, 55, 148, 26);
-        getContentPane().add(btnNewButton_1);
-        
-        JLabel lblNewLabel = new JLabel("Bienvenido");
-        lblNewLabel.setBounds(196, 11, 62, 33);
-        getContentPane().add(lblNewLabel);
-        
-        JButton btnNewButton_1_1 = new JButton("Comprar Paquete Deluxe");
-        btnNewButton_1_1.setBounds(134, 92, 187, 26);
-        getContentPane().add(btnNewButton_1_1);
-        
-        JButton btnNewButton_1_2 = new JButton("Transferir Tiquete");
-        btnNewButton_1_2.setBounds(157, 129, 148, 26);
-        getContentPane().add(btnNewButton_1_2);
-        
-        JButton btnNewButton_1_2_1 = new JButton("Crear oferta reventa");
-        btnNewButton_1_2_1.setBounds(157, 166, 148, 26);
-        getContentPane().add(btnNewButton_1_2_1);
-        
-        JButton btnNewButton_1_2_2 = new JButton("Eliminar oferta reventa");
-        btnNewButton_1_2_2.setBounds(157, 203, 148, 26);
-        btnNewButton_1_2_2.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        getContentPane().add(btnNewButton_1_2_2);
-        
-        JButton btnNewButton_1_2_3 = new JButton("Comprar en Marketplace");
-        btnNewButton_1_2_3.setBounds(145, 240, 176, 26);
-        btnNewButton_1_2_3.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        getContentPane().add(btnNewButton_1_2_3);
-        
-        JButton btnNewButton_1_2_4 = new JButton("Contraofertar");
-        btnNewButton_1_2_4.setBounds(157, 277, 148, 26);
-        getContentPane().add(btnNewButton_1_2_4);
-        
-        JButton btnNewButton_1_2_4_1 = new JButton("Ver contraofertas ");
-        btnNewButton_1_2_4_1.setBounds(157, 314, 148, 26);
-        getContentPane().add(btnNewButton_1_2_4_1);
-        
-        JButton btnNewButton_1_2_4_1_1 = new JButton("Solicitar Reembolso");
-        btnNewButton_1_2_4_1_1.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        btnNewButton_1_2_4_1_1.setBounds(157, 388, 148, 26);
-        getContentPane().add(btnNewButton_1_2_4_1_1);
-        
-        JButton btnNewButton_1_2_4_1_1_1 = new JButton("Recargar Saldo");
-        btnNewButton_1_2_4_1_1_1.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        btnNewButton_1_2_4_1_1_1.setBounds(157, 351, 148, 26);
-        getContentPane().add(btnNewButton_1_2_4_1_1_1);
 
-       
+        // Panel superior
+        JPanel panel = new JPanel();
+        panel.setBounds(0, 0, 449, 10);
+        getContentPane().add(panel);
+
+        // Bienvenida personalizada
+        JLabel lblBienvenida = new JLabel("Bienvenido, " + usuarioActual.getLogin());
+        lblBienvenida.setFont(new Font("Arial", Font.BOLD, 14));
+        lblBienvenida.setBounds(130, 20, 250, 25);
+        getContentPane().add(lblBienvenida);
+
+        // Mostrar saldo si el usuario puede tener saldo
+        if (usuarioActual instanceof IDuenoTiquetes) {
+            IDuenoTiquetes dueno = (IDuenoTiquetes) usuarioActual;
+            JLabel lblSaldo = new JLabel("Saldo: $" + dueno.getSaldo());
+            lblSaldo.setFont(new Font("Arial", Font.PLAIN, 12));
+            lblSaldo.setForeground(new Color(0, 128, 0));
+            lblSaldo.setBounds(180, 45, 150, 20);
+            getContentPane().add(lblSaldo);
+        }
+
+        int y = 75; // Posición Y inicial para botones
+
+        // ===== BOTONES COMUNES PARA COMPRADORES =====
+        
+        JButton btnComprarTiquete = new JButton("Comprar Tiquete");
+        btnComprarTiquete.setBounds(150, y, 180, 30);
+        btnComprarTiquete.addActionListener(e -> abrirVentanaComprarTiquete());
+        getContentPane().add(btnComprarTiquete);
+        y += 40;
+
+        JButton btnComprarPaqueteDeluxe = new JButton("Comprar Paquete Deluxe");
+        btnComprarPaqueteDeluxe.setBounds(150, y, 180, 30);
+        btnComprarPaqueteDeluxe.addActionListener(e -> abrirVentanaComprarPaqueteDeluxe());
+        getContentPane().add(btnComprarPaqueteDeluxe);
+        y += 40;
+
+        JButton btnComprarPaqueteMultiple = new JButton("Comprar Paquete Múltiple");
+        btnComprarPaqueteMultiple.setBounds(150, y, 180, 30);
+        btnComprarPaqueteMultiple.addActionListener(e -> abrirVentanaComprarPaqueteMultiple());
+        getContentPane().add(btnComprarPaqueteMultiple);
+        y += 40;
+
+        JButton btnTransferirTiquete = new JButton("Transferir Tiquete");
+        btnTransferirTiquete.setBounds(150, y, 180, 30);
+        btnTransferirTiquete.addActionListener(e -> abrirVentanaTransferirTiquete());
+        getContentPane().add(btnTransferirTiquete);
+        y += 40;
+
+        JButton btnCrearOferta = new JButton("Crear Oferta Reventa");
+        btnCrearOferta.setBounds(150, y, 180, 30);
+        btnCrearOferta.addActionListener(e -> abrirVentanaCrearOferta());
+        getContentPane().add(btnCrearOferta);
+        y += 40;
+
+        JButton btnEliminarOferta = new JButton("Eliminar Oferta Reventa");
+        btnEliminarOferta.setBounds(150, y, 180, 30);
+        btnEliminarOferta.addActionListener(e -> abrirVentanaEliminarOferta());
+        getContentPane().add(btnEliminarOferta);
+        y += 40;
+
+        JButton btnComprarMarketplace = new JButton("Comprar en Marketplace");
+        btnComprarMarketplace.setBounds(150, y, 180, 30);
+        btnComprarMarketplace.addActionListener(e -> abrirVentanaMarketplace());
+        getContentPane().add(btnComprarMarketplace);
+        y += 40;
+
+        JButton btnContraofertar = new JButton("Contraofertar");
+        btnContraofertar.setBounds(150, y, 180, 30);
+        btnContraofertar.addActionListener(e -> abrirVentanaContraofertar());
+        getContentPane().add(btnContraofertar);
+        y += 40;
+
+        JButton btnVerContraofertas = new JButton("Ver Contraofertas");
+        btnVerContraofertas.setBounds(150, y, 180, 30);
+        btnVerContraofertas.addActionListener(e -> abrirVentanaVerContraofertas());
+        getContentPane().add(btnVerContraofertas);
+        y += 40;
+
+        JButton btnRecargarSaldo = new JButton("Recargar Saldo");
+        btnRecargarSaldo.setBounds(150, y, 180, 30);
+        btnRecargarSaldo.addActionListener(e -> abrirVentanaRecargarSaldo());
+        getContentPane().add(btnRecargarSaldo);
+        y += 40;
+
+        JButton btnSolicitarReembolso = new JButton("Solicitar Reembolso");
+        btnSolicitarReembolso.setBounds(150, y, 180, 30);
+        btnSolicitarReembolso.addActionListener(e -> abrirVentanaSolicitarReembolso());
+        getContentPane().add(btnSolicitarReembolso);
+        y += 40;
+
+
+        // Botón Cerrar Sesión
+        JButton btnCerrarSesion = new JButton("Cerrar Sesión");
+        btnCerrarSesion.setBounds(150, y, 180, 30);
+        btnCerrarSesion.setBackground(new Color(231, 76, 60));
+        btnCerrarSesion.setForeground(Color.WHITE);
+        btnCerrarSesion.addActionListener(e -> cerrarSesion());
+        getContentPane().add(btnCerrarSesion);
+
         setTitle("BOLETAMASTER: Menu Comprador");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(449, 499);
-        setVisible(true);
+        setSize(449, 439);
+        setLocationRelativeTo(null);
     }
 
-    public static void main(String[] args) {
-        new ventanaMenuComprador();
+    // ===== MÉTODOS PARA ABRIR VENTANAS =====
+    
+    private void abrirVentanaComprarTiquete() {
+        // TODO: Implementar ventana de compra de tiquetes
+        JOptionPane.showMessageDialog(this, "Ventana Comprar Tiquete - En desarrollo");
+    }
+
+    private void abrirVentanaComprarPaqueteDeluxe() {
+        // TODO: Implementar ventana de compra de paquete deluxe
+        JOptionPane.showMessageDialog(this, "Ventana Comprar Paquete Deluxe - En desarrollo");
+    }
+
+    private void abrirVentanaComprarPaqueteMultiple() {
+        // TODO: Implementar ventana de compra de paquete múltiple
+        JOptionPane.showMessageDialog(this, "Ventana Comprar Paquete Múltiple - En desarrollo");
+    }
+
+    private void abrirVentanaTransferirTiquete() {
+        // TODO: Implementar ventana de transferir tiquete
+        JOptionPane.showMessageDialog(this, "Ventana Transferir Tiquete - En desarrollo");
+    }
+
+    private void abrirVentanaCrearOferta() {
+        // TODO: Implementar ventana crear oferta
+        JOptionPane.showMessageDialog(this, "Ventana Crear Oferta - En desarrollo");
+    }
+
+    private void abrirVentanaEliminarOferta() {
+        // TODO: Implementar ventana eliminar oferta
+        JOptionPane.showMessageDialog(this, "Ventana Eliminar Oferta - En desarrollo");
+    }
+
+    private void abrirVentanaMarketplace() {
+        // TODO: Implementar ventana marketplace
+        JOptionPane.showMessageDialog(this, "Ventana Marketplace - En desarrollo");
+    }
+
+    private void abrirVentanaContraofertar() {
+        // TODO: Implementar ventana contraofertar
+        JOptionPane.showMessageDialog(this, "Ventana Contraofertar - En desarrollo");
+    }
+
+    private void abrirVentanaVerContraofertas() {
+        // TODO: Implementar ventana ver contraofertas
+        JOptionPane.showMessageDialog(this, "Ventana Ver Contraofertas - En desarrollo");
+    }
+
+    private void abrirVentanaRecargarSaldo() {
+        // TODO: Implementar ventana recargar saldo
+        JOptionPane.showMessageDialog(this, "Ventana Recargar Saldo - En desarrollo");
+    }
+
+    private void abrirVentanaSolicitarReembolso() {
+        // TODO: Implementar ventana solicitar reembolso
+        JOptionPane.showMessageDialog(this, "Ventana Solicitar Reembolso - En desarrollo");
+    }
+
+    private void cerrarSesion() {
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+            "¿Está seguro que desea cerrar sesión?",
+            "Cerrar Sesión",
+            JOptionPane.YES_NO_OPTION);
+        
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            dispose();
+            ventanaLogin login = new ventanaLogin(sistema);
+            login.setVisible(true);
+        }
     }
 }

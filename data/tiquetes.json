@@ -22,7 +22,7 @@
       "recargo": 10.0,
       "fechaExpiracion": "2026-01-01",
       "nombre": "VIP",
-      "transferido": false,
+      "transferido": true,
       "anulado": false,
       "eventoAsociado": "Mundial",
       "localidadNombre": "VIP",

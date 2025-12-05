@@ -2,6 +2,12 @@ package interfaz;
 
 import java.awt.*;
 import javax.swing.*;
+
+import Persistencia.SistemaPersistencia;
+import usuario.Administrador;
+import usuario.Organizador;
+import usuario.Usuario;
+
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
@@ -10,86 +16,147 @@ import java.awt.event.ActionEvent;
 
 
 public class ventanaMenuAdministrador extends JFrame {
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
-    private JButton btnNewButton_1;
-    
-    
+	private Administrador admin;
+    private SistemaPersistencia sistema;
 
-    public ventanaMenuAdministrador() {
-        ArrayList<String> tiposUsuario = new ArrayList<String>();
-    	
-    	tiposUsuario.add("Cliente");
-    	tiposUsuario.add("Promotor");
-    	tiposUsuario.add("Organizador");
-    	tiposUsuario.add("Administrador");
+    public ventanaMenuAdministrador(Administrador admin, SistemaPersistencia sistema) {
+        this.admin = admin;
+        this.sistema = sistema;
+        
         getContentPane().setLayout(null);
-        
-        JPanel panel = new JPanel();
-        panel.setBounds(0, 0, 400, 10);
-        getContentPane().add(panel);
-        
-        btnNewButton_1 = new JButton("Crear Venue");
-        btnNewButton_1.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        btnNewButton_1.setBounds(157, 55, 148, 26);
-        getContentPane().add(btnNewButton_1);
-        
-        JLabel lblNewLabel = new JLabel("Bienvenido");
-        lblNewLabel.setBounds(196, 11, 62, 33);
-        getContentPane().add(lblNewLabel);
-        
-        JButton btnNewButton_1_1 = new JButton("Revisar Solicitudes de Venue");
-        btnNewButton_1_1.setBounds(134, 92, 187, 26);
-        getContentPane().add(btnNewButton_1_1);
-        
-        JButton btnNewButton_1_2 = new JButton("Ver rembolsos");
-        btnNewButton_1_2.setBounds(157, 129, 148, 26);
-        getContentPane().add(btnNewButton_1_2);
-        
-        JButton btnNewButton_1_2_1 = new JButton("Ver reventas");
-        btnNewButton_1_2_1.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        btnNewButton_1_2_1.setBounds(157, 166, 148, 26);
-        getContentPane().add(btnNewButton_1_2_1);
-        
-        JButton btnNewButton_1_2_2 = new JButton("Cancelar evento");
-        btnNewButton_1_2_2.setBounds(157, 203, 148, 26);
-        btnNewButton_1_2_2.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        getContentPane().add(btnNewButton_1_2_2);
-        
-        JButton btnNewButton_1_2_3 = new JButton("Gestionar Solicitudes de Cancelar evento");
-        btnNewButton_1_2_3.setBounds(145, 240, 176, 26);
-        btnNewButton_1_2_3.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        getContentPane().add(btnNewButton_1_2_3);
-        
-        JButton btnNewButton_1_2_4 = new JButton("Fijar cobro de emision");
-        btnNewButton_1_2_4.setBounds(157, 277, 148, 26);
-        getContentPane().add(btnNewButton_1_2_4);
-        
-        JButton btnNewButton_1_2_4_1 = new JButton("Fijar recargo");
-        btnNewButton_1_2_4_1.setBounds(157, 314, 148, 26);
-        getContentPane().add(btnNewButton_1_2_4_1);
 
-       
-        setTitle("BOLETAMASTER: Menu Promotor");
+        // Bienvenida
+        JLabel lblBienvenida = new JLabel("Bienvenido Organizador, " + admin.getLogin());
+        lblBienvenida.setFont(new Font("Arial", Font.BOLD, 14));
+        lblBienvenida.setBounds(100, 20, 300, 25);
+        getContentPane().add(lblBienvenida);
+
+        int y = 75;
+
+        // ===== OPCIONES ESPECÍFICAS DE ADMIN =====
+        
+        JButton btnCrearEvento = new JButton("Crear Venue");
+        btnCrearEvento.setBounds(50, y, 180, 30);
+        btnCrearEvento.setBackground(new Color(52, 152, 219));
+        btnCrearEvento.setForeground(Color.WHITE);
+        btnCrearEvento.addActionListener(e -> abrirVentanaCrearVenue());
+        getContentPane().add(btnCrearEvento);
+
+        JButton btnVerMisEventos = new JButton("Revisar Solicitud Venue");
+        btnVerMisEventos.setBounds(250, y, 180, 30);
+        btnVerMisEventos.setBackground(new Color(52, 152, 219));
+        btnVerMisEventos.setForeground(Color.WHITE);
+        btnVerMisEventos.addActionListener(e -> abrirVentanaRevisarSolicitudVenue());
+        getContentPane().add(btnVerMisEventos);
+        y += 40;
+
+        JButton btnAgregarTiquetes = new JButton("Ver solicitudes Reembolsos");
+        btnAgregarTiquetes.setBounds(50, y, 180, 30);
+        btnAgregarTiquetes.setBackground(new Color(52, 152, 219));
+        btnAgregarTiquetes.setForeground(Color.WHITE);
+        btnAgregarTiquetes.addActionListener(e -> abrirVentanaVerSolicitudesReembolsos());
+        getContentPane().add(btnAgregarTiquetes);
+        
+        JButton btnVerLog = new JButton("Ver log reventas");
+        btnVerLog.setBounds(50, y, 180, 30);
+        btnVerLog.setBackground(new Color(52, 152, 219));
+        btnVerLog.setForeground(Color.WHITE);
+        btnVerLog.addActionListener(e -> abrirVentanaVerLogReventas());
+        getContentPane().add(btnVerLog);
+        
+        JButton btnCancelarEvento = new JButton("Cancelar Evento");
+        btnCancelarEvento.setBounds(50, y, 180, 30);
+        btnCancelarEvento.setBackground(new Color(52, 152, 219));
+        btnCancelarEvento.setForeground(Color.WHITE);
+        btnCancelarEvento.addActionListener(e -> abrirVentanaCancelarEvento());
+        getContentPane().add(btnCancelarEvento);
+        
+        JButton btnGestionSolCancelarEvento = new JButton("Ver solicitudes Cancelacion evento");
+        btnGestionSolCancelarEvento.setBounds(50, y, 180, 30);
+        btnGestionSolCancelarEvento.setBackground(new Color(52, 152, 219));
+        btnGestionSolCancelarEvento.setForeground(Color.WHITE);
+        btnGestionSolCancelarEvento.addActionListener(e -> abrirVentanaVerSolicitudesCancelacionEvento());
+        getContentPane().add(btnGestionSolCancelarEvento);
+        
+        JButton btnFijarCobroEmision = new JButton("Fijar Cobro Emision");
+        btnFijarCobroEmision.setBounds(50, y, 180, 30);
+        btnFijarCobroEmision.setBackground(new Color(52, 152, 219));
+        btnFijarCobroEmision.setForeground(Color.WHITE);
+        btnFijarCobroEmision.addActionListener(e -> abrirVentanaFijarCobroEmision());
+        getContentPane().add(btnFijarCobroEmision);
+        
+        JButton btnFijarRecargo = new JButton("Fijar Recargo");
+        btnFijarRecargo.setBounds(50, y, 180, 30);
+        btnFijarRecargo.setBackground(new Color(52, 152, 219));
+        btnFijarRecargo.setForeground(Color.WHITE);
+        btnFijarRecargo.addActionListener(e -> abrirVentanaFijarRecargo());
+        getContentPane().add(btnFijarRecargo);
+
+
+        
+        JButton btnCerrarSesion = new JButton("Cerrar Sesión");
+        btnCerrarSesion.setBounds(125, y, 180, 30);
+        btnCerrarSesion.setBackground(new Color(231, 76, 60));
+        btnCerrarSesion.setForeground(Color.WHITE);
+        btnCerrarSesion.addActionListener(e -> cerrarSesion());
+        getContentPane().add(btnCerrarSesion);
+
+        setTitle("BOLETAMASTER: Menu Organizador");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(449, 400);
-        setVisible(true);
+        setSize(480, y + 80);
+        setLocationRelativeTo(null);
     }
 
-    public static void main(String[] args) {
-        new ventanaMenuComprador();
+    // Métodos específicos de Organizador
+    private void abrirVentanaCrearVenue() {
+        JOptionPane.showMessageDialog(this, "Crear Evento - En desarrollo");
+    }
+
+    private void abrirVentanaRevisarSolicitudVenue() {
+        JOptionPane.showMessageDialog(this, "Revisar Solicitud Venue - En desarrollo");
+    }
+
+    private void abrirVentanaVerSolicitudesReembolsos() {
+        JOptionPane.showMessageDialog(this, "Ver Solicitudes Reembolsos - En desarrollo");
+    }
+    
+    private void abrirVentanaVerLogReventas() {
+        JOptionPane.showMessageDialog(this, "Ver Solicitudes Reembolsos - En desarrollo");
+    }
+    
+    private void abrirVentanaCancelarEvento() {
+        JOptionPane.showMessageDialog(this, "- - En desarrollo");
+    }
+    
+    private void abrirVentanaVerSolicitudesCancelacionEvento() {
+        JOptionPane.showMessageDialog(this, "- - En desarrollo");
+    }
+    private void abrirVentanaFijarCobroEmision() {
+        JOptionPane.showMessageDialog(this, "- - En desarrollo");
+    }
+    
+    private void abrirVentanaFijarRecargo() {
+        JOptionPane.showMessageDialog(this, "- - En desarrollo");
+    }
+
+   
+
+   
+
+    private void cerrarSesion() {
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+            "¿Está seguro que desea cerrar sesión?",
+            "Cerrar Sesión",
+            JOptionPane.YES_NO_OPTION);
+        
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            dispose();
+            ventanaLogin login = new ventanaLogin(sistema);
+            login.setVisible(true);
+        }
     }
 }
-
-

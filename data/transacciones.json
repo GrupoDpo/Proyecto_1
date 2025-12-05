@@ -55,6 +55,13 @@
       "valor": 0.0,
       "dueno": "Disneygpt",
       "idTiquete": "TIQ-00000005"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-03T22:10:48.280533",
+      "valor": 27500.0,
+      "dueno": "mateo12",
+      "idTiquete": "TIQ-00000001"
     }
   ]
 }
