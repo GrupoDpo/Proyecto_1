@@ -60,6 +60,13 @@
       "tipo": "CLIENTE",
       "saldo": 0.0,
       "idsTiquetes": []
+    },
+    {
+      "login": "andres123",
+      "password": "Huertas2005",
+      "tipo": "CLIENTE",
+      "saldo": 0.0,
+      "idsTiquetes": []
     }
   ]
 }
