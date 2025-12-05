@@ -634,6 +634,10 @@ public class SistemaPersistencia {
     public List<Tiquete> getTiquetes() { 
     	return tiquetes; 
     	}
+    
+    public List<Venue> getVenues() { 
+    	return venues; 
+    	}
     public List<Transaccion> getTransacciones() {
     	return transacciones; 
     	}

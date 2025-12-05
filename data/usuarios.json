@@ -58,7 +58,7 @@
       "login": "david1",
       "password": "david13",
       "tipo": "CLIENTE",
-      "saldo": 0.0,
+      "saldo": 250000.0,
       "idsTiquetes": []
     },
     {

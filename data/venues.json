@@ -1,4 +1,19 @@
 {
   "venues": [
+    {
+      "ubicacion": "Neiva",
+      "capacidadMax": 10000,
+      "aprobado": false
+    },
+    {
+      "ubicacion": "Bogota",
+      "capacidadMax": 25000,
+      "aprobado": false
+    },
+    {
+      "ubicacion": "Villao",
+      "capacidadMax": 10000,
+      "aprobado": false
+    }
   ]
 }

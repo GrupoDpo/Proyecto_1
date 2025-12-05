@@ -87,8 +87,12 @@ public class Administrador extends Usuario {
         return "ADMINISTRADOR";
     }
     
-    public Venue crearVenue(String ubicacion, int capacidadMax, boolean aprobado) {
-        return new Venue(ubicacion, capacidadMax, aprobado);
+    public Venue crearVenue(String ubicacion, int capacidadMax, boolean aprobado, SistemaPersistencia sistema) {
+    	Venue nuevo =new Venue(ubicacion, capacidadMax, aprobado);
+    	sistema.agregarVenue(nuevo);
+    	sistema.guardarTodo();
+        return nuevo;
+        
     }
     
    

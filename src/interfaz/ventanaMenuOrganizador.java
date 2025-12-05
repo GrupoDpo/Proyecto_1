@@ -62,7 +62,7 @@ public class ventanaMenuOrganizador extends JFrame {
         JSeparator separator = new JSeparator();
         separator.setBounds(50, y, 380, 2);
         getContentPane().add(separator);
-        y += 15;
+        y += 30;
 
         JLabel lblOpcionesCompra = new JLabel("OPCIONES DE COMPRA");
         lblOpcionesCompra.setFont(new Font("Arial", Font.BOLD, 12));
@@ -147,13 +147,14 @@ public class ventanaMenuOrganizador extends JFrame {
 
         setTitle("BOLETAMASTER: Menu Organizador");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(480, y + 80);
+        setSize(480, 377);
         setLocationRelativeTo(null);
     }
 
     // Métodos específicos de Organizador
     private void abrirVentanaCrearEvento() {
-        JOptionPane.showMessageDialog(this, "Crear Evento - En desarrollo");
+    	dispose();
+    	new ventanaCrearEvento(sistema, organizador).setVisible(true);
     }
 
     private void abrirVentanaSolicitarCancelacionEvento() {

@@ -30,7 +30,7 @@ public class ventanaMenuAdministrador extends JFrame {
         getContentPane().setLayout(null);
 
         // Bienvenida
-        JLabel lblBienvenida = new JLabel("Bienvenido Organizador, " + admin.getLogin());
+        JLabel lblBienvenida = new JLabel("Bienvenido Administrador, " + admin.getLogin());
         lblBienvenida.setFont(new Font("Arial", Font.BOLD, 14));
         lblBienvenida.setBounds(100, 20, 300, 25);
         getContentPane().add(lblBienvenida);
@@ -60,6 +60,8 @@ public class ventanaMenuAdministrador extends JFrame {
         btnAgregarTiquetes.setForeground(Color.WHITE);
         btnAgregarTiquetes.addActionListener(e -> abrirVentanaVerSolicitudesReembolsos());
         getContentPane().add(btnAgregarTiquetes);
+        y += 40;
+        
         
         JButton btnVerLog = new JButton("Ver log reventas");
         btnVerLog.setBounds(50, y, 180, 30);
@@ -67,6 +69,8 @@ public class ventanaMenuAdministrador extends JFrame {
         btnVerLog.setForeground(Color.WHITE);
         btnVerLog.addActionListener(e -> abrirVentanaVerLogReventas());
         getContentPane().add(btnVerLog);
+        y += 40;
+        
         
         JButton btnCancelarEvento = new JButton("Cancelar Evento");
         btnCancelarEvento.setBounds(50, y, 180, 30);
@@ -74,6 +78,8 @@ public class ventanaMenuAdministrador extends JFrame {
         btnCancelarEvento.setForeground(Color.WHITE);
         btnCancelarEvento.addActionListener(e -> abrirVentanaCancelarEvento());
         getContentPane().add(btnCancelarEvento);
+        y += 40;
+        
         
         JButton btnGestionSolCancelarEvento = new JButton("Ver solicitudes Cancelacion evento");
         btnGestionSolCancelarEvento.setBounds(50, y, 180, 30);
@@ -81,6 +87,8 @@ public class ventanaMenuAdministrador extends JFrame {
         btnGestionSolCancelarEvento.setForeground(Color.WHITE);
         btnGestionSolCancelarEvento.addActionListener(e -> abrirVentanaVerSolicitudesCancelacionEvento());
         getContentPane().add(btnGestionSolCancelarEvento);
+        y += 40;
+        
         
         JButton btnFijarCobroEmision = new JButton("Fijar Cobro Emision");
         btnFijarCobroEmision.setBounds(50, y, 180, 30);
@@ -88,6 +96,8 @@ public class ventanaMenuAdministrador extends JFrame {
         btnFijarCobroEmision.setForeground(Color.WHITE);
         btnFijarCobroEmision.addActionListener(e -> abrirVentanaFijarCobroEmision());
         getContentPane().add(btnFijarCobroEmision);
+        y += 40;
+        
         
         JButton btnFijarRecargo = new JButton("Fijar Recargo");
         btnFijarRecargo.setBounds(50, y, 180, 30);
@@ -95,7 +105,7 @@ public class ventanaMenuAdministrador extends JFrame {
         btnFijarRecargo.setForeground(Color.WHITE);
         btnFijarRecargo.addActionListener(e -> abrirVentanaFijarRecargo());
         getContentPane().add(btnFijarRecargo);
-
+        y += 40;
 
         
         JButton btnCerrarSesion = new JButton("Cerrar Sesión");
@@ -104,7 +114,8 @@ public class ventanaMenuAdministrador extends JFrame {
         btnCerrarSesion.setForeground(Color.WHITE);
         btnCerrarSesion.addActionListener(e -> cerrarSesion());
         getContentPane().add(btnCerrarSesion);
-
+        y += 40;
+        
         setTitle("BOLETAMASTER: Menu Organizador");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(480, y + 80);
@@ -113,7 +124,8 @@ public class ventanaMenuAdministrador extends JFrame {
 
     // Métodos específicos de Organizador
     private void abrirVentanaCrearVenue() {
-        JOptionPane.showMessageDialog(this, "Crear Evento - En desarrollo");
+    	dispose();
+        new VentanaCrearVenue(sistema, admin);
     }
 
     private void abrirVentanaRevisarSolicitudVenue() {

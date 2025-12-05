@@ -1822,10 +1822,10 @@ public class ConsolaAplicacion {
                     System.out.print("¿Aprobado por defecto? (s/n): ");
                     String apr = sc.nextLine();
                     boolean aprobado = "s".equalsIgnoreCase(apr);
-                    Venue v = admin.crearVenue(ubic, cap, aprobado);
+                    Venue v = admin.crearVenue(ubic, cap, aprobado,sistema);
                     System.out.println("Venue creado: " + v.getUbicacion() + " (aprobado=" + aprobado + ")");
                     // Si quieres guardar venues en algún repositorio, hazlo desde SistemaPersistencia.
-                    sistema.guardarTodo();
+                    
                     break;
                 }
 
