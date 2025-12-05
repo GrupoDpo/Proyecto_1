@@ -3,6 +3,7 @@ package interfaz;
 import java.awt.*;
 import javax.swing.*;
 
+import Finanzas.Transaccion;
 import Persistencia.SistemaPersistencia;
 
 
@@ -16,10 +17,12 @@ public class ventanaMenuComprador extends JFrame {
     
     private Usuario usuarioActual;
     private SistemaPersistencia sistema;
+    private Transaccion trans;
 
-    public ventanaMenuComprador(Usuario usuario, SistemaPersistencia sistema) {
+    public ventanaMenuComprador(Usuario usuario, SistemaPersistencia sistema, Transaccion trans) {
         this.usuarioActual = usuario;
         this.sistema = sistema;
+        this.trans = trans;
         
         getContentPane().setLayout(null);
 
@@ -153,9 +156,9 @@ public class ventanaMenuComprador extends JFrame {
 
     private void abrirVentanaTransferirTiquete() {
         // TODO: Implementar ventana de transferir tiquete
-        JOptionPane.showMessageDialog(this, "Ventana Transferir Tiquete - En desarrollo");
+    	dispose();
+        new ventanaTransferirTiquete(usuarioActual, sistema, trans);
     }
-
     private void abrirVentanaCrearOferta() {
         // TODO: Implementar ventana crear oferta
         JOptionPane.showMessageDialog(this, "Ventana Crear Oferta - En desarrollo");
