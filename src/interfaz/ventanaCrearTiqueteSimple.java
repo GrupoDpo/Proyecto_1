@@ -9,6 +9,7 @@ import Evento.Evento;
 import Evento.Localidad;
 import Persistencia.SistemaPersistencia;
 import tiquete.TiqueteSimple;
+import usuario.Organizador;
 
 public class ventanaCrearTiqueteSimple extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -28,14 +29,25 @@ public class ventanaCrearTiqueteSimple extends JFrame {
     // Modelo
     private SistemaPersistencia sistema;
     private List<Evento> eventosDisponibles;
+    private Organizador organizador;
 
     /**
      * Recibe el sistema de persistencia y despliega los eventos disponibles
      * para asociar los tiquetes simples.
      */
-    public ventanaCrearTiqueteSimple(SistemaPersistencia sistema) {
+    public ventanaCrearTiqueteSimple(SistemaPersistencia sistema,Organizador org) {
         this.sistema = sistema;
-        this.eventosDisponibles = (sistema != null) ? sistema.getEventos() : new ArrayList<>();
+        this.organizador = org;
+        
+        this.eventosDisponibles = new ArrayList<>();
+        if (sistema != null && sistema.getEventos() != null) {
+            for (Evento ev : sistema.getEventos()) {
+                if (ev.getLoginOrganizador().equals(organizador.getLogin()) 
+                    && !ev.getCancelado()) {
+                    this.eventosDisponibles.add(ev);
+                }
+            }
+        }
 
         getContentPane().setLayout(null);
 
@@ -178,16 +190,16 @@ public class ventanaCrearTiqueteSimple extends JFrame {
      * pero tomando los datos desde la interfaz y usando el evento seleccionado en el combo.
      */
     private void crearTiquetesSimplesDesdeUI() {
-        if (sistema == null || eventosDisponibles == null || eventosDisponibles.isEmpty()) {
+    	if (eventosDisponibles == null || eventosDisponibles.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "No hay eventos disponibles para asociar tiquetes.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    "No tienes eventos disponibles para crear tiquetes.",
+                    "Sin eventos",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int idxEvento = comboEventos.getSelectedIndex();
-        if (idxEvento < 0 || idxEvento >= eventosDisponibles.size() || !comboEventos.isEnabled()) {
+        if (idxEvento < 0 || idxEvento >= eventosDisponibles.size()) {
             JOptionPane.showMessageDialog(this,
                     "Debe seleccionar un evento válido.",
                     "Error",
