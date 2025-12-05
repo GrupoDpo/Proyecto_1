@@ -133,7 +133,7 @@ public class ventanaCrearTiqueteSimple extends JFrame {
         comboEventos.setBounds(40, 230, 311, 26);
         getContentPane().add(comboEventos);
 
-        cargarEventosEnCombo();
+       
 
         // Botón Crear Tiquete
         btnCrearTiquete = new JButton("Crear Tiquete");
@@ -153,6 +153,8 @@ public class ventanaCrearTiqueteSimple extends JFrame {
 
         // Acción botón crear
         btnCrearTiquete.addActionListener(e -> crearTiquetesSimplesDesdeUI());
+        
+        cargarEventosEnCombo();
 
         setTitle("BOLETAMASTER: Crear Tiquete Simple");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
