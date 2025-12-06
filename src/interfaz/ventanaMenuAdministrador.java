@@ -5,12 +5,7 @@ import javax.swing.*;
 
 import Persistencia.SistemaPersistencia;
 import usuario.Administrador;
-import usuario.Organizador;
-import usuario.Usuario;
 
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.awt.event.ActionEvent;
 
 
 
@@ -129,29 +124,36 @@ public class ventanaMenuAdministrador extends JFrame {
     }
 
     private void abrirVentanaRevisarSolicitudVenue() {
+    	// TODO: Implementar ventana 
         JOptionPane.showMessageDialog(this, "Revisar Solicitud Venue - En desarrollo");
     }
 
     private void abrirVentanaVerSolicitudesReembolsos() {
+    	// TODO: Implementar ventana 
         JOptionPane.showMessageDialog(this, "Ver Solicitudes Reembolsos - En desarrollo");
     }
     
     private void abrirVentanaVerLogReventas() {
+    	// TODO: Implementar ventana 
         JOptionPane.showMessageDialog(this, "Ver Solicitudes Reembolsos - En desarrollo");
     }
     
     private void abrirVentanaCancelarEvento() {
+    	// TODO: Implementar ventana 
         JOptionPane.showMessageDialog(this, "- - En desarrollo");
     }
     
     private void abrirVentanaVerSolicitudesCancelacionEvento() {
+    	// TODO: Implementar ventana 
         JOptionPane.showMessageDialog(this, "- - En desarrollo");
     }
     private void abrirVentanaFijarCobroEmision() {
+    	// TODO: Implementar ventana 
         JOptionPane.showMessageDialog(this, "- - En desarrollo");
     }
     
     private void abrirVentanaFijarRecargo() {
+    	// TODO: Implementar ventana 
         JOptionPane.showMessageDialog(this, "- - En desarrollo");
     }
 
