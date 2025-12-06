@@ -132,6 +132,27 @@
       "valor": 210000.0,
       "dueno": "andres123",
       "idTiquete": "TIQ-00000022"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-12-05T21:16:15.353168100",
+      "valor": 0.0,
+      "dueno": "mateo12",
+      "idTiquete": "TIQ-00000005"
+    },
+    {
+      "tipo": "COMPRA_MARKETPLACE",
+      "fecha": "2025-12-05T21:24:57.471412300",
+      "valor": 300000.0,
+      "dueno": "mateo12",
+      "idTiquete": "TIQ-00000005"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-12-05T21:27:37.530888200",
+      "valor": 0.0,
+      "dueno": "mateo12",
+      "idTiquete": "TIQ-00000006"
     }
   ]
 }
