@@ -200,7 +200,8 @@ public class ventanaMenuComprador extends JFrame {
 
     private void abrirVentanaSolicitarReembolso() {
         // TODO: Implementar ventana solicitar reembolso
-        JOptionPane.showMessageDialog(this, "Ventana Solicitar Reembolso - En desarrollo");
+     	dispose();
+    	new VentanaSolicitarReembolsos(sistema, usuarioActual).setVisible(true);;
     }
 
     private void cerrarSesion() {
