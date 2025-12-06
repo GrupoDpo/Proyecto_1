@@ -132,6 +132,20 @@
       "valor": 210000.0,
       "dueno": "andres123",
       "idTiquete": "TIQ-00000022"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-12-05T21:47:08.804919",
+      "valor": 0.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000020"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-12-05T21:48:16.670785",
+      "valor": 0.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000020"
     }
   ]
 }

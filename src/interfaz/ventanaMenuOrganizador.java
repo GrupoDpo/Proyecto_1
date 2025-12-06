@@ -5,6 +5,7 @@ import javax.swing.*;
 
 import Finanzas.Transaccion;
 import Persistencia.SistemaPersistencia;
+import usuario.IDuenoTiquetes;
 import usuario.Organizador;
 
 
@@ -86,11 +87,6 @@ public class ventanaMenuOrganizador extends JFrame {
         getContentPane().add(btnComprarPaqueteDeluxe);
         y += 40;
 
-        JButton btnComprarPaqueteMultiple = new JButton("Comprar Paquete Múltiple");
-        btnComprarPaqueteMultiple.setBounds(150, y, 180, 30);
-        btnComprarPaqueteMultiple.addActionListener(e -> abrirVentanaComprarPaqueteMultiple());
-        getContentPane().add(btnComprarPaqueteMultiple);
-        y += 40;
 
         JButton btnTransferirTiquete = new JButton("Transferir Tiquete");
         btnTransferirTiquete.setBounds(150, y, 180, 30);
@@ -165,15 +161,15 @@ public class ventanaMenuOrganizador extends JFrame {
 
     private void abrirVentanaAgregarTiquetes() {
         dispose();
-        new ventanaCrearTiqueteSimple(sistema,organizador);
+        new ventanaCrearTiqueteSimple(sistema, organizador);
     }
 
-   
 
-    // Métodos comunes de comprador
     private void abrirVentanaComprarTiquete() {
         // TODO: Implementar ventana de compra de tiquetes
-        JOptionPane.showMessageDialog(this, "Ventana Comprar Tiquete - En desarrollo");
+    	dispose();
+    	ventanaComprarTiquete ventana = new ventanaComprarTiquete(sistema, organizador);
+        ventana.setVisible(true);
     }
 
     private void abrirVentanaComprarPaqueteDeluxe() {
@@ -181,27 +177,26 @@ public class ventanaMenuOrganizador extends JFrame {
         JOptionPane.showMessageDialog(this, "Ventana Comprar Paquete Deluxe - En desarrollo");
     }
 
-    private void abrirVentanaComprarPaqueteMultiple() {
-        // TODO: Implementar ventana de compra de paquete múltiple
-        JOptionPane.showMessageDialog(this, "Ventana Comprar Paquete Múltiple - En desarrollo");
-    }
-
     private void abrirVentanaTransferirTiquete() {
         // TODO: Implementar ventana de transferir tiquete
     	dispose();
     	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
-        new ventanaTransferirTiquete(organizador, sistema, trans);
+        new ventanaTransferirTiquete(organizador,sistema,trans).setVisible(true);
     }
-
     private void abrirVentanaCrearOferta() {
         // TODO: Implementar ventana crear oferta
-        JOptionPane.showMessageDialog(this, "Ventana Crear Oferta - En desarrollo");
+        dispose();
+        Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
+        new ventanaCrearOferta(organizador, sistema, trans).setVisible(true);
     }
 
     private void abrirVentanaEliminarOferta() {
         // TODO: Implementar ventana eliminar oferta
-        JOptionPane.showMessageDialog(this, "Ventana Eliminar Oferta - En desarrollo");
+    	dispose();
+        new ventanaCancelarOferta(organizador, sistema).setVisible(true);
+        
     }
+
 
     private void abrirVentanaMarketplace() {
         // TODO: Implementar ventana marketplace
