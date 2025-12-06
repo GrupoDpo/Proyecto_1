@@ -135,7 +135,6 @@
     },
     {
       "tipo": "PUBLICAR_VENTA",
-<<<<<<< HEAD
       "fecha": "2025-12-05T21:47:08.804919",
       "valor": 0.0,
       "dueno": "andres123",
@@ -147,11 +146,6 @@
       "valor": 0.0,
       "dueno": "andres123",
       "idTiquete": "TIQ-00000020"
-=======
-      "fecha": "2025-12-05T21:16:15.353168100",
-      "valor": 0.0,
-      "dueno": "mateo12",
-      "idTiquete": "TIQ-00000005"
     },
     {
       "tipo": "COMPRA_MARKETPLACE",
@@ -166,7 +160,6 @@
       "valor": 0.0,
       "dueno": "mateo12",
       "idTiquete": "TIQ-00000006"
->>>>>>> branch 'master' of https://github.com/GrupoDpo/Proyecto_1.git
     }
   ]
 }
