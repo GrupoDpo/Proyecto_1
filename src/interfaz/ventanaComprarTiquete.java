@@ -14,7 +14,10 @@ import Persistencia.SistemaPersistencia;
 import excepciones.SaldoInsuficienteExeption;
 import excepciones.TiquetesNoDisponiblesException;
 import tiquete.Tiquete;
+import usuario.Cliente;
 import usuario.IDuenoTiquetes;
+import usuario.Organizador;
+import usuario.Promotor;
 import usuario.Usuario;
 
 import java.util.ArrayList;
@@ -60,102 +63,112 @@ public class ventanaComprarTiquete extends JFrame {
       
         
         
-        setTitle("BOLETAMASTER: Comprar Tiquetes");
+    	setTitle("Comprar Tiquetes");
         setSize(900, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
-        getContentPane().setLayout(null);
+        setLayout(null);  // positions manuales
 
-     // ========================================
-        // PANEL SUPERIOR - Información del usuario
-        // ========================================
+
+     // ============================
+        // BARRA SUPERIOR
+        // ============================
         JPanel panelSuperior = new JPanel();
-        panelSuperior.setBackground(new Color(52, 152, 219));
-        panelSuperior.setBounds(0, 0, 600, 50);
+        panelSuperior.setBackground(new Color(70, 130, 180)); // Azul más suave
+        panelSuperior.setBounds(0, 0, 900, 50);
         panelSuperior.setLayout(null);
-        getContentPane().add(panelSuperior);
+        add(panelSuperior);
 
         JLabel lblBienvenida = new JLabel("Comprador: " + comprador.getLogin());
-        lblBienvenida.setFont(new Font("Arial", Font.BOLD, 14));
+        lblBienvenida.setFont(new Font("Arial", Font.BOLD, 13));
         lblBienvenida.setForeground(Color.WHITE);
-        lblBienvenida.setBounds(20, 15, 300, 20);
+        lblBienvenida.setBounds(20, 15, 250, 20);
         panelSuperior.add(lblBienvenida);
 
         lblSaldoActual = new JLabel("Saldo: $0.00");
-        lblSaldoActual.setFont(new Font("Arial", Font.BOLD, 14));
+        lblSaldoActual.setFont(new Font("Arial", Font.BOLD, 13));
         lblSaldoActual.setForeground(Color.WHITE);
-        lblSaldoActual.setBounds(400, 15, 180, 20);
+        lblSaldoActual.setBounds(700, 15, 180, 20);
         panelSuperior.add(lblSaldoActual);
         actualizarSaldo();
 
-        // ========================================
-        // EVENTOS
-        // ========================================
-        JLabel lblEventos = new JLabel("Escoja el evento de su interés:");
-        lblEventos.setFont(new Font("Arial", Font.BOLD, 12));
-        lblEventos.setBounds(50, 65, 250, 20);
-        getContentPane().add(lblEventos);
 
-        // Lista scrolleable de eventos
+        // ============================
+        // EVENTOS
+        // ============================
+        JLabel lblEventos = new JLabel("Seleccione un evento:");
+        lblEventos.setFont(new Font("Arial", Font.PLAIN, 13));
+        lblEventos.setBounds(50, 70, 250, 20);
+        add(lblEventos);
+
         modeloEventos = new DefaultListModel<>();
         listaEventos = new JList<>(modeloEventos);
-        listaEventos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        listaEventos.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        listaEventos.setFont(new Font("Arial", Font.PLAIN, 12));
 
         JScrollPane scrollEventos = new JScrollPane(listaEventos);
-        scrollEventos.setBounds(50, 90, 500, 100);
-        getContentPane().add(scrollEventos);
-        
-     // ========================================
-        // TIQUETES
-        // ========================================
-        JLabel lblTiquetes = new JLabel("Tiquetes asociados al evento:");
-        lblTiquetes.setFont(new Font("Arial", Font.BOLD, 12));
-        lblTiquetes.setBounds(50, 205, 250, 20);
-        getContentPane().add(lblTiquetes);
+        scrollEventos.setBounds(50, 95, 600, 110);
+        add(scrollEventos);
 
-        // Lista de tiquetes
+
+        // ============================
+        // TIQUETES
+        // ============================
+        JLabel lblTiquetes = new JLabel("Tiquetes disponibles:");
+        lblTiquetes.setFont(new Font("Arial", Font.PLAIN, 13));
+        lblTiquetes.setBounds(50, 215, 250, 20);
+        add(lblTiquetes);
+
         modeloTiquetes = new DefaultListModel<>();
         listaTiquetes = new JList<>(modeloTiquetes);
-        listaTiquetes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        listaTiquetes.setFont(new Font("Monospaced", Font.PLAIN, 11));
-        listaTiquetes.setEnabled(false);
+        listaTiquetes.setFont(new Font("Arial", Font.PLAIN, 12));
 
         JScrollPane scrollTiquetes = new JScrollPane(listaTiquetes);
-        scrollTiquetes.setBounds(50, 230, 500, 100);
-        getContentPane().add(scrollTiquetes);
+        scrollTiquetes.setBounds(50, 240, 600, 110);
+        add(scrollTiquetes);
 
-        // ========================================
-        // CANTIDAD Y BOTONES
-        // ========================================
+
+        // ============================
+        // CANTIDAD
+        // ============================
         JLabel lblCantidad = new JLabel("Cantidad:");
-        lblCantidad.setFont(new Font("Arial", Font.BOLD, 12));
-        lblCantidad.setBounds(50, 350, 80, 25);
-        getContentPane().add(lblCantidad);
+        lblCantidad.setFont(new Font("Arial", Font.PLAIN, 13));
+        lblCantidad.setBounds(50, 365, 100, 25);
+        add(lblCantidad);
 
         spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
         spinnerCantidad.setFont(new Font("Arial", Font.PLAIN, 12));
-        spinnerCantidad.setBounds(140, 350, 60, 25);
+        spinnerCantidad.setBounds(130, 365, 60, 25);
         ((JSpinner.DefaultEditor) spinnerCantidad.getEditor()).getTextField().setEditable(false);
-        getContentPane().add(spinnerCantidad);
+        add(spinnerCantidad);
 
-        btnComprar = new JButton("COMPRAR");
+
+        // ============================
+        // BOTONES
+        // ============================
+        btnComprar = new JButton("Comprar");
         btnComprar.setFont(new Font("Arial", Font.BOLD, 13));
         btnComprar.setBackground(new Color(46, 204, 113));
         btnComprar.setForeground(Color.WHITE);
-        btnComprar.setFocusPainted(false);
-        btnComprar.setBounds(250, 400, 140, 35);
+        btnComprar.setBounds(50, 420, 150, 40);
         btnComprar.setEnabled(false);
-        getContentPane().add(btnComprar);
+        add(btnComprar);
 
-        btnCancelar = new JButton("CANCELAR");
+        btnCancelar = new JButton("Cancelar");
         btnCancelar.setFont(new Font("Arial", Font.BOLD, 13));
         btnCancelar.setBackground(new Color(231, 76, 60));
         btnCancelar.setForeground(Color.WHITE);
-        btnCancelar.setFocusPainted(false);
-        btnCancelar.setBounds(410, 400, 140, 35);
-        getContentPane().add(btnCancelar);
+        btnCancelar.setBounds(220, 420, 150, 40);
+        add(btnCancelar);
+
+        // ----------------------------
+        // BOTÓN SALIR ABAJO IZQUIERDA
+        // ----------------------------
+        JButton btnSalir = new JButton("Salir");
+        btnSalir.setFont(new Font("Arial", Font.BOLD, 12));
+        btnSalir.setBounds(50, 500, 120, 35);
+        add(btnSalir);
+
+        btnSalir.addActionListener(e -> volverAlMenu());
         
         listaEventos.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -449,6 +462,21 @@ public class ventanaComprarTiquete extends JFrame {
         if (texto == null) return "";
         if (texto.length() <= maxLength) return texto;
         return texto.substring(0, maxLength - 3) + "...";
+    }
+    
+private void volverAlMenu() {
+        
+    	
+    	dispose();
+    	
+        if (comprador instanceof Promotor) {
+            new ventanaMenuPromotor((Promotor) comprador, sistema).setVisible(true);
+        } else if (comprador instanceof Organizador) {
+            new ventanaMenuOrganizador((Organizador) comprador, sistema).setVisible(true);
+        } else if (comprador instanceof Cliente) {
+        	 new ventanaMenuComprador((Cliente) comprador ,sistema).setVisible(true);
+        }
+             
     }
 
     

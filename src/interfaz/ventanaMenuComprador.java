@@ -17,12 +17,11 @@ public class ventanaMenuComprador extends JFrame {
     
     private Usuario usuarioActual;
     private SistemaPersistencia sistema;
-    private Transaccion trans;
 
-    public ventanaMenuComprador(Usuario usuario, SistemaPersistencia sistema, Transaccion trans) {
+
+    public ventanaMenuComprador(Usuario usuario, SistemaPersistencia sistema) {
         this.usuarioActual = usuario;
         this.sistema = sistema;
-        this.trans = trans;
         
         getContentPane().setLayout(null);
 
@@ -158,7 +157,8 @@ public class ventanaMenuComprador extends JFrame {
     private void abrirVentanaTransferirTiquete() {
         // TODO: Implementar ventana de transferir tiquete
     	dispose();
-        new ventanaTransferirTiquete(usuarioActual, sistema, trans);
+    	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
+        new ventanaTransferirTiquete((IDuenoTiquetes) usuarioActual,sistema,trans);
     }
     private void abrirVentanaCrearOferta() {
         // TODO: Implementar ventana crear oferta

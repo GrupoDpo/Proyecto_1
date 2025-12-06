@@ -3,6 +3,7 @@ package interfaz;
 import java.awt.*;
 import javax.swing.*;
 
+import Finanzas.Transaccion;
 import Persistencia.SistemaPersistencia;
 import usuario.Administrador;
 import usuario.Cliente;
@@ -23,6 +24,7 @@ public class ventanaLogin extends JFrame {
     private SistemaPersistencia sistema;
 
     public ventanaLogin(SistemaPersistencia sistema) {
+    	
     	this.sistema = sistema;
         getContentPane().setLayout(null);
         

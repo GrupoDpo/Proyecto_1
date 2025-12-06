@@ -13,12 +13,11 @@ public class ventanaMenuPromotor extends JFrame {
     
     private Promotor promotor;
     private SistemaPersistencia sistema;
-    private Transaccion trans;
+ 
 
-    public ventanaMenuPromotor(Promotor promotor, SistemaPersistencia sistema, Transaccion trans) {
+    public ventanaMenuPromotor(Promotor promotor, SistemaPersistencia sistema) {
         this.promotor = promotor;
         this.sistema = sistema;
-        this.trans = trans;
         
         getContentPane().setLayout(null);
 
@@ -184,6 +183,7 @@ public class ventanaMenuPromotor extends JFrame {
 
     private void abrirVentanaTransferirTiquete() {
     	dispose();
+    	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
         new ventanaTransferirTiquete(promotor, sistema, trans);
     }
 

@@ -13,12 +13,11 @@ public class ventanaMenuOrganizador extends JFrame {
     
     private Organizador organizador;
     private SistemaPersistencia sistema;
-    private Transaccion trans;
 
-    public ventanaMenuOrganizador(Organizador organizador, SistemaPersistencia sistema, Transaccion trans) {
+    public ventanaMenuOrganizador(Organizador organizador, SistemaPersistencia sistema) {
         this.organizador = organizador;
         this.sistema = sistema;
-        this.trans = trans;
+
         
         getContentPane().setLayout(null);
 
@@ -190,6 +189,7 @@ public class ventanaMenuOrganizador extends JFrame {
     private void abrirVentanaTransferirTiquete() {
         // TODO: Implementar ventana de transferir tiquete
     	dispose();
+    	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
         new ventanaTransferirTiquete(organizador, sistema, trans);
     }
 
