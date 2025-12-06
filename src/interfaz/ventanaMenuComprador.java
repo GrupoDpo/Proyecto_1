@@ -96,7 +96,14 @@ public class ventanaMenuComprador extends JFrame {
 
         JButton btnContraofertar = new JButton("Contraofertar");
         btnContraofertar.setBounds(150, y, 180, 30);
-        btnContraofertar.addActionListener(e -> abrirVentanaContraofertar());
+        btnContraofertar.addActionListener(e -> {
+			try {
+				abrirVentanaContraofertar();
+			} catch (TransferenciaNoPermitidaException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
         getContentPane().add(btnContraofertar);
         y += 40;
 
@@ -141,7 +148,7 @@ public class ventanaMenuComprador extends JFrame {
     // ===== MÉTODOS PARA ABRIR VENTANAS =====
     
     private void abrirVentanaComprarTiquete() {
-        // TODO: Implementar ventana de compra de tiquetes
+    	// TODO: Arreglar lo de seleccionar tiquetes
     	dispose();
     	ventanaComprarTiquete ventana = new ventanaComprarTiquete(sistema, usuarioActual);
         ventana.setVisible(true);
@@ -153,36 +160,32 @@ public class ventanaMenuComprador extends JFrame {
     }
 
     private void abrirVentanaTransferirTiquete() {
-        // TODO: Implementar ventana de transferir tiquete
     	dispose();
     	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
         new ventanaTransferirTiquete((IDuenoTiquetes) usuarioActual,sistema,trans).setVisible(true);
     }
     private void abrirVentanaCrearOferta() {
-        // TODO: Implementar ventana crear oferta
         dispose();
         Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
         new ventanaCrearOferta((IDuenoTiquetes) usuarioActual, sistema, trans).setVisible(true);
     }
 
     private void abrirVentanaEliminarOferta() {
-        // TODO: Implementar ventana eliminar oferta
     	dispose();
         new ventanaCancelarOferta((IDuenoTiquetes) usuarioActual, sistema).setVisible(true);
         
     }
 
     private void abrirVentanaMarketplace() throws TransferenciaNoPermitidaException {
-        // TODO: Implementar ventana marketplace
 
     	dispose();
         new VentanaComprarMarketplace(sistema, usuarioActual).setVisible(true);;
 
     }
 
-    private void abrirVentanaContraofertar() {
-        // TODO: Implementar ventana contraofertar
-        JOptionPane.showMessageDialog(this, "Ventana Contraofertar - En desarrollo");
+    private void abrirVentanaContraofertar() throws TransferenciaNoPermitidaException {
+    	dispose();
+        new VentanaContraofertar(sistema, usuarioActual).setVisible(true);
     }
 
     private void abrirVentanaVerContraofertas() {
@@ -191,7 +194,6 @@ public class ventanaMenuComprador extends JFrame {
     }
 
     private void abrirVentanaRecargarSaldo() {
-        // TODO: Implementar ventana recargar saldo
     	dispose();
     	new ventanaRecargarSaldo(sistema, usuarioActual).setVisible(true);
     }

@@ -5,6 +5,7 @@ import javax.swing.*;
 
 import Finanzas.Transaccion;
 import Persistencia.SistemaPersistencia;
+import excepciones.TransferenciaNoPermitidaException;
 import usuario.Promotor;
 
 
@@ -101,13 +102,27 @@ public class ventanaMenuPromotor extends JFrame {
 
         JButton btnComprarMarketplace = new JButton("Comprar en Marketplace");
         btnComprarMarketplace.setBounds(150, y, 180, 30);
-        btnComprarMarketplace.addActionListener(e -> abrirVentanaMarketplace());
+        btnComprarMarketplace.addActionListener(e -> {
+			try {
+				abrirVentanaMarketplace();
+			} catch (TransferenciaNoPermitidaException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
         getContentPane().add(btnComprarMarketplace);
         y += 40;
 
         JButton btnContraofertar = new JButton("Contraofertar");
         btnContraofertar.setBounds(150, y, 180, 30);
-        btnContraofertar.addActionListener(e -> abrirVentanaContraofertar());
+        btnContraofertar.addActionListener(e -> {
+			try {
+				abrirVentanaContraofertar();
+			} catch (TransferenciaNoPermitidaException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
         getContentPane().add(btnContraofertar);
         y += 40;
 
@@ -151,10 +166,12 @@ public class ventanaMenuPromotor extends JFrame {
 
     // Métodos específicos de Promotor
     private void abrirVentanaSugerirVenue() {
+    	// TODO: Implementar ventana 
         JOptionPane.showMessageDialog(this, "Crear Código Descuento - En desarrollo");
     }
 
     private void abrirVentanaVerGanancias() {
+    	// TODO: Implementar ventana 
         JOptionPane.showMessageDialog(this, "Ver Mis Códigos - En desarrollo");
     }
 
@@ -162,7 +179,6 @@ public class ventanaMenuPromotor extends JFrame {
 
     // Métodos comunes
     private void abrirVentanaComprarTiquete() {
-        // TODO: Implementar ventana de compra de tiquetes
     	dispose();
     	ventanaComprarTiquete ventana = new ventanaComprarTiquete(sistema, promotor);
         ventana.setVisible(true);
@@ -174,33 +190,31 @@ public class ventanaMenuPromotor extends JFrame {
     }
 
     private void abrirVentanaTransferirTiquete() {
-        // TODO: Implementar ventana de transferir tiquete
     	dispose();
     	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
         new ventanaTransferirTiquete(promotor ,sistema,trans).setVisible(true);
     }
-    private void abrirVentanaCrearOferta() {
-        // TODO: Implementar ventana crear oferta
+    private void abrirVentanaCrearOferta() {       
         dispose();
         Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
         new ventanaCrearOferta(promotor, sistema, trans).setVisible(true);
     }
 
     private void abrirVentanaEliminarOferta() {
-        // TODO: Implementar ventana eliminar oferta
+    
     	dispose();
         new ventanaCancelarOferta(promotor, sistema).setVisible(true);
         
     }
 
-    private void abrirVentanaMarketplace() {
-        // TODO: Implementar ventana marketplace
-        JOptionPane.showMessageDialog(this, "Ventana Marketplace - En desarrollo");
+    private void abrirVentanaMarketplace() throws TransferenciaNoPermitidaException {
+    	dispose();
+        new VentanaComprarMarketplace(sistema, promotor).setVisible(true);;
     }
 
-    private void abrirVentanaContraofertar() {
-        // TODO: Implementar ventana contraofertar
-        JOptionPane.showMessageDialog(this, "Ventana Contraofertar - En desarrollo");
+    private void abrirVentanaContraofertar() throws TransferenciaNoPermitidaException {
+    	dispose();
+        new VentanaContraofertar(sistema, promotor).setVisible(true);
     }
 
     private void abrirVentanaVerContraofertas() {
@@ -209,8 +223,8 @@ public class ventanaMenuPromotor extends JFrame {
     }
 
     private void abrirVentanaRecargarSaldo() {
-        // TODO: Implementar ventana recargar saldo
-        JOptionPane.showMessageDialog(this, "Ventana Recargar Saldo - En desarrollo");
+    	dispose();
+    	new ventanaRecargarSaldo(sistema, promotor).setVisible(true);
     }
 
     private void abrirVentanaSolicitarReembolso() {

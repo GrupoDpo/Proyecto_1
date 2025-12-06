@@ -160,13 +160,6 @@
       "valor": 0.0,
       "dueno": "mateo12",
       "idTiquete": "TIQ-00000006"
-    },
-    {
-      "tipo": "COMPRA_MARKETPLACE",
-      "fecha": "2025-12-05T22:00:10.860342",
-      "valor": 250000.0,
-      "dueno": "mateo12",
-      "idTiquete": "TIQ-00000006"
     }
   ]
 }
