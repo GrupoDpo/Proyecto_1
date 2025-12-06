@@ -7,7 +7,10 @@ import java.util.HashMap;
 
 import Persistencia.SistemaPersistencia;
 import Finanzas.Transaccion;
+import usuario.Cliente;
 import usuario.IDuenoTiquetes;
+import usuario.Organizador;
+import usuario.Promotor;
 import usuario.Usuario;
 import tiquete.Tiquete;
 import tiquete.TiqueteMultiple;
@@ -110,7 +113,7 @@ public class ventanaTransferirTiquete extends JFrame {
         // Botones
         btnCancelar = new JButton("Cancelar");
         btnCancelar.setBounds(20, 450, 120, 30);
-        btnCancelar.addActionListener(e -> dispose());
+        btnCancelar.addActionListener(e -> volverAlMenu());
         getContentPane().add(btnCancelar);
 
         btnTransferir = new JButton("Transferir");
@@ -325,5 +328,20 @@ public class ventanaTransferirTiquete extends JFrame {
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+    
+    	private void volverAlMenu() {
+        
+    	
+    	dispose();
+    	
+        if (usuario instanceof Promotor) {
+            new ventanaMenuPromotor((Promotor) usuario, sistema).setVisible(true);
+        } else if (usuario instanceof Organizador) {
+            new ventanaMenuOrganizador((Organizador) usuario, sistema).setVisible(true);
+        } else if (usuario instanceof Cliente) {
+        	 new ventanaMenuComprador((Cliente) usuario ,sistema).setVisible(true);
+        }
+             
     }
 }

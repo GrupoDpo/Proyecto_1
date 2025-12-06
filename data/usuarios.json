@@ -44,8 +44,8 @@
       "login": "Disneygpt",
       "password": "disney123",
       "tipo": "CLIENTE",
-      "saldo": 2.525E7,
-      "idsTiquetes": ["TIQ-00000004"]
+      "saldo": 2.504E7,
+      "idsTiquetes": ["TIQ-00000004", "TIQ-00000018", "TIQ-00000025"]
     },
     {
       "login": "mateo12",
@@ -65,8 +65,8 @@
       "login": "andres123",
       "password": "Huertas2005",
       "tipo": "CLIENTE",
-      "saldo": 150000.0,
-      "idsTiquetes": []
+      "saldo": 1810000.0,
+      "idsTiquetes": ["TIQ-00000020", "TIQ-00000019", "TIQ-00000016"]
     }
   ]
 }

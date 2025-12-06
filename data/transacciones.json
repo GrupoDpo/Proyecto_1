@@ -90,6 +90,48 @@
       "valor": 0.0,
       "dueno": "mateo12",
       "idTiquete": "TIQ-00000004"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-05T19:48:11.652695",
+      "valor": 210000.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000019"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-05T19:48:47.533410",
+      "valor": 210000.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000025"
+    },
+    {
+      "tipo": "TRANSFERENCIA",
+      "fecha": "2025-12-05T19:50:05.108807",
+      "valor": 0.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000018"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-05T20:12:12.583939",
+      "valor": 210000.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000017"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-05T20:18:08.145016",
+      "valor": 210000.0,
+      "dueno": "Disneygpt",
+      "idTiquete": "TIQ-00000021"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-05T20:24:55.898205",
+      "valor": 210000.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000022"
     }
   ]
 }

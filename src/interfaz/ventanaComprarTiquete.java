@@ -3,6 +3,7 @@ package interfaz;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import interfaz.GeneradorQR;
 
 public class ventanaComprarTiquete extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -416,6 +418,16 @@ public class ventanaComprarTiquete extends JFrame {
                              ((IDuenoTiquetes)comprador).getSaldo()),
                 "Compra Exitosa",
                 JOptionPane.INFORMATION_MESSAGE);
+            
+            
+            BufferedImage qrImagen = GeneradorQR.generarQR(tiqueteComprado, 250);
+            if (qrImagen != null) {
+                JLabel labelQR = new JLabel(new ImageIcon(qrImagen));
+                JOptionPane.showMessageDialog(this, 
+                    labelQR, 
+                    "QR de tu tiquete - " + tiqueteComprado.getId(), 
+                    JOptionPane.PLAIN_MESSAGE);
+            }
 
             // Recargar eventos y limpiar selección
             cargarEventos();

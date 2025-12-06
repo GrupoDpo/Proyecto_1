@@ -12,6 +12,8 @@ import usuario.IDuenoTiquetes;
 import usuario.Usuario;
 
 
+
+
 public class ventanaMenuComprador extends JFrame {
     private static final long serialVersionUID = 1L;
     
@@ -140,6 +142,7 @@ public class ventanaMenuComprador extends JFrame {
     
     private void abrirVentanaComprarTiquete() {
         // TODO: Implementar ventana de compra de tiquetes
+    	dispose();
     	ventanaComprarTiquete ventana = new ventanaComprarTiquete(sistema, usuarioActual);
         ventana.setVisible(true);
     }
