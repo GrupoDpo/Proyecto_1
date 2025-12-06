@@ -164,8 +164,8 @@ public class ventanaCrearEvento extends JFrame {
  private void volverAlMenu() {
         
     	
-	 	dispose();
-       new ventanaMenuOrganizador( usuarioActual, sistema).setVisible(true);
+	 dispose();
+     new ventanaMenuOrganizador( usuarioActual, sistema).setVisible(true);
        
              
     }
