@@ -7,7 +7,7 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
-	<classpathentry kind="lib" path="C:/Users/dlucu/Downloads/javase-3.5.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/dlucu/Downloads/core-3.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/core-3.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/javase-3.5.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
