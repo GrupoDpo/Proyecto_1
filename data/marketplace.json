@@ -1,5 +1,9 @@
 {
   "ofertas": [
+    {
+      "tiqueteId": "TIQ-00000006",
+      "info": "mateo12 - Precio: $250000.0"
+    }
   ],
   "logEventos": [
     "[2025-11-29 09:50:04] Oferta creada por david22 para tiquete TIQ-00000007 con precio $40000.0",
@@ -7,6 +11,8 @@
     "[2025-12-02 11:33:30] Oferta eliminada por mateo12 para tiquete TIQ-00000006",
     "[2025-12-02 11:55:38] Oferta creada por Disneygpt para tiquete TIQ-00000005 con precio $300000.0",
     "[2025-12-02 11:56:55] mateo12 hizo una contraoferta a Disneygpt por el tiquete TIQ-00000005 con precio $250000.0",
-    "[2025-12-02 13:06:02] Contraoferta ACEPTADA: Disneygpt vendió tiquete TIQ-00000005 a mateo12 por $250000.0"
+    "[2025-12-02 13:06:02] Contraoferta ACEPTADA: Disneygpt vendió tiquete TIQ-00000005 a mateo12 por $250000.0",
+    "[2025-12-05 21:16:15] Oferta creada por mateo12 para tiquete TIQ-00000005 con precio $300000.0",
+    "[2025-12-05 21:27:37] Oferta creada por mateo12 para tiquete TIQ-00000006 con precio $250000.0"
   ]
 }
