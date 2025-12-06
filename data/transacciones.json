@@ -160,6 +160,13 @@
       "valor": 0.0,
       "dueno": "mateo12",
       "idTiquete": "TIQ-00000006"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-12-06T15:32:34.322873800",
+      "valor": 0.0,
+      "dueno": "david1",
+      "idTiquete": "TIQ-00000005"
     }
   ]
 }
