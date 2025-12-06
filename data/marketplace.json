@@ -1,9 +1,5 @@
 {
   "ofertas": [
-    {
-      "tiqueteId": "TIQ-00000006",
-      "info": "mateo12 - Precio: $250000.0"
-    }
   ],
   "logEventos": [
     "[2025-11-29 09:50:04] Oferta creada por david22 para tiquete TIQ-00000007 con precio $40000.0",
