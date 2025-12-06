@@ -5,9 +5,7 @@ import javax.swing.*;
 
 import Finanzas.Transaccion;
 import Persistencia.SistemaPersistencia;
-
-
-
+import excepciones.TransferenciaNoPermitidaException;
 import usuario.IDuenoTiquetes;
 import usuario.Usuario;
 
@@ -85,7 +83,14 @@ public class ventanaMenuComprador extends JFrame {
 
         JButton btnComprarMarketplace = new JButton("Comprar en Marketplace");
         btnComprarMarketplace.setBounds(150, y, 180, 30);
-        btnComprarMarketplace.addActionListener(e -> abrirVentanaMarketplace());
+        btnComprarMarketplace.addActionListener(e -> {
+			try {
+				abrirVentanaMarketplace();
+			} catch (TransferenciaNoPermitidaException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
         getContentPane().add(btnComprarMarketplace);
         y += 40;
 
@@ -167,10 +172,12 @@ public class ventanaMenuComprador extends JFrame {
         
     }
 
-    private void abrirVentanaMarketplace() {
+    private void abrirVentanaMarketplace() throws TransferenciaNoPermitidaException {
         // TODO: Implementar ventana marketplace
-        dispose();
-        new ventanaCompradorMarketPlace((IDuenoTiquetes) usuarioActual, sistema).setVisible(true);
+
+    	dispose();
+        new VentanaComprarMarketplace(sistema, usuarioActual).setVisible(true);;
+
     }
 
     private void abrirVentanaContraofertar() {

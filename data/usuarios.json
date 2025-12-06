@@ -51,15 +51,15 @@
       "login": "mateo12",
       "password": "mateo123",
       "tipo": "CLIENTE",
-      "saldo": 9.99980075E10,
-      "idsTiquetes": ["TIQ-00000006", "TIQ-00000010", "TIQ-00000007", "TIQ-00000005", "TIQ-00000001", "TIQ-00000014", "TIQ-00000015", "TIQ-00000011", "TIQ-00000012", "TIQ-00000013", "TIQ-00000002"]
+      "saldo": 9.99983075E10,
+      "idsTiquetes": ["TIQ-00000006", "TIQ-00000010", "TIQ-00000007", "TIQ-00000001", "TIQ-00000014", "TIQ-00000015", "TIQ-00000011", "TIQ-00000012", "TIQ-00000013", "TIQ-00000002"]
     },
     {
       "login": "david1",
       "password": "david13",
       "tipo": "CLIENTE",
-      "saldo": 250000.0,
-      "idsTiquetes": []
+      "saldo": 1.9995E8,
+      "idsTiquetes": ["TIQ-00000005"]
     },
     {
       "login": "andres123",

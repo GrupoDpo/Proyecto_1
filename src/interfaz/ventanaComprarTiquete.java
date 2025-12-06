@@ -226,7 +226,7 @@ public class ventanaComprarTiquete extends JFrame {
                 String key = String.format("%-30s | %s | %s", 
                     truncar(evento.getNombre(), 30),
                     evento.getFecha(),
-                    evento.getVenueAsociado());
+                    evento.getVenueAsociado().getUbicacion());
                 
                 modeloEventos.addElement(key);
                 mapaEventos.put(key, evento);
@@ -376,7 +376,7 @@ public class ventanaComprarTiquete extends JFrame {
                          "Precio: $%.2f",
                          tiquete.getId(),
                          evento.getNombre(), 
-                         tiquete.getLocalidadAsociada(),
+                         tiquete.getLocalidadAsociada().getNombre(),
                          tiquete.getTipoTiquete(),
                          precio),
             "Confirmar Compra",
@@ -412,7 +412,7 @@ public class ventanaComprarTiquete extends JFrame {
                              "Precio pagado: $%.2f\n" +
                              "Nuevo saldo: $%.2f",
                              tiqueteComprado.getId(),
-                             tiqueteComprado.getLocalidadAsociada(),
+                             tiqueteComprado.getLocalidadAsociada().getNombre(),
                              tiqueteComprado.getTipoTiquete(),
                              precio,
                              ((IDuenoTiquetes)comprador).getSaldo()),
