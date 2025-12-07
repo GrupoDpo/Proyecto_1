@@ -65,8 +65,8 @@
       "login": "andres123",
       "password": "Huertas2005",
       "tipo": "CLIENTE",
-      "saldo": 1806850.0,
-      "idsTiquetes": ["TIQ-00000020", "TIQ-00000019", "TIQ-00000016", "TIQ-00000030"]
+      "saldo": 1797400.0,
+      "idsTiquetes": ["TIQ-00000020", "TIQ-00000019", "TIQ-00000016", "TIQ-00000030", "TIQ-00000031", "TIQ-00000029", "TIQ-00000026"]
     },
     {
       "login": "promotor",

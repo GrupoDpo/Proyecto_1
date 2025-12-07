@@ -188,6 +188,27 @@
       "valor": 3150.0,
       "dueno": "andres123",
       "idTiquete": "TIQ-00000028"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-06T23:51:34.355540",
+      "valor": 3150.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000031"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-06T23:51:34.374314",
+      "valor": 3150.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000029"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-06T23:51:34.389770",
+      "valor": 3150.0,
+      "dueno": "andres123",
+      "idTiquete": "TIQ-00000026"
     }
   ]
 }
