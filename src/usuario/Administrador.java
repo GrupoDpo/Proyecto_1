@@ -104,7 +104,8 @@ public class Administrador extends Usuario {
     
    
     
-   
+  
+    
   
     public void verSolicitudReembolso(Usuario dueno, Tiquete tiqueteReembolso, SistemaPersistencia sistema, boolean aceptada) throws TransferenciaNoPermitidaException {
        
