@@ -9,6 +9,7 @@ import excepciones.TransferenciaNoPermitidaException;
 import usuario.IDuenoTiquetes;
 import usuario.Organizador;
 
+
 public class ventanaMenuOrganizador extends JFrame {
     private static final long serialVersionUID = 1L;
     
@@ -19,6 +20,7 @@ public class ventanaMenuOrganizador extends JFrame {
         this.organizador = organizador;
         this.sistema = sistema;
 
+        
         getContentPane().setLayout(null);
 
         // Bienvenida
@@ -59,15 +61,6 @@ public class ventanaMenuOrganizador extends JFrame {
         btnAgregarTiquetes.addActionListener(e -> abrirVentanaAgregarTiquetes());
         getContentPane().add(btnAgregarTiquetes);
 
-        // ===== NUEVO BOTÓN: VER GANANCIAS =====
-        JButton btnVerGanancias = new JButton("Ver Ganancias");
-        btnVerGanancias.setBounds(250, y, 180, 30);
-        btnVerGanancias.setBackground(new Color(46, 204, 113));
-        btnVerGanancias.setForeground(Color.WHITE);
-        btnVerGanancias.addActionListener(e -> abrirVentanaVerGanancias());
-        getContentPane().add(btnVerGanancias);
-
-        y += 40;
 
         // Separador
         JSeparator separator = new JSeparator();
@@ -95,6 +88,7 @@ public class ventanaMenuOrganizador extends JFrame {
         getContentPane().add(btnComprarPaqueteDeluxe);
         y += 40;
 
+
         JButton btnTransferirTiquete = new JButton("Transferir Tiquete");
         btnTransferirTiquete.setBounds(150, y, 180, 30);
         btnTransferirTiquete.addActionListener(e -> abrirVentanaTransferirTiquete());
@@ -116,24 +110,24 @@ public class ventanaMenuOrganizador extends JFrame {
         JButton btnComprarMarketplace = new JButton("Comprar en Marketplace");
         btnComprarMarketplace.setBounds(150, y, 180, 30);
         btnComprarMarketplace.addActionListener(e -> {
-            try {
-                abrirVentanaMarketplace();
-            } catch (TransferenciaNoPermitidaException e1) {
-                e1.printStackTrace();
-            }
-        });
+			try {
+				abrirVentanaMarketplace();
+			} catch (TransferenciaNoPermitidaException e1) {
+				e1.printStackTrace();
+			}
+		});
         getContentPane().add(btnComprarMarketplace);
         y += 40;
 
         JButton btnContraofertar = new JButton("Contraofertar");
         btnContraofertar.setBounds(150, y, 180, 30);
         btnContraofertar.addActionListener(e -> {
-            try {
-                abrirVentanaContraofertar();
-            } catch (TransferenciaNoPermitidaException e1) {
-                e1.printStackTrace();
-            }
-        });
+			try {
+				abrirVentanaContraofertar();
+			} catch (TransferenciaNoPermitidaException e1) {
+				e1.printStackTrace();
+			}
+		});
         getContentPane().add(btnContraofertar);
         y += 40;
 
@@ -170,41 +164,38 @@ public class ventanaMenuOrganizador extends JFrame {
 
     // Métodos específicos de Organizador
     private void abrirVentanaCrearEvento() {
-        dispose();
-        new ventanaCrearEvento(sistema, organizador).setVisible(true);
+    	dispose();
+    	new ventanaCrearEvento(sistema, organizador).setVisible(true);
     }
 
     private void abrirVentanaSolicitarCancelacionEvento() {
         dispose();
-        new ventanaSolicitarCancelacionEvento(organizador, sistema).setVisible(true);
+        new ventanaSolicitarCancelacionEvento(organizador, sistema).setVisible(true);;
     }
 
     private void abrirVentanaAgregarTiquetes() {
         dispose();
-        new ventanaCrearTiqueteSimple(sistema, organizador);
+        new ventanaCrearTiquetes(sistema, organizador).setVisible(true);;
     }
 
-    private void abrirVentanaVerGanancias() {
-        dispose();
-        new ventanaVerGananciasOrganizador(organizador, sistema).setVisible(true);
-    }
 
     private void abrirVentanaComprarTiquete() {
-        dispose();
-        ventanaComprarTiquete ventana = new ventanaComprarTiquete(sistema, organizador);
+    	dispose();
+    	ventanaComprarTiquete ventana = new ventanaComprarTiquete(sistema, organizador);
         ventana.setVisible(true);
     }
 
     private void abrirVentanaComprarPaqueteDeluxe() {
+        // TODO: Implementar ventana de compra de paquete deluxe
         JOptionPane.showMessageDialog(this, "Ventana Comprar Paquete Deluxe - En desarrollo");
     }
 
     private void abrirVentanaTransferirTiquete() {
-        dispose();
-        Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
-        new ventanaTransferirTiquete(organizador, sistema, trans).setVisible(true);
+       
+    	dispose();
+    	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
+        new ventanaTransferirTiquete(organizador,sistema,trans).setVisible(true);
     }
-
     private void abrirVentanaCrearOferta() {
         dispose();
         Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
@@ -212,42 +203,43 @@ public class ventanaMenuOrganizador extends JFrame {
     }
 
     private void abrirVentanaEliminarOferta() {
-        dispose();
+    	dispose();
         new ventanaCancelarOferta(organizador, sistema).setVisible(true);
+        
     }
 
+
     private void abrirVentanaMarketplace() throws TransferenciaNoPermitidaException {
-        dispose();
-        new VentanaComprarMarketplace(sistema, organizador).setVisible(true);
+    	dispose();
+        new VentanaComprarMarketplace(sistema, organizador).setVisible(true);;
     }
 
     private void abrirVentanaContraofertar() throws TransferenciaNoPermitidaException {
-        dispose();
+    	dispose();
         new VentanaContraofertar(sistema, organizador).setVisible(true);
     }
 
     private void abrirVentanaVerContraofertas() {
-        dispose();
-        new ventanaVerContraOfertas(organizador, sistema).setVisible(true);
+       	dispose();
+        new ventanaVerContraOfertas(organizador, sistema).setVisible(true);;
     }
 
     private void abrirVentanaRecargarSaldo() {
-        dispose();
-        new ventanaRecargarSaldo(sistema, organizador).setVisible(true);
+    	dispose();
+    	new ventanaRecargarSaldo(sistema, organizador).setVisible(true);
     }
 
     private void abrirVentanaSolicitarReembolso() {
-        dispose();
-        new VentanaSolicitarReembolsos(sistema, organizador).setVisible(true);
+      	dispose();
+    	new VentanaSolicitarReembolsos(sistema, organizador).setVisible(true);;
     }
 
     private void cerrarSesion() {
-        int confirmacion = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro que desea cerrar sesión?",
-                "Cerrar Sesión",
-                JOptionPane.YES_NO_OPTION);
-
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+            "¿Está seguro que desea cerrar sesión?",
+            "Cerrar Sesión",
+            JOptionPane.YES_NO_OPTION);
+        
         if (confirmacion == JOptionPane.YES_OPTION) {
             dispose();
             ventanaLogin login = new ventanaLogin(sistema);
