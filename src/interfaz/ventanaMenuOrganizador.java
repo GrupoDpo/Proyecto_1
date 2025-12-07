@@ -6,6 +6,7 @@ import javax.swing.*;
 import Finanzas.Transaccion;
 import Persistencia.SistemaPersistencia;
 import excepciones.TransferenciaNoPermitidaException;
+import usuario.IDuenoTiquetes;
 import usuario.Organizador;
 
 
@@ -170,7 +171,6 @@ public class ventanaMenuOrganizador extends JFrame {
     }
 
     private void abrirVentanaSolicitarCancelacionEvento() {
-    	// TODO: Implementar ventana 
         dispose();
         new ventanaSolicitarCancelacionEvento(organizador, sistema).setVisible(true);;
     }
@@ -223,8 +223,8 @@ public class ventanaMenuOrganizador extends JFrame {
     }
 
     private void abrirVentanaVerContraofertas() {
-        // TODO: Implementar ventana ver contraofertas
-        JOptionPane.showMessageDialog(this, "Ventana Ver Contraofertas - En desarrollo");
+       	dispose();
+        new ventanaVerContraOfertas(organizador, sistema).setVisible(true);;
     }
 
     private void abrirVentanaRecargarSaldo() {
@@ -233,8 +233,8 @@ public class ventanaMenuOrganizador extends JFrame {
     }
 
     private void abrirVentanaSolicitarReembolso() {
-        // TODO: Implementar ventana solicitar reembolso
-        JOptionPane.showMessageDialog(this, "Ventana Solicitar Reembolso - En desarrollo");
+      	dispose();
+    	new VentanaSolicitarReembolsos(sistema, organizador).setVisible(true);;
     }
 
     private void cerrarSesion() {

@@ -129,7 +129,6 @@ public class ventanaMenuAdministrador extends JFrame {
     }
 
     private void abrirVentanaVerSolicitudesReembolsos() {
-    	// TODO: Implementar ventana 
     	dispose();
     	ventanaVerSolicitudesDeRembolso ventana = new ventanaVerSolicitudesDeRembolso(sistema);
         ventana.setVisible(true);

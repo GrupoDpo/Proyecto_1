@@ -188,7 +188,8 @@ public class ventanaMenuComprador extends JFrame {
     }
 
     private void abrirVentanaVerContraofertas() {
-        new ventanaVerContraOfertas((IDuenoTiquetes) usuarioActual, sistema);
+    	dispose();
+        new ventanaVerContraOfertas((IDuenoTiquetes) usuarioActual, sistema).setVisible(true);;
     }
 
     private void abrirVentanaRecargarSaldo() {

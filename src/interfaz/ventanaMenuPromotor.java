@@ -6,6 +6,7 @@ import javax.swing.*;
 import Finanzas.Transaccion;
 import Persistencia.SistemaPersistencia;
 import excepciones.TransferenciaNoPermitidaException;
+import usuario.IDuenoTiquetes;
 import usuario.Promotor;
 
 
@@ -219,8 +220,8 @@ public class ventanaMenuPromotor extends JFrame {
     }
 
     private void abrirVentanaVerContraofertas() {
-        // TODO: Implementar ventana ver contraofertas
-        JOptionPane.showMessageDialog(this, "Ventana Ver Contraofertas - En desarrollo");
+       	dispose();
+        new ventanaVerContraOfertas(promotor, sistema).setVisible(true);;
     }
 
     private void abrirVentanaRecargarSaldo() {
@@ -229,8 +230,8 @@ public class ventanaMenuPromotor extends JFrame {
     }
 
     private void abrirVentanaSolicitarReembolso() {
-        // TODO: Implementar ventana solicitar reembolso
-        JOptionPane.showMessageDialog(this, "Ventana Solicitar Reembolso - En desarrollo");
+      	dispose();
+    	new VentanaSolicitarReembolsos(sistema, promotor).setVisible(true);;
     }
 
     private void cerrarSesion() {
