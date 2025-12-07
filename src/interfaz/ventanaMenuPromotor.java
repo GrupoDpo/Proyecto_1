@@ -9,14 +9,12 @@ import excepciones.TransferenciaNoPermitidaException;
 import usuario.IDuenoTiquetes;
 import usuario.Promotor;
 
-
 public class ventanaMenuPromotor extends JFrame {
     private static final long serialVersionUID = 1L;
     
     private Promotor promotor;
     private SistemaPersistencia sistema;
  
-
     public ventanaMenuPromotor(Promotor promotor, SistemaPersistencia sistema) {
         this.promotor = promotor;
         this.sistema = sistema;
@@ -39,22 +37,22 @@ public class ventanaMenuPromotor extends JFrame {
 
         // ===== OPCIONES ESPECÍFICAS DE PROMOTOR =====
         
-        JButton btnCrearCodigo = new JButton("Sugerir Venue");
-        btnCrearCodigo.setBounds(125, y, 180, 30);
-        btnCrearCodigo.setBackground(new Color(155, 89, 182));
-        btnCrearCodigo.setForeground(Color.WHITE);
-        btnCrearCodigo.addActionListener(e -> abrirVentanaSugerirVenue());
-        getContentPane().add(btnCrearCodigo);
+        JButton btnSugerirVenue = new JButton("Sugerir Venue");
+        btnSugerirVenue.setBounds(125, y, 180, 30);
+        btnSugerirVenue.setBackground(new Color(155, 89, 182));
+        btnSugerirVenue.setForeground(Color.WHITE);
+        btnSugerirVenue.addActionListener(e -> abrirVentanaSugerirVenue());
+        getContentPane().add(btnSugerirVenue);
         y += 40;
 
-        JButton btnVerMisCodigos = new JButton("Ver ganancias");
-        btnVerMisCodigos.setBounds(125, y, 180, 30);
-        btnVerMisCodigos.setBackground(new Color(155, 89, 182));
-        btnVerMisCodigos.setForeground(Color.WHITE);
-        btnVerMisCodigos.addActionListener(e -> abrirVentanaVerGanancias());
-        getContentPane().add(btnVerMisCodigos);
+        // ===== NUEVA OPCIÓN: VER GANANCIAS =====
+        JButton btnVerGanancias = new JButton("Ver Ganancias");
+        btnVerGanancias.setBounds(125, y, 180, 30);
+        btnVerGanancias.setBackground(new Color(155, 89, 182));
+        btnVerGanancias.setForeground(Color.WHITE);
+        btnVerGanancias.addActionListener(e -> abrirVentanaVerGanancias());
+        getContentPane().add(btnVerGanancias);
         y += 40;
-
 
         // Separador
         JSeparator separator = new JSeparator();
@@ -68,7 +66,7 @@ public class ventanaMenuPromotor extends JFrame {
         getContentPane().add(lblOpcionesCompra);
         y += 30;
 
-        // ===== OPCIONES COMUNES DE COMPRADOR =====
+        // ===== OPCIONES COMUNES =====
         
         JButton btnComprarTiquete = new JButton("Comprar Tiquete");
         btnComprarTiquete.setBounds(150, y, 180, 30);
@@ -82,7 +80,6 @@ public class ventanaMenuPromotor extends JFrame {
         getContentPane().add(btnComprarPaqueteDeluxe);
         y += 40;
 
-      
         JButton btnTransferirTiquete = new JButton("Transferir Tiquete");
         btnTransferirTiquete.setBounds(150, y, 180, 30);
         btnTransferirTiquete.addActionListener(e -> abrirVentanaTransferirTiquete());
@@ -104,26 +101,24 @@ public class ventanaMenuPromotor extends JFrame {
         JButton btnComprarMarketplace = new JButton("Comprar en Marketplace");
         btnComprarMarketplace.setBounds(150, y, 180, 30);
         btnComprarMarketplace.addActionListener(e -> {
-			try {
-				abrirVentanaMarketplace();
-			} catch (TransferenciaNoPermitidaException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		});
+            try {
+                abrirVentanaMarketplace();
+            } catch (TransferenciaNoPermitidaException e1) {
+                e1.printStackTrace();
+            }
+        });
         getContentPane().add(btnComprarMarketplace);
         y += 40;
 
         JButton btnContraofertar = new JButton("Contraofertar");
         btnContraofertar.setBounds(150, y, 180, 30);
         btnContraofertar.addActionListener(e -> {
-			try {
-				abrirVentanaContraofertar();
-			} catch (TransferenciaNoPermitidaException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		});
+            try {
+                abrirVentanaContraofertar();
+            } catch (TransferenciaNoPermitidaException e1) {
+                e1.printStackTrace();
+            }
+        });
         getContentPane().add(btnContraofertar);
         y += 40;
 
@@ -145,7 +140,6 @@ public class ventanaMenuPromotor extends JFrame {
         getContentPane().add(btnSolicitarReembolso);
         y += 40;
 
-
         // Botón Cerrar Sesión
         JButton btnCerrarSesion = new JButton("Cerrar Sesión");
         btnCerrarSesion.setBounds(150, y, 180, 30);
@@ -153,11 +147,6 @@ public class ventanaMenuPromotor extends JFrame {
         btnCerrarSesion.setForeground(Color.WHITE);
         btnCerrarSesion.addActionListener(e -> cerrarSesion());
         getContentPane().add(btnCerrarSesion);
-
-        setTitle("BOLETAMASTER: Menu Comprador");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(449, y + 80);
-        setLocationRelativeTo(null);
 
         setTitle("BOLETAMASTER: Menu Promotor");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -167,71 +156,66 @@ public class ventanaMenuPromotor extends JFrame {
 
     // Métodos específicos de Promotor
     private void abrirVentanaSugerirVenue() {
-    	dispose();
-    	ventanaSugerirVenue ventana = new ventanaSugerirVenue(promotor, sistema);
-        ventana.setVisible(true);
+        dispose();
+        new ventanaSugerirVenue(promotor, sistema).setVisible(true);
     }
 
     private void abrirVentanaVerGanancias() {
-    	// TODO: Implementar ventana 
-        JOptionPane.showMessageDialog(this, "Ver Mis Códigos - En desarrollo");
+        dispose();
+        // Cuando tengas tu ventana creada reemplaza esta línea:
+        new ventanaVerGananciasPromotor(promotor, sistema).setVisible(true);
     }
-
-   
 
     // Métodos comunes
     private void abrirVentanaComprarTiquete() {
-    	dispose();
-    	ventanaComprarTiquete ventana = new ventanaComprarTiquete(sistema, promotor);
-        ventana.setVisible(true);
+        dispose();
+        new ventanaComprarTiquete(sistema, promotor).setVisible(true);
     }
 
     private void abrirVentanaComprarPaqueteDeluxe() {
-        // TODO: Implementar ventana de compra de paquete deluxe
         JOptionPane.showMessageDialog(this, "Ventana Comprar Paquete Deluxe - En desarrollo");
     }
 
     private void abrirVentanaTransferirTiquete() {
-    	dispose();
-    	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
-        new ventanaTransferirTiquete(promotor ,sistema,trans).setVisible(true);
+        dispose();
+        Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
+        new ventanaTransferirTiquete(promotor, sistema, trans).setVisible(true);
     }
-    private void abrirVentanaCrearOferta() {       
+
+    private void abrirVentanaCrearOferta() {
         dispose();
         Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
         new ventanaCrearOferta(promotor, sistema, trans).setVisible(true);
     }
 
     private void abrirVentanaEliminarOferta() {
-    
-    	dispose();
+        dispose();
         new ventanaCancelarOferta(promotor, sistema).setVisible(true);
-        
     }
 
     private void abrirVentanaMarketplace() throws TransferenciaNoPermitidaException {
-    	dispose();
-        new VentanaComprarMarketplace(sistema, promotor).setVisible(true);;
+        dispose();
+        new VentanaComprarMarketplace(sistema, promotor).setVisible(true);
     }
 
     private void abrirVentanaContraofertar() throws TransferenciaNoPermitidaException {
-    	dispose();
+        dispose();
         new VentanaContraofertar(sistema, promotor).setVisible(true);
     }
 
     private void abrirVentanaVerContraofertas() {
-       	dispose();
-        new ventanaVerContraOfertas(promotor, sistema).setVisible(true);;
+        dispose();
+        new ventanaVerContraOfertas(promotor, sistema).setVisible(true);
     }
 
     private void abrirVentanaRecargarSaldo() {
-    	dispose();
-    	new ventanaRecargarSaldo(sistema, promotor).setVisible(true);
+        dispose();
+        new ventanaRecargarSaldo(sistema, promotor).setVisible(true);
     }
 
     private void abrirVentanaSolicitarReembolso() {
-      	dispose();
-    	new VentanaSolicitarReembolsos(sistema, promotor).setVisible(true);;
+        dispose();
+        new VentanaSolicitarReembolsos(sistema, promotor).setVisible(true);
     }
 
     private void cerrarSesion() {
@@ -242,8 +226,7 @@ public class ventanaMenuPromotor extends JFrame {
         
         if (confirmacion == JOptionPane.YES_OPTION) {
             dispose();
-            ventanaLogin login = new ventanaLogin(sistema);
-            login.setVisible(true);
+            new ventanaLogin(sistema).setVisible(true);
         }
     }
 }

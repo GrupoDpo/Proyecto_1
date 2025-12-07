@@ -226,23 +226,28 @@ public class ventanaComprarTiquete extends JFrame {
                 String key = String.format("%-30s | %s | %s", 
                     truncar(evento.getNombre(), 30),
                     evento.getFecha(),
-                    evento.getVenueAsociado().getUbicacion());
+                    evento.getHora());
                 
                 modeloEventos.addElement(key);
                 mapaEventos.put(key, evento);
             }
         }
 
-        if (modeloEventos.isEmpty()) {
+        if (eventosDisponibles.isEmpty()) {
             modeloEventos.addElement("No hay eventos con tiquetes disponibles");
+            listaEventos.setEnabled(false);
+        } else {
+            listaEventos.setEnabled(true);
         }
     }
 
     /**
-     * Verifica si un evento tiene tiquetes disponibles
+     * Verifica si un evento tiene tiquetes disponibles (no transferidos ni anulados)
      */
     private boolean tieneTiquetesDisponibles(Evento evento) {
-        if (evento.getTiquetes() == null) return false;
+        if (evento.getTiquetes() == null || evento.getTiquetes().isEmpty()) {
+            return false;
+        }
         
         for (Tiquete t : evento.getTiquetesDisponibles()) {
             if (!t.isTransferido() && !t.isAnulado()) {
@@ -259,8 +264,8 @@ public class ventanaComprarTiquete extends JFrame {
         String seleccion = listaEventos.getSelectedValue();
         
         if (seleccion == null || !mapaEventos.containsKey(seleccion)) {
-            listaTiquetes.setEnabled(false);
             modeloTiquetes.clear();
+            listaTiquetes.setEnabled(false);
             btnComprar.setEnabled(false);
             return;
         }
@@ -397,6 +402,58 @@ public class ventanaComprarTiquete extends JFrame {
                 sistema
                 
             );
+
+            // ============================================
+            // ✅ AGREGADO: Actualizar estados financieros
+            // ============================================
+            
+            // Calcular montos
+            double precioBase = tiquete.getPrecioBaseSinCalcular();
+            double recargo = precioBase * (sistema.getAdministrador().getPorcentajeAdicional() / 100.0);
+            double emision = sistema.getAdministrador().getCobroEmision();
+            
+            // 1. Actualizar estados del ADMINISTRADOR
+            if (sistema.getAdministrador() != null && sistema.getAdministrador().getEstadosFinancieros() != null) {
+                sistema.getAdministrador().getEstadosFinancieros().acumularVenta(0.0, recargo + emision);
+            }
+            
+            // 2. Actualizar estados del ORGANIZADOR del evento
+            String loginOrg = evento.getLoginOrganizador();
+            Usuario usuarioOrg = sistema.buscarUsuario(loginOrg);
+            
+            if (usuarioOrg instanceof Organizador) {
+                Organizador org = (Organizador) usuarioOrg;
+                if (org.getEstadosFinancieros() != null) {
+                    org.getEstadosFinancieros().acumularVenta(precioBase, precioBase);
+                }
+            }
+            
+            // 3. Si hay promotor en el sistema, también actualizarlo
+            // (Asumiendo que todos los tiquetes pueden tener relación con promotor)
+            for (Usuario u : sistema.getUsuarios()) {
+                if (u instanceof Promotor) {
+                    Promotor prom = (Promotor) u;
+                    // Verificar si el tiquete pertenece a este promotor
+                    boolean pertenecePromotor = false;
+                    for (Tiquete t : prom.getTiquetes()) {
+                        if (t.getId().equals(tiquete.getId())) {
+                            pertenecePromotor = true;
+                            break;
+                        }
+                    }
+                    
+                    if (pertenecePromotor && prom.getEstadosFinancieros() != null) {
+                        prom.getEstadosFinancieros().acumularVenta(precioBase, precioBase);
+                    }
+                }
+            }
+            
+            // 4. Guardar todo
+            sistema.guardarTodo();
+            
+            // ============================================
+            // ✅ FIN AGREGADO
+            // ============================================
 
             // Actualizar saldo
             actualizarSaldo();
