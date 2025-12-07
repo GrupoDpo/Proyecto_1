@@ -1,3 +1,5 @@
+
+
 package Persistencia;
 
 import java.util.*;
@@ -19,6 +21,7 @@ import tiquete.TiqueteMultiple;
 
 import Finanzas.Transaccion;
 import Finanzas.marketPlaceReventas;
+import Finanzas.EstadosFinancieros;  // ← ✅ AGREGADO #1: Import
 
 /**
  * SistemaPersistencia FINAL
@@ -28,6 +31,7 @@ import Finanzas.marketPlaceReventas;
  *  - tiquetes
  *  - transacciones
  *  - marketplace
+ *  - estados financieros  ← ✅ AGREGADO
  *
  * TODA la app trabaja a través de este sistema.
  */
@@ -42,6 +46,7 @@ public class SistemaPersistencia {
     private PersistenciaMarketplace perMarket;
     private PersistenciaVenues perVenues;
     private PersistenciaPaquetesDeluxe perPaquetes;
+    private PersistenciaEstadosFinancieros perEstadosFinancieros;  // ← ✅ AGREGADO #2: Atributo persistencia
 
     // Datos en memoria
     private List<Usuario> usuarios;
@@ -50,7 +55,8 @@ public class SistemaPersistencia {
     private List<Transaccion> transacciones;
     private marketPlaceReventas marketplace;
     private List<Venue> venues;
-    private List<PaqueteDeluxe> paquetesDeluxe; 
+    private List<PaqueteDeluxe> paquetesDeluxe;
+    private HashMap<String, EstadosFinancieros> estadosFinancieros;  // ← ✅ AGREGADO #3: HashMap en memoria
 
     public SistemaPersistencia() {
     	
@@ -61,7 +67,8 @@ public class SistemaPersistencia {
          perTrans = new PersistenciaTransacciones();
          perMarket = new PersistenciaMarketplace();
          perVenues  = new PersistenciaVenues();
-         perPaquetes = new PersistenciaPaquetesDeluxe();   // << NUEVO
+         perPaquetes = new PersistenciaPaquetesDeluxe();
+         perEstadosFinancieros = new PersistenciaEstadosFinancieros();  // ← ✅ AGREGADO #4: Inicializar persistencia
 
          usuarios = new ArrayList<>();
          eventos = new ArrayList<>();
@@ -69,7 +76,8 @@ public class SistemaPersistencia {
          transacciones = new ArrayList<>();
          marketplace = new marketPlaceReventas();
          venues = new ArrayList<>();
-         paquetesDeluxe = new ArrayList<>();    
+         paquetesDeluxe = new ArrayList<>();
+         estadosFinancieros = new HashMap<>();  // ← ✅ AGREGADO #5: Inicializar HashMap
         
     }
 
@@ -183,6 +191,45 @@ public class SistemaPersistencia {
         marketPlaceReventas cargado = perMarket.cargar();
         if (cargado != null) marketplace = cargado;
 
+        // ============================================
+        // ✅ AGREGADO #6: ESTADOS FINANCIEROS - INICIO
+        // ============================================
+        // 7) Estados Financieros
+        String rawEstados = perEstadosFinancieros.cargar();
+        estadosFinancieros = perEstadosFinancieros.reconstruir(rawEstados);
+        
+        // Asignar estados financieros a cada usuario
+        for (Usuario u : usuarios) {
+            String login = u.getLogin();
+            EstadosFinancieros ef = estadosFinancieros.get(login);
+            
+            if (u instanceof Administrador) {
+                Administrador admin = (Administrador) u;
+                if (ef != null) {
+                    admin.setEstadosFinancieros(ef);
+                } else {
+                    admin.setEstadosFinancieros(new EstadosFinancieros());
+                }
+            } else if (u instanceof Organizador) {
+                Organizador org = (Organizador) u;
+                if (ef != null) {
+                    org.setEstadosFinancieros(ef);
+                } else {
+                    org.setEstadosFinancieros(new EstadosFinancieros());
+                }
+            } else if (u instanceof Promotor) {
+                Promotor prom = (Promotor) u;
+                if (ef != null) {
+                    prom.setEstadosFinancieros(ef);
+                } else {
+                    prom.setEstadosFinancieros(new EstadosFinancieros());
+                }
+            }
+        }
+        // ============================================
+        // ✅ FIN AGREGADO #6
+        // ============================================
+
         // Vincular ofertas del marketplace a sus tiquetes reales
         reintegrarTiquetesMarketplace();
     }
@@ -198,24 +245,27 @@ public class SistemaPersistencia {
 
             HashMap<Tiquete,String> nuevoMapa = new HashMap<>();
 
-            for (Map.Entry<Tiquete,String> e : mapa.entrySet()) {
+            for (Map.Entry<Tiquete,String> entry : mapa.entrySet()) {
 
-                String id = e.getKey().getId();
-                Tiquete real = buscarTiquetePorId(id);
+                String idPlaceholder = entry.getKey().getId();
+                String info = entry.getValue();
 
-                if (real != null) nuevoMapa.put(real, e.getValue());
+                Tiquete tiqueteReal = buscarTiquetePorId(idPlaceholder);
+
+                if (tiqueteReal != null) {
+                    nuevoMapa.put(tiqueteReal, info);
+                }
             }
 
-            if (!nuevoMapa.isEmpty())
-                nuevas.add(nuevoMapa);
+            nuevas.add(nuevoMapa);
         }
 
         marketplace.getOfertas().clear();
-        for (HashMap<Tiquete,String> m : nuevas) marketplace.getOfertas().add(m);
+        marketplace.getOfertas().addAll(nuevas);
     }
 
     // ===============================================================
-    //                   GUARDAR TODO EL SISTEMA
+    //           GUARDAR TODO
     // ===============================================================
     public void guardarTodo() {
 
@@ -251,6 +301,7 @@ public class SistemaPersistencia {
         perMarket.guardar(marketplace);
         perVenues.guardar(generarJsonVenues());
         perPaquetes.guardar(generarJsonPaquetesDeluxe());
+        perEstadosFinancieros.guardar(generarJsonEstadosFinancieros());  // ← ✅ AGREGADO #7: Guardar estados
     }
     
     private String generarJsonVenues() {
@@ -323,6 +374,49 @@ public class SistemaPersistencia {
         sb.append("  ]\n}");
         return sb.toString();
     }
+
+    // ============================================
+    // ✅ AGREGADO #8: MÉTODO COMPLETO NUEVO
+    // ============================================
+    private String generarJsonEstadosFinancieros() {
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n  \"estadosFinancieros\": [\n");
+
+        int contador = 0;
+        
+        for (Usuario u : usuarios) {
+            EstadosFinancieros ef = null;
+            String login = u.getLogin();
+            
+            if (u instanceof Administrador) {
+                ef = ((Administrador) u).getEstadosFinancieros();
+            } else if (u instanceof Organizador) {
+                ef = ((Organizador) u).getEstadosFinancieros();
+            } else if (u instanceof Promotor) {
+                ef = ((Promotor) u).getEstadosFinancieros();
+            }
+            
+            if (ef != null) {
+                if (contador > 0) sb.append(",\n");
+                
+                sb.append("    {\n");
+                sb.append("      \"login\": \"" + TextoUtils.escape(login) + "\",\n");
+                sb.append("      \"preciosSinRecargos\": " + ef.getPreciosSinRecargos() + ",\n");
+                sb.append("      \"ganancias\": " + ef.getGanancias() + ",\n");
+                sb.append("      \"costoProduccion\": " + ef.getCostoProduccion() + "\n");
+                sb.append("    }");
+                
+                contador++;
+            }
+        }
+        
+        sb.append("\n  ]\n}");
+        return sb.toString();
+    }
+    // ============================================
+    // ✅ FIN AGREGADO #8
+    // ============================================
 
     // ===============================================================
     //                     BUSQUEDAS RÁPIDAS
@@ -646,6 +740,15 @@ public class SistemaPersistencia {
         return paquetesDeluxe;
     }
     
+    // ============================================
+    // ✅ AGREGADO #9: GETTER NUEVO
+    // ============================================
+    public HashMap<String, EstadosFinancieros> getEstadosFinancieros() {
+        return estadosFinancieros;
+    }
+    // ============================================
+    // ✅ FIN AGREGADO #9
+    // ============================================
     
     
 

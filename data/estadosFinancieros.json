@@ -1,0 +1,28 @@
+{
+  "estadosFinancieros": [
+    {
+      "login": "Andresh",
+      "preciosSinRecargos": 0.0,
+      "ganancias": 0.0,
+      "costoProduccion": 0.0
+    },
+    {
+      "login": "org",
+      "preciosSinRecargos": 0.0,
+      "ganancias": 0.0,
+      "costoProduccion": 0.0
+    },
+    {
+      "login": "admin",
+      "preciosSinRecargos": 0.0,
+      "ganancias": 0.0,
+      "costoProduccion": 0.0
+    },
+    {
+      "login": "promotor",
+      "preciosSinRecargos": 0.0,
+      "ganancias": 0.0,
+      "costoProduccion": 0.0
+    }
+  ]
+}

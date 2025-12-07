@@ -7,6 +7,7 @@ import java.util.List;
 
 import Evento.Evento;
 import Evento.Venue;
+import Finanzas.EstadosFinancieros;  // ← AGREGADO
 import Persistencia.SistemaPersistencia;
 import tiquete.Tiquete;
 
@@ -16,6 +17,7 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 	private ArrayList<Tiquete> tiquetes;
 	private List<HashMap<Tiquete, String>> listaOfertas;
 	private List<String> idsTiquetes = new ArrayList<>();
+	private EstadosFinancieros estadosFinancieros;  // ← AGREGADO
 
 	public Promotor(String login, String password, double saldo, String tipoUsuario) {
 		super(login, password, tipoUsuario);
@@ -23,12 +25,16 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 		this.tiquetes = new ArrayList<Tiquete>();
 		this.idsTiquetes = new ArrayList<String>();
 		this.listaOfertas = new ArrayList<>();
+		this.estadosFinancieros = new EstadosFinancieros();  // ← AGREGADO
 	}
 	
 	public double getSaldo() {
 		return this.saldo;
 	}
 	
+	// ============================================
+	// ✅ MODIFICADO: Actualiza estados financieros
+	// ============================================
 	public void verGanancias(double cobroEmision) {
 	    double gananciaTotal = 0.0;
 	    int totalVendidos = 0;
@@ -40,7 +46,8 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 
 	    for (Tiquete t : tiquetes) {
 	        Evento evento = t.getEvento();
-	        double precioBase = t.calcularPrecio(cobroEmision);
+	        // El promotor obtiene el precio SIN recargos ni emisión
+	        double precioBase = t.getPrecioBaseSinCalcular();
 
 	        // Si está vendido, sumamos a ganancias
 	        if (t.isTransferido()) {
@@ -63,6 +70,15 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 	        porcentajeGlobal = (double) totalVendidos / (totalVendidos + totalDisponibles) * 100;
 	    }
 
+	    // ← AGREGADO: Actualizar estados financieros
+	    if (estadosFinancieros == null) {
+	        estadosFinancieros = new EstadosFinancieros();
+	    }
+	    estadosFinancieros.preciosSinRecargos = gananciaTotal;
+	    estadosFinancieros.ganancias = gananciaTotal;  // Para promotor, ganancia = precio sin recargos
+	    estadosFinancieros.costoProduccion = 0.0;  // Puede agregarse lógica si aplica
+	    // ← FIN AGREGADO
+
 	    System.out.println("===== ESTADO FINANCIERO DEL PROMOTOR =====");
 	    System.out.println("Ganancia total: $" + gananciaTotal);
 	    System.out.println("Porcentaje de ventas global: " + String.format("%.2f", porcentajeGlobal) + "%");
@@ -79,12 +95,15 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 	            porcentaje = (double) vendidos / (vendidos + disponibles) * 100;
 	        }
 
-	        System.out.println("Evento: " + evento);
+	        System.out.println("Evento: " + evento.getNombre());
 	        System.out.println("  Ganancia: $" + g);
 	        System.out.println("  Porcentaje de venta: " + String.format("%.2f", porcentaje) + "%");
 	        System.out.println();
 	    }
 	}
+	// ============================================
+	// ✅ FIN MODIFICADO
+	// ============================================
 
 	
 	
@@ -164,6 +183,19 @@ public class Promotor extends Usuario implements IDuenoTiquetes {
 	    }
 	}
 	
+	// ============================================
+	// ✅ AGREGADO: Getters y Setters Estados Financieros
+	// ============================================
+	public EstadosFinancieros getEstadosFinancieros() {
+	    return estadosFinancieros;
+	}
+
+	public void setEstadosFinancieros(EstadosFinancieros estadosFinancieros) {
+	    this.estadosFinancieros = estadosFinancieros;
+	}
+	// ============================================
+	// ✅ FIN AGREGADO
+	// ============================================
 	
 	
 	
