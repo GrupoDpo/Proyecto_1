@@ -131,12 +131,13 @@ public class ventanaMenuAdministrador extends JFrame {
     }
 
     private void abrirVentanaVerLogReventas() {
-        dispose();
-        new ventanaVerLogMarketplace(admin, sistema).setVisible(true);
+    	dispose();
+    	new ventanaVerLogMarketplace(admin, sistema).setVisible(true);
     }
 
     private void abrirVentanaCancelarEvento() {
-        JOptionPane.showMessageDialog(this, "Cancelar Evento - En desarrollo");
+    	dispose();
+        new ventanaCancelarEvento(admin, sistema).setVisible(true);
     }
 
     private void abrirVentanaVerSolicitudesCancelacionEvento() {
@@ -156,8 +157,8 @@ public class ventanaMenuAdministrador extends JFrame {
 
     // NUEVO MÉTODO — VER GANANCIAS
     private void abrirVentanaVerGanancias() {
-        dispose();
-        new ventanaVerGananciasAdministrador(admin, sistema).setVisible(true);
+    	dispose();
+    	new ventanaVerGananciasAdministrador(admin, sistema).setVisible(true);
     }
 
     private void cerrarSesion() {

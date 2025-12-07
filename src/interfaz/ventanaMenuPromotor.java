@@ -162,7 +162,6 @@ public class ventanaMenuPromotor extends JFrame {
 
     private void abrirVentanaVerGanancias() {
         dispose();
-        // Cuando tengas tu ventana creada reemplaza esta línea:
         new ventanaVerGananciasPromotor(promotor, sistema).setVisible(true);
     }
 

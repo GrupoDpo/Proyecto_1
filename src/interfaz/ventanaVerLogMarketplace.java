@@ -127,7 +127,7 @@ public class ventanaVerLogMarketplace extends JFrame {
         btnCerrar.setBounds(770, 520, 150, 35);
         btnCerrar.addActionListener(e -> {
         	dispose();
-        	new ventanaMenuAdministrador(admin, sistema);
+        	new ventanaMenuAdministrador(admin, sistema).setVisible(true);
         	
         });
         add(btnCerrar);

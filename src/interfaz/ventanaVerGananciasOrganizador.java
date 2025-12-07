@@ -171,7 +171,7 @@ public class ventanaVerGananciasOrganizador extends JFrame {
         btnCerrar.setBackground(new Color(231, 76, 60));
         btnCerrar.setForeground(Color.WHITE);
         btnCerrar.setBounds(720, 550, 150, 40);
-        btnCerrar.addActionListener(e -> dispose());
+        btnCerrar.addActionListener(e -> volverAlMenu());
         add(btnCerrar);
         
         // Nota informativa
@@ -277,4 +277,13 @@ public class ventanaVerGananciasOrganizador extends JFrame {
             modelo.addRow(new Object[]{"Sin datos", "$0.00", "0", "0", "0%"});
         }
     }
+    
+    private void volverAlMenu() {
+        
+    	
+   	 dispose();
+        new ventanaMenuOrganizador( organizador, sistema).setVisible(true);
+          
+                
+       }
 }
