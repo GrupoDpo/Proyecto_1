@@ -113,7 +113,6 @@ public class ventanaMenuOrganizador extends JFrame {
 			try {
 				abrirVentanaMarketplace();
 			} catch (TransferenciaNoPermitidaException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
@@ -126,7 +125,6 @@ public class ventanaMenuOrganizador extends JFrame {
 			try {
 				abrirVentanaContraofertar();
 			} catch (TransferenciaNoPermitidaException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
@@ -176,9 +174,8 @@ public class ventanaMenuOrganizador extends JFrame {
     }
 
     private void abrirVentanaAgregarTiquetes() {
-    	// TODO: Agregar comprar tiquete Multiple
         dispose();
-        new ventanaCrearTiqueteSimple(sistema, organizador);
+        new ventanaCrearTiquetes(sistema, organizador).setVisible(true);;
     }
 
 

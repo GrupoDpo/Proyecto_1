@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import Evento.Evento;
 import Finanzas.Transaccion;
@@ -36,6 +38,8 @@ public class ventanaComprarTiquete extends JFrame {
     private DefaultListModel<String> modeloTiquetes;
     
     private JLabel lblSaldoActual;
+    private JLabel lblDisponibles;
+    private JLabel lblTotalPagar;
     private JSpinner spinnerCantidad;
     private JButton btnComprar;
     private JButton btnCancelar;
@@ -44,18 +48,18 @@ public class ventanaComprarTiquete extends JFrame {
     private SistemaPersistencia sistema;
     private Usuario comprador;
     private List<Evento> eventosDisponibles;
-    private List<Tiquete> tiquetesDisponibles;
     private Map<String, Evento> mapaEventos;
-    private Map<String, Tiquete> mapaTiquetes;
+    private Map<String, List<Tiquete>> mapaTiquetesPorTipo; // Lista de tiquetes del mismo tipo
+    private String tipoTiqueteSeleccionado;
+    private Evento eventoActual;
 
     public ventanaComprarTiquete(SistemaPersistencia sistema, Usuario comprador) {
     	
     	this.comprador = comprador;
         this.sistema = sistema;
         this.eventosDisponibles = new ArrayList<>();
-        this.tiquetesDisponibles = new ArrayList<>();
         this.mapaEventos = new HashMap<>();
-        this.mapaTiquetes = new HashMap<>();
+        this.mapaTiquetesPorTipo = new HashMap<>();
         
         inicializarComponentes();
         cargarEventos();
@@ -66,7 +70,7 @@ public class ventanaComprarTiquete extends JFrame {
         
         
     	setTitle("Comprar Tiquetes");
-        setSize(900, 650);
+        setSize(900, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(null);  // positions manuales
@@ -115,14 +119,15 @@ public class ventanaComprarTiquete extends JFrame {
         // ============================
         // TIQUETES
         // ============================
-        JLabel lblTiquetes = new JLabel("Tiquetes disponibles:");
+        JLabel lblTiquetes = new JLabel("Tipos de tiquetes disponibles:");
         lblTiquetes.setFont(new Font("Arial", Font.PLAIN, 13));
-        lblTiquetes.setBounds(50, 215, 250, 20);
+        lblTiquetes.setBounds(50, 215, 450, 20);
         add(lblTiquetes);
 
         modeloTiquetes = new DefaultListModel<>();
         listaTiquetes = new JList<>(modeloTiquetes);
         listaTiquetes.setFont(new Font("Arial", Font.PLAIN, 12));
+        listaTiquetes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         JScrollPane scrollTiquetes = new JScrollPane(listaTiquetes);
         scrollTiquetes.setBounds(50, 240, 600, 110);
@@ -137,21 +142,42 @@ public class ventanaComprarTiquete extends JFrame {
         lblCantidad.setBounds(50, 365, 100, 25);
         add(lblCantidad);
 
-        spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
+        spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
         spinnerCantidad.setFont(new Font("Arial", Font.PLAIN, 12));
         spinnerCantidad.setBounds(130, 365, 60, 25);
         ((JSpinner.DefaultEditor) spinnerCantidad.getEditor()).getTextField().setEditable(false);
+        spinnerCantidad.setEnabled(false);
         add(spinnerCantidad);
+
+        lblDisponibles = new JLabel("");
+        lblDisponibles.setFont(new Font("Arial", Font.ITALIC, 11));
+        lblDisponibles.setForeground(new Color(100, 100, 100));
+        lblDisponibles.setBounds(200, 365, 200, 25);
+        add(lblDisponibles);
+
+        // ============================
+        // INFORMACIÓN DE COMPRA
+        // ============================
+        JLabel lblInfoCompra = new JLabel("Resumen de compra:");
+        lblInfoCompra.setFont(new Font("Arial", Font.BOLD, 13));
+        lblInfoCompra.setBounds(50, 400, 200, 25);
+        add(lblInfoCompra);
+
+        lblTotalPagar = new JLabel("Total a pagar: $0.00");
+        lblTotalPagar.setFont(new Font("Arial", Font.BOLD, 14));
+        lblTotalPagar.setForeground(new Color(46, 125, 50));
+        lblTotalPagar.setBounds(50, 425, 250, 25);
+        add(lblTotalPagar);
 
 
         // ============================
         // BOTONES
         // ============================
-        btnComprar = new JButton("Comprar");
+        btnComprar = new JButton("Comprar Tiquetes");
         btnComprar.setFont(new Font("Arial", Font.BOLD, 13));
         btnComprar.setBackground(new Color(46, 204, 113));
         btnComprar.setForeground(Color.WHITE);
-        btnComprar.setBounds(50, 420, 150, 40);
+        btnComprar.setBounds(50, 470, 180, 40);
         btnComprar.setEnabled(false);
         add(btnComprar);
 
@@ -159,7 +185,7 @@ public class ventanaComprarTiquete extends JFrame {
         btnCancelar.setFont(new Font("Arial", Font.BOLD, 13));
         btnCancelar.setBackground(new Color(231, 76, 60));
         btnCancelar.setForeground(Color.WHITE);
-        btnCancelar.setBounds(220, 420, 150, 40);
+        btnCancelar.setBounds(250, 470, 150, 40);
         add(btnCancelar);
 
         // ----------------------------
@@ -167,7 +193,7 @@ public class ventanaComprarTiquete extends JFrame {
         // ----------------------------
         JButton btnSalir = new JButton("Salir");
         btnSalir.setFont(new Font("Arial", Font.BOLD, 12));
-        btnSalir.setBounds(50, 500, 120, 35);
+        btnSalir.setBounds(50, 560, 120, 35);
         add(btnSalir);
 
         btnSalir.addActionListener(e -> volverAlMenu());
@@ -181,13 +207,21 @@ public class ventanaComprarTiquete extends JFrame {
             }
         });
 
-        // Listener: seleccionar tiquete -> habilitar compra
+        // Listener: seleccionar tiquete -> habilitar spinner
         listaTiquetes.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     tiqueteSeleccionado();
                 }
+            }
+        });
+
+        // Listener: cambiar cantidad en spinner
+        spinnerCantidad.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                actualizarTotal();
             }
         });
 
@@ -261,75 +295,139 @@ public class ventanaComprarTiquete extends JFrame {
         if (seleccion == null || !mapaEventos.containsKey(seleccion)) {
             listaTiquetes.setEnabled(false);
             modeloTiquetes.clear();
+            spinnerCantidad.setEnabled(false);
             btnComprar.setEnabled(false);
+            lblDisponibles.setText("");
+            lblTotalPagar.setText("Total a pagar: $0.00");
             return;
         }
 
-        Evento evento = mapaEventos.get(seleccion);
-        cargarTiquetesDeEvento(evento);
+        eventoActual = mapaEventos.get(seleccion);
+        cargarTiquetesDeEvento(eventoActual);
     }
 
     private void cargarTiquetesDeEvento(Evento evento) {
         modeloTiquetes.clear();
-        mapaTiquetes.clear();
-        tiquetesDisponibles.clear();
+        mapaTiquetesPorTipo.clear();
 
         if (evento.getTiquetes() == null || evento.getTiquetes().isEmpty()) {
             modeloTiquetes.addElement("No hay tiquetes disponibles");
             listaTiquetes.setEnabled(false);
+            spinnerCantidad.setEnabled(false);
+            lblDisponibles.setText("");
             return;
         }
 
-        // Mostrar CADA tiquete individualmente
-        int contador = 1;
+        // Agrupar tiquetes por tipo/localidad/precio
+        Map<String, List<Tiquete>> grupos = new HashMap<>();
+        
         for (Tiquete t : evento.getTiquetesDisponibles()) {
             if (!t.isTransferido() && !t.isAnulado()) {
-                tiquetesDisponibles.add(t);
+                // Validar que el tiquete tenga localidad
+                if (t.getLocalidadAsociada() == null) {
+                    System.err.println("Advertencia: Tiquete " + t.getId() + " sin localidad asociada");
+                    continue;
+                }
                 
-                // Formato: [TIPO] ID | Localidad | Precio
-                String key = String.format("#%-3d [%s] %-12s | %-20s | $%.2f",
-                    contador++,
-                    t.getTipoTiquete(),
-                    truncar(t.getId(), 12),
-                    truncar(t.getLocalidadAsociada().getNombre(), 20),
-                    t.getPrecioBaseSinCalcular());
+                // Clave única: Tipo + Localidad + Precio
+                String clave = t.getTipoTiquete() + "|" + 
+                              t.getLocalidadAsociada().getNombre() + "|" + 
+                              t.getPrecioBaseSinCalcular();
                 
-                modeloTiquetes.addElement(key);
-                mapaTiquetes.put(key, t);
+                grupos.computeIfAbsent(clave, k -> new ArrayList<>()).add(t);
             }
         }
 
-        if (tiquetesDisponibles.isEmpty()) {
+        if (grupos.isEmpty()) {
             modeloTiquetes.addElement("No hay tiquetes disponibles");
             listaTiquetes.setEnabled(false);
+            spinnerCantidad.setEnabled(false);
+            lblDisponibles.setText("");
             return;
+        }
+
+        // Mostrar grupos de tiquetes
+        for (Map.Entry<String, List<Tiquete>> entry : grupos.entrySet()) {
+            List<Tiquete> tiquetes = entry.getValue();
+            Tiquete primero = tiquetes.get(0);
+            
+            // Validación adicional por seguridad
+            if (primero.getLocalidadAsociada() == null) {
+                continue;
+            }
+            
+            String key = String.format("[%s] %-20s | $%.2f | Disponibles: %d",
+                primero.getTipoTiquete(),
+                truncar(primero.getLocalidadAsociada().getNombre(), 20),
+                primero.getPrecioBaseSinCalcular(),
+                tiquetes.size());
+            
+            modeloTiquetes.addElement(key);
+            mapaTiquetesPorTipo.put(key, tiquetes);
         }
 
         listaTiquetes.setEnabled(true);
     }
 
     /**
-     * Maneja la selección de un tiquete
+     * Maneja la selección de un tipo de tiquete
      */
     private void tiqueteSeleccionado() {
         String seleccion = listaTiquetes.getSelectedValue();
         
-        if (seleccion == null || !mapaTiquetes.containsKey(seleccion)) {
+        if (seleccion == null || !mapaTiquetesPorTipo.containsKey(seleccion)) {
+            spinnerCantidad.setEnabled(false);
+            spinnerCantidad.setValue(1);
             btnComprar.setEnabled(false);
+            lblDisponibles.setText("");
+            lblTotalPagar.setText("Total a pagar: $0.00");
             return;
         }
 
-        // Habilitar compra de 1 tiquete
+        tipoTiqueteSeleccionado = seleccion;
+        List<Tiquete> disponibles = mapaTiquetesPorTipo.get(seleccion);
+        int maxDisponibles = disponibles.size();
+
+        // Configurar spinner con el máximo disponible
+        spinnerCantidad.setModel(new SpinnerNumberModel(1, 1, maxDisponibles, 1));
+        spinnerCantidad.setEnabled(true);
+        spinnerCantidad.setValue(1);
+        
+        lblDisponibles.setText("(" + maxDisponibles + " disponibles)");
+        
+        actualizarTotal();
         btnComprar.setEnabled(true);
     }
 
     /**
-     * Realiza la compra del tiquete seleccionado
+     * Actualiza el total a pagar según la cantidad seleccionada
+     */
+    private void actualizarTotal() {
+        if (tipoTiqueteSeleccionado == null || !mapaTiquetesPorTipo.containsKey(tipoTiqueteSeleccionado)) {
+            lblTotalPagar.setText("Total a pagar: $0.00");
+            return;
+        }
+
+        List<Tiquete> tiquetes = mapaTiquetesPorTipo.get(tipoTiqueteSeleccionado);
+        if (tiquetes.isEmpty()) {
+            lblTotalPagar.setText("Total a pagar: $0.00");
+            return;
+        }
+
+        int cantidad = (int) spinnerCantidad.getValue();
+        double precioUnitario = tiquetes.get(0).getPrecioBaseSinCalcular();
+        double total = precioUnitario * cantidad;
+
+        lblTotalPagar.setText(String.format("Total a pagar: $%.2f (%d x $%.2f)", 
+            total, cantidad, precioUnitario));
+    }
+
+    /**
+     * Realiza la compra de los tiquetes seleccionados
      */
     private void realizarCompra() {
-        // Validar selecciones
+        // Validar selección de evento
         String seleccionEvento = listaEventos.getSelectedValue();
-        String seleccionTiquete = listaTiquetes.getSelectedValue();
         
         if (seleccionEvento == null || !mapaEventos.containsKey(seleccionEvento)) {
             JOptionPane.showMessageDialog(this,
@@ -339,27 +437,51 @@ public class ventanaComprarTiquete extends JFrame {
             return;
         }
         
-        if (seleccionTiquete == null || !mapaTiquetes.containsKey(seleccionTiquete)) {
+        // Validar selección de tiquete
+        if (tipoTiqueteSeleccionado == null || !mapaTiquetesPorTipo.containsKey(tipoTiqueteSeleccionado)) {
             JOptionPane.showMessageDialog(this,
-                "Debe seleccionar un tiquete",
+                "Debe seleccionar un tipo de tiquete",
                 "Error",
                 JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        Evento evento = mapaEventos.get(seleccionEvento);
-        Tiquete tiquete = mapaTiquetes.get(seleccionTiquete);
+        List<Tiquete> tiquetesDisponibles = mapaTiquetesPorTipo.get(tipoTiqueteSeleccionado);
+        int cantidad = (int) spinnerCantidad.getValue();
         
-        // Precio del tiquete
-        double precio = tiquete.getPrecioBaseSinCalcular();
+        if (cantidad > tiquetesDisponibles.size()) {
+            JOptionPane.showMessageDialog(this,
+                "No hay suficientes tiquetes disponibles",
+                "Error",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Tiquete primerTiquete = tiquetesDisponibles.get(0);
+        double precioUnitario = primerTiquete.getPrecioBaseSinCalcular();
+        double precioTotal = precioUnitario * cantidad;
+        
+        // Validar que tenga localidad
+        if (primerTiquete.getLocalidadAsociada() == null) {
+            JOptionPane.showMessageDialog(this,
+                "Error: Los tiquetes seleccionados no tienen localidad asignada",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
         // Verificar saldo
         if (comprador instanceof IDuenoTiquetes) {
             IDuenoTiquetes dueno = (IDuenoTiquetes) comprador;
-            if (precio > dueno.getSaldo()) {
+            if (precioTotal > dueno.getSaldo()) {
                 JOptionPane.showMessageDialog(this,
-                    String.format("Saldo insuficiente\n\nSaldo actual: $%.2f\nPrecio del tiquete: $%.2f",
-                        dueno.getSaldo(), precio),
+                    String.format("Saldo insuficiente\n\n" +
+                                 "Saldo actual: $%.2f\n" +
+                                 "Total a pagar: $%.2f\n" +
+                                 "Faltan: $%.2f",
+                        dueno.getSaldo(), 
+                        precioTotal,
+                        precioTotal - dueno.getSaldo()),
                     "Saldo Insuficiente",
                     JOptionPane.ERROR_MESSAGE);
                 return;
@@ -368,86 +490,114 @@ public class ventanaComprarTiquete extends JFrame {
         
         // Confirmar compra
         int confirmacion = JOptionPane.showConfirmDialog(this,
-            String.format("¿Confirmar compra del tiquete?\n\n" +
-                         "ID: %s\n" +
+            String.format("¿Confirmar compra?\n\n" +
                          "Evento: %s\n" +
-                         "Localidad: %s\n" +
                          "Tipo: %s\n" +
-                         "Precio: $%.2f",
-                         tiquete.getId(),
-                         evento.getNombre(), 
-                         tiquete.getLocalidadAsociada().getNombre(),
-                         tiquete.getTipoTiquete(),
-                         precio),
+                         "Localidad: %s\n" +
+                         "Cantidad: %d tiquetes\n" +
+                         "Precio unitario: $%.2f\n" +
+                         "TOTAL: $%.2f",
+                         eventoActual.getNombre(),
+                         primerTiquete.getTipoTiquete(),
+                         primerTiquete.getLocalidadAsociada().getNombre(),
+                         cantidad,
+                         precioUnitario,
+                         precioTotal),
             "Confirmar Compra",
             JOptionPane.YES_NO_OPTION);
         
         if (confirmacion != JOptionPane.YES_OPTION) {
             return;
         }
-        int cantidad = (int) spinnerCantidad.getValue();
 
-        // Realizar compra de 1 tiquete
+        // Realizar compra
+        ArrayList<Tiquete> tiquetesComprados = new ArrayList<>();
+        int compradosExitosos = 0;
+        
         try {
-        	Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
+            Transaccion trans = new Transaccion("NA", null, null, null, null, 0);
             
-            ArrayList<Tiquete> comprados = trans.comprarTiquete(tiquete,comprador,cantidad,
-                evento,
-                sistema.getAdministrador().getCobroEmision(),
-                sistema
-                
-            );
+            // Comprar los primeros N tiquetes disponibles
+            for (int i = 0; i < cantidad && i < tiquetesDisponibles.size(); i++) {
+                try {
+                    Tiquete tiquete = tiquetesDisponibles.get(i);
+                    
+                    // Validar antes de comprar
+                    if (tiquete.getLocalidadAsociada() == null) {
+                        System.err.println("Saltando tiquete sin localidad: " + tiquete.getId());
+                        continue;
+                    }
+                    
+                    ArrayList<Tiquete> comprados = trans.comprarTiquete(
+                        tiquete,
+                        comprador,
+                        1,
+                        eventoActual,
+                        sistema.getAdministrador().getCobroEmision(),
+                        sistema
+                    );
+                    tiquetesComprados.addAll(comprados);
+                    compradosExitosos++;
+                } catch (Exception e) {
+                    System.err.println("Error comprando tiquete " + (i+1) + ": " + e.getMessage());
+                }
+            }
 
             // Actualizar saldo
             actualizarSaldo();
 
-            // Mostrar éxito con información del tiquete comprado
-            Tiquete tiqueteComprado = comprados.get(0);
-            
-            JOptionPane.showMessageDialog(this,
-                String.format("✓ Compra realizada exitosamente!\n\n" +
-                             "ID del tiquete: %s\n" +
-                             "Localidad: %s\n" +
-                             "Tipo: %s\n" +
-                             "Precio pagado: $%.2f\n" +
-                             "Nuevo saldo: $%.2f",
-                             tiqueteComprado.getId(),
-                             tiqueteComprado.getLocalidadAsociada().getNombre(),
-                             tiqueteComprado.getTipoTiquete(),
-                             precio,
-                             ((IDuenoTiquetes)comprador).getSaldo()),
-                "Compra Exitosa",
-                JOptionPane.INFORMATION_MESSAGE);
-            
-            
-            BufferedImage qrImagen = GeneradorQR.generarQR(tiqueteComprado, 250);
-            if (qrImagen != null) {
-                JLabel labelQR = new JLabel(new ImageIcon(qrImagen));
-                JOptionPane.showMessageDialog(this, 
-                    labelQR, 
-                    "QR de tu tiquete - " + tiqueteComprado.getId(), 
-                    JOptionPane.PLAIN_MESSAGE);
+            // Mostrar resultado
+            if (compradosExitosos > 0) {
+                StringBuilder mensaje = new StringBuilder();
+                mensaje.append("✓ Compra realizada exitosamente!\n\n");
+                mensaje.append("Tiquetes comprados: ").append(compradosExitosos).append("\n");
+                mensaje.append("Total pagado: $").append(String.format("%.2f", precioUnitario * compradosExitosos)).append("\n");
+                
+                if (comprador instanceof IDuenoTiquetes) {
+                    mensaje.append("Nuevo saldo: $").append(
+                        String.format("%.2f", ((IDuenoTiquetes)comprador).getSaldo())
+                    ).append("\n\n");
+                }
+                
+                mensaje.append("IDs de tiquetes:\n");
+                for (Tiquete t : tiquetesComprados) {
+                    mensaje.append("• ").append(t.getId()).append("\n");
+                }
+                
+                JOptionPane.showMessageDialog(this,
+                    mensaje.toString(),
+                    "Compra Exitosa",
+                    JOptionPane.INFORMATION_MESSAGE);
+                
+                // Mostrar QR del primer tiquete
+                if (!tiquetesComprados.isEmpty()) {
+                    Tiquete primerComprado = tiquetesComprados.get(0);
+                    BufferedImage qrImagen = GeneradorQR.generarQR(primerComprado, 250);
+                    if (qrImagen != null) {
+                        JLabel labelQR = new JLabel(new ImageIcon(qrImagen));
+                        JOptionPane.showMessageDialog(this, 
+                            labelQR, 
+                            "QR del primer tiquete - " + primerComprado.getId(), 
+                            JOptionPane.PLAIN_MESSAGE);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this,
+                    "No se pudo completar la compra",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             }
 
-            // Recargar eventos y limpiar selección
+            // Recargar
             cargarEventos();
             modeloTiquetes.clear();
             listaTiquetes.setEnabled(false);
+            spinnerCantidad.setEnabled(false);
+            spinnerCantidad.setValue(1);
             btnComprar.setEnabled(false);
+            lblDisponibles.setText("");
+            lblTotalPagar.setText("Total a pagar: $0.00");
 
-        } catch (SaldoInsuficienteExeption e) {
-            JOptionPane.showMessageDialog(this,
-                "Saldo insuficiente\n\n" + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-        } catch (TiquetesNoDisponiblesException e) {
-            JOptionPane.showMessageDialog(this,
-                "Tiquete no disponible\n\n" + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-            // Recargar para actualizar disponibilidad
-            cargarEventos();
-            modeloTiquetes.clear();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                 "Error al realizar la compra:\n" + e.getMessage(),
@@ -476,7 +626,7 @@ public class ventanaComprarTiquete extends JFrame {
         return texto.substring(0, maxLength - 3) + "...";
     }
     
-private void volverAlMenu() {
+    private void volverAlMenu() {
         
     	
     	dispose();
