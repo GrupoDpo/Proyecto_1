@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import Evento.Evento;
 import Evento.Venue;
+import Finanzas.EstadosFinancieros;  // ← AGREGADO
 import Finanzas.Oferta;
 import Persistencia.SistemaPersistencia;
 import excepciones.VenueNoPresente;
@@ -19,6 +20,7 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 	private List<Evento> eventos;
 	private List<HashMap<Tiquete, String>> listaOfertas;
 	private List<String> idsTiquetes = new ArrayList<>();
+	private EstadosFinancieros estadosFinancieros;  // ← AGREGADO
 
 	public Organizador(String login, String password, double saldo, String tipoUsuario) {
 		super(login, password, tipoUsuario);
@@ -27,6 +29,7 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 		this.tiquetes = new ArrayList<Tiquete>();
 		this.idsTiquetes = new ArrayList<String>();
 		this.listaOfertas = new ArrayList<>();
+		this.estadosFinancieros = new EstadosFinancieros();  // ← AGREGADO
 	}
 	
 	public Collection<Tiquete> getTiquetes() {
@@ -158,7 +161,97 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 	    sistema.guardarTodo();
 	}
 
+	// ============================================
+	// ✅ AGREGADO: Método verGanancias
+	// ============================================
+	/**
+	 * Calcula y muestra las ganancias del organizador
+	 * También actualiza los estados financieros
+	 */
+	public void verGanancias(double cobroEmision) {
+	    double gananciaTotal = 0.0;
+	    int totalVendidos = 0;
+	    int totalDisponibles = 0;
+
+	    HashMap<Evento, Double> gananciasPorEvento = new HashMap<>();
+	    HashMap<Evento, Integer> vendidosPorEvento = new HashMap<>();
+	    HashMap<Evento, Integer> disponiblesPorEvento = new HashMap<>();
+
+	    // Recorrer todos los tiquetes del organizador
+	    for (Tiquete t : tiquetes) {
+	        Evento evento = t.getEvento();
+	        // El organizador obtiene el precio SIN recargos ni emisión
+	        double precioBase = t.getPrecioBaseSinCalcular();
+
+	        // Si está vendido, sumamos a ganancias
+	        if (t.isTransferido()) {
+	            gananciaTotal += precioBase;
+	            totalVendidos++;
+
+	            gananciasPorEvento.put(evento,
+	                gananciasPorEvento.getOrDefault(evento, 0.0) + precioBase);
+	            vendidosPorEvento.put(evento,
+	                vendidosPorEvento.getOrDefault(evento, 0) + 1);
+	        } else {
+	            totalDisponibles++;
+	            disponiblesPorEvento.put(evento,
+	                disponiblesPorEvento.getOrDefault(evento, 0) + 1);
+	        }
+	    }
+
+	    double porcentajeGlobal = 0.0;
+	    if (totalVendidos + totalDisponibles > 0) {
+	        porcentajeGlobal = (double) totalVendidos / (totalVendidos + totalDisponibles) * 100;
+	    }
+
+	    // Actualizar estados financieros
+	    if (estadosFinancieros == null) {
+	        estadosFinancieros = new EstadosFinancieros();
+	    }
+	    estadosFinancieros.preciosSinRecargos = gananciaTotal;
+	    estadosFinancieros.ganancias = gananciaTotal;  // Para organizador, ganancia = precio sin recargos
+	    estadosFinancieros.costoProduccion = 0.0;  // Puede agregarse lógica si aplica
+
+	    // Mostrar información
+	    System.out.println("===== ESTADO FINANCIERO DEL ORGANIZADOR =====");
+	    System.out.println("Ganancia total: $" + gananciaTotal);
+	    System.out.println("Porcentaje de ventas global: " + String.format("%.2f", porcentajeGlobal) + "%");
+	    System.out.println();
+
+	    System.out.println("--- Detalle por evento ---");
+	    for (Evento evento : gananciasPorEvento.keySet()) {
+	        double g = gananciasPorEvento.get(evento);
+	        int vendidos = vendidosPorEvento.getOrDefault(evento, 0);
+	        int disponibles = disponiblesPorEvento.getOrDefault(evento, 0);
+
+	        double porcentaje = 0.0;
+	        if (vendidos + disponibles > 0) {
+	            porcentaje = (double) vendidos / (vendidos + disponibles) * 100;
+	        }
+
+	        System.out.println("Evento: " + evento.getNombre());
+	        System.out.println("  Ganancia: $" + g);
+	        System.out.println("  Porcentaje de venta: " + String.format("%.2f", porcentaje) + "%");
+	        System.out.println();
+	    }
+	}
+	// ============================================
+	// ✅ FIN AGREGADO
+	// ============================================
 	
+	// ============================================
+	// ✅ AGREGADO: Getters y Setters Estados Financieros
+	// ============================================
+	public EstadosFinancieros getEstadosFinancieros() {
+	    return estadosFinancieros;
+	}
+
+	public void setEstadosFinancieros(EstadosFinancieros estadosFinancieros) {
+	    this.estadosFinancieros = estadosFinancieros;
+	}
+	// ============================================
+	// ✅ FIN AGREGADO
+	// ============================================
 	
 
 }

@@ -49,6 +49,16 @@
       "venueUbicacion": "Neiva",
       "venueCapMax": 10000,
       "venueAprobado": false
+    },
+    {
+      "nombre": "Evento Financiero",
+      "fecha": "2026-02-21",
+      "hora": "18:00",
+      "loginOrganizador": "org",
+      "cancelado": false,
+      "venueUbicacion": "Bogota",
+      "venueCapMax": 25000,
+      "venueAprobado": false
     }
   ]
 }

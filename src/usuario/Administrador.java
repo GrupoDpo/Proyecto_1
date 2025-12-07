@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import Evento.Evento;
 import Evento.SolicitudCancelacion;
 import Evento.Venue;
+import Finanzas.EstadosFinancieros;  // ← AGREGADO
 import Persistencia.PersistenciaEventos;
 import Persistencia.SistemaPersistencia;
 import excepciones.TransferenciaNoPermitidaException;
@@ -25,6 +26,7 @@ public class Administrador extends Usuario {
     private Queue<HashMap<Tiquete, String>> rembolsosSolicitados;
     private Queue<HashMap<Venue, String>> solicitudesVenue;
     private Queue<SolicitudCancelacion> solicitudesCancelacionEvento;
+    private EstadosFinancieros estadosFinancieros;  // ← AGREGADO
 
     public Administrador(String login, String password, String tipoUsuario) {
         super(login, password, tipoUsuario);
@@ -34,6 +36,7 @@ public class Administrador extends Usuario {
         this.rembolsosSolicitados = new LinkedList<>();
         this.solicitudesVenue = new LinkedList<>();
         this.solicitudesCancelacionEvento = new LinkedList<>();
+        this.estadosFinancieros = new EstadosFinancieros();  // ← AGREGADO
     }
    
 
@@ -102,6 +105,19 @@ public class Administrador extends Usuario {
     	this.ganancias = newGanancias;
     }
     
+    // ============================================
+    // ✅ AGREGADO: Getters y Setters Estados Financieros
+    // ============================================
+    public EstadosFinancieros getEstadosFinancieros() {
+        return estadosFinancieros;
+    }
+
+    public void setEstadosFinancieros(EstadosFinancieros estadosFinancieros) {
+        this.estadosFinancieros = estadosFinancieros;
+    }
+    // ============================================
+    // ✅ FIN AGREGADO
+    // ============================================
    
     
    
@@ -201,7 +217,9 @@ public class Administrador extends Usuario {
     
    
 
-	
+	// ============================================
+	// ✅ MODIFICADO: Actualiza estados financieros
+	// ============================================
 	public void verGananciasAdministrador(List<Tiquete> todosLosTiquetes) {
 	    double total = calcularGananciaTotal(todosLosTiquetes);
 	    HashMap<String, Double> porFecha = calcularGananciasPorFecha(todosLosTiquetes);
@@ -213,7 +231,18 @@ public class Administrador extends Usuario {
 	    System.out.println("Por fecha: " + porFecha);
 	    System.out.println("Por evento: " + porEvento);
 	    System.out.println("Por organizador: " + porOrganizador);
+	    
+	    // ← AGREGADO: Actualizar estados financieros
+	    if (estadosFinancieros == null) {
+	        estadosFinancieros = new EstadosFinancieros();
+	    }
+	    estadosFinancieros.preciosSinRecargos = 0.0;  // Admin no cobra precio base
+	    estadosFinancieros.ganancias = total;  // Las ganancias vienen de recargos
+	    estadosFinancieros.costoProduccion = 0.0;  // Admin no tiene costos de producción
 	}
+	// ============================================
+	// ✅ FIN MODIFICADO
+	// ============================================
 	
 	private double calcularGananciaTotal(List<Tiquete> tiquetes) {
 	    double total = 0.0;
