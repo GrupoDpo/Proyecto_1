@@ -146,8 +146,8 @@ public class ventanaMenuAdministrador extends JFrame {
     }
     
     private void abrirVentanaVerSolicitudesCancelacionEvento() {
-    	// TODO: Implementar ventana 
-        JOptionPane.showMessageDialog(this, "- - En desarrollo");
+    	dispose();
+    	new ventanaVerSolicitudesCancelacionEvento(sistema);
     }
     private void abrirVentanaFijarCobroEmision() {
     	// TODO: Implementar ventana 

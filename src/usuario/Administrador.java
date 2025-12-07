@@ -193,6 +193,12 @@ public class Administrador extends Usuario {
     public Queue<HashMap<Venue, String>> getSolicitudesVenue() {
     	return this.solicitudesVenue;
     }
+    
+    public Queue<SolicitudCancelacion> getSolicitudesCancelacionEvento() {
+        return this.solicitudesCancelacionEvento;
+    }
+    
+    
    
 
 	

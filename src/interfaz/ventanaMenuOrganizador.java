@@ -171,7 +171,8 @@ public class ventanaMenuOrganizador extends JFrame {
 
     private void abrirVentanaSolicitarCancelacionEvento() {
     	// TODO: Implementar ventana 
-        JOptionPane.showMessageDialog(this, "Ver Mis Eventos - En desarrollo");
+        dispose();
+        new ventanaSolicitarCancelacionEvento(organizador, sistema).setVisible(true);;
     }
 
     private void abrirVentanaAgregarTiquetes() {
