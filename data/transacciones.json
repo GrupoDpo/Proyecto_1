@@ -188,6 +188,20 @@
       "valor": 3150.0,
       "dueno": "andres123",
       "idTiquete": "TIQ-00000028"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-06T22:32:48.282888400",
+      "valor": 3150.0,
+      "dueno": "david1",
+      "idTiquete": "TIQ-00000031"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-06T22:42:23.458920900",
+      "valor": 1181250.0,
+      "dueno": "Disneygpt",
+      "idTiquete": "TIQ-00000046"
     }
   ]
 }
