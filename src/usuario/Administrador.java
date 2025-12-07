@@ -195,54 +195,6 @@ public class Administrador extends Usuario {
     }
    
 
-
-    public void verSolicitudVenue() {
-        if (solicitudesVenue == null || solicitudesVenue.isEmpty()) {
-            System.out.println("No hay solicitudes pendientes de aprobación de venues.");
-            return;
-        }
-
-        try (Scanner sc = new Scanner(System.in)) {
-            List<HashMap<Venue, String>> procesados = new ArrayList<>();
-
-            for (HashMap<Venue, String> mapa : solicitudesVenue) {
-                for (Entry<Venue, String> entry : mapa.entrySet()) {
-                    Venue venueSolicitado = entry.getKey();
-                    String mensaje = entry.getValue();
-
-                    System.out.println("\n--- Solicitud de Venue ---");
-                    System.out.println("Venue: " + venueSolicitado.getUbicacion());
-                    System.out.println("Capacidad: " + venueSolicitado.getCapacidadMax());
-                    System.out.println("Mensaje: " + mensaje);
-                    System.out.println("[1] Aceptar");
-                    System.out.println("[2] Rechazar");
-                    System.out.print("Seleccione una opción: ");
-
-                    int opcion = sc.nextInt();
-                    sc.nextLine();
-
-                    if (opcion == 1) {
-                        venueSolicitado.setAprobado(true);
-                        System.out.println("Venue aprobado: " + venueSolicitado.getUbicacion());
-                    } else if (opcion == 2) {
-                        venueSolicitado.setAprobado(false);
-                        System.out.println("Venue rechazado: " + venueSolicitado.getUbicacion());
-                    } else {
-                        System.out.println("Opción no válida, se omite esta solicitud.");
-                    }
-
-                    procesados.add(mapa);
-                }
-            }
-
-            solicitudesVenue.removeAll(procesados);
-        }
-
-        System.out.println("\nNo hay más solicitudes pendientes.");
-    }
-
-
-
 	
 	public void verGananciasAdministrador(List<Tiquete> todosLosTiquetes) {
 	    double total = calcularGananciaTotal(todosLosTiquetes);

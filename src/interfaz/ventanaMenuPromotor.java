@@ -166,8 +166,9 @@ public class ventanaMenuPromotor extends JFrame {
 
     // Métodos específicos de Promotor
     private void abrirVentanaSugerirVenue() {
-    	// TODO: Implementar ventana 
-        JOptionPane.showMessageDialog(this, "Crear Código Descuento - En desarrollo");
+    	dispose();
+    	ventanaSugerirVenue ventana = new ventanaSugerirVenue(promotor, sistema);
+        ventana.setVisible(true);
     }
 
     private void abrirVentanaVerGanancias() {

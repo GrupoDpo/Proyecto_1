@@ -124,13 +124,15 @@ public class ventanaMenuAdministrador extends JFrame {
     }
 
     private void abrirVentanaRevisarSolicitudVenue() {
-    	// TODO: Implementar ventana 
-        JOptionPane.showMessageDialog(this, "Revisar Solicitud Venue - En desarrollo");
+    	dispose();
+    	new VentanaVerSolicitudesVenue(sistema).setVisible(true);;
     }
 
     private void abrirVentanaVerSolicitudesReembolsos() {
     	// TODO: Implementar ventana 
-        JOptionPane.showMessageDialog(this, "Ver Solicitudes Reembolsos - En desarrollo");
+    	dispose();
+    	ventanaVerSolicitudesDeRembolso ventana = new ventanaVerSolicitudesDeRembolso(sistema);
+        ventana.setVisible(true);
     }
     
     private void abrirVentanaVerLogReventas() {

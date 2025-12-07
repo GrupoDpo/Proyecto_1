@@ -14,6 +14,11 @@
       "ubicacion": "Villao",
       "capacidadMax": 10000,
       "aprobado": false
+    },
+    {
+      "ubicacion": "Campin",
+      "capacidadMax": 30000,
+      "aprobado": true
     }
   ]
 }
