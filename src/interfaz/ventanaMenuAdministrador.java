@@ -154,8 +154,8 @@ public class ventanaMenuAdministrador extends JFrame {
     }
     
     private void abrirVentanaFijarRecargo() {
-    	// TODO: Implementar ventana 
-        JOptionPane.showMessageDialog(this, "- - En desarrollo");
+    	dispose();
+    	new VentanaRecargo(sistema, admin).setVisible(true);;
     }
 
    
