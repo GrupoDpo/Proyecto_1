@@ -151,7 +151,7 @@ public class Organizador extends Usuario implements IDuenoTiquetes {
 	    }
 
 	    // Crear solicitud
-	    SolicitudCancelacion sol = new SolicitudCancelacion(this.getLogin(), evento, motivo);
+	    SolicitudCancelacion sol = new SolicitudCancelacion(evento, this.getLogin(), motivo);
 
 	    admin.recibirSolicitudCancelacionEvento(sol);
 

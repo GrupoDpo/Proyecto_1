@@ -44,8 +44,8 @@
       "login": "Disneygpt",
       "password": "disney123",
       "tipo": "CLIENTE",
-      "saldo": 2.5065E7,
-      "idsTiquetes": ["TIQ-00000018", "TIQ-00000025"]
+      "saldo": 2.5465E7,
+      "idsTiquetes": ["TIQ-00000025"]
     },
     {
       "login": "mateo12",
@@ -58,8 +58,8 @@
       "login": "david1",
       "password": "david13",
       "tipo": "CLIENTE",
-      "saldo": 1.9995E8,
-      "idsTiquetes": ["TIQ-00000005"]
+      "saldo": 1.9974E8,
+      "idsTiquetes": ["TIQ-00000005", "TIQ-00000018"]
     },
     {
       "login": "andres123",
@@ -67,6 +67,13 @@
       "tipo": "CLIENTE",
       "saldo": 1810000.0,
       "idsTiquetes": ["TIQ-00000020", "TIQ-00000019", "TIQ-00000016"]
+    },
+    {
+      "login": "promotor",
+      "password": "pro1",
+      "tipo": "PROMOTOR",
+      "saldo": 0.0,
+      "idsTiquetes": []
     }
   ]
 }

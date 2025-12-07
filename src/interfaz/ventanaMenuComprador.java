@@ -148,7 +148,6 @@ public class ventanaMenuComprador extends JFrame {
     // ===== MÉTODOS PARA ABRIR VENTANAS =====
     
     private void abrirVentanaComprarTiquete() {
-    	// TODO: Arreglar lo de seleccionar tiquetes
     	dispose();
     	ventanaComprarTiquete ventana = new ventanaComprarTiquete(sistema, usuarioActual);
         ventana.setVisible(true);
@@ -189,8 +188,8 @@ public class ventanaMenuComprador extends JFrame {
     }
 
     private void abrirVentanaVerContraofertas() {
-        // TODO: Implementar ventana ver contraofertas
-        JOptionPane.showMessageDialog(this, "Ventana Ver Contraofertas - En desarrollo");
+    	dispose();
+        new ventanaVerContraOfertas((IDuenoTiquetes) usuarioActual, sistema).setVisible(true);;
     }
 
     private void abrirVentanaRecargarSaldo() {
@@ -199,10 +198,10 @@ public class ventanaMenuComprador extends JFrame {
     }
 
     private void abrirVentanaSolicitarReembolso() {
-        // TODO: Implementar ventana solicitar reembolso
      	dispose();
     	new VentanaSolicitarReembolsos(sistema, usuarioActual).setVisible(true);;
     }
+    
 
     private void cerrarSesion() {
         int confirmacion = JOptionPane.showConfirmDialog(this,

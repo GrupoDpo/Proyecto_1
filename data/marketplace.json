@@ -7,6 +7,10 @@
     {
       "tiqueteId": "TIQ-00000005",
       "info": "david1 - Precio: $400000.0"
+    },
+    {
+      "tiqueteId": "TIQ-00000018",
+      "info": "david1 - Precio: $500000.0"
     }
   ],
   "logEventos": [
@@ -23,6 +27,11 @@
     "[2025-12-06 15:32:34] Oferta creada por david1 para tiquete TIQ-00000005 con precio $400000.0",
     "\"[2025-12-06 15:32:34] Usuario 'david1' publicó oferta | Tiquete: VIP | ID: TIQ-00000005 | Precio: $400000",
     "00 | Evento: Mundial\"",
-    "[2025-12-06 15:33:31] Disneygpt hizo una contraoferta a david1 por el tiquete TIQ-00000005 con precio $250000.0"
+    "[2025-12-06 15:33:31] Disneygpt hizo una contraoferta a david1 por el tiquete TIQ-00000005 con precio $250000.0",
+    "[2025-12-06 17:50:22] Oferta creada por david1 para tiquete TIQ-00000018 con precio $500000.0",
+    "\"[2025-12-06 17:50:22] Usuario 'david1' publicó oferta | Tiquete: General | ID: TIQ-00000018 | Precio: $500000",
+    "00 | Evento: Concierto\"",
+    "[2025-12-06 17:51:19] mateo12 hizo una contraoferta a david1 por el tiquete TIQ-00000018 con precio $25000.0",
+    "[2025-12-06 17:52:08] Contraoferta RECHAZADA: david1 rechazó oferta de mateo12 para tiquete TIQ-00000018"
   ]
 }

@@ -1,25 +1,36 @@
 package interfaz;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 
-import Evento.Evento;
+import Evento.Venue;
 import Persistencia.SistemaPersistencia;
-import tiquete.Tiquete;
+import excepciones.TransferenciaNoPermitidaException;
 import usuario.Administrador;
 import usuario.Usuario;
-import usuario.IDuenoTiquetes;
-import excepciones.TransferenciaNoPermitidaException;
 
-public class ventanaVerSolicitudesDeRembolso extends JFrame {
+public class VentanaVerSolicitudesVenue extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,11 +49,11 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
     // Para saber qué solicitud corresponde a cada fila
     private List<SolicitudInfo> solicitudesLista;
 
-    public ventanaVerSolicitudesDeRembolso(SistemaPersistencia sistema) {
+    public VentanaVerSolicitudesVenue(SistemaPersistencia sistema) {
         this.sistema = sistema;
-        
+
         Usuario usuarioAdmin = sistema != null ? sistema.getAdministrador() : null;
-        
+
         if (!(usuarioAdmin instanceof Administrador)) {
             JOptionPane.showMessageDialog(null,
                 "No se encontró un administrador en el sistema",
@@ -50,7 +61,7 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
                 JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         this.admin = (Administrador) usuarioAdmin;
 
         inicializarComponentes();
@@ -58,7 +69,7 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
     }
 
     private void inicializarComponentes() {
-        setTitle("BOLETAMASTER: Gestionar Solicitudes de Reembolso");
+        setTitle("BOLETAMASTER: Gestionar Solicitudes de Venues");
         setSize(950, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -72,7 +83,7 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
         panelSuperior.setPreferredSize(new Dimension(950, 60));
         panelSuperior.setLayout(null);
 
-        JLabel lblTitulo = new JLabel(" GESTIÓN DE SOLICITUDES DE REEMBOLSO");
+        JLabel lblTitulo = new JLabel(" GESTIÓN DE SOLICITUDES DE VENUES");
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 18));
         lblTitulo.setForeground(Color.WHITE);
         lblTitulo.setBounds(20, 20, 500, 25);
@@ -88,13 +99,14 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
         add(panelSuperior, BorderLayout.NORTH);
 
         // ========================================
-        // PANEL CENTRAL - TABLA
+        // PANEL CENTRAL - TABLA SOLICITUDES VENUE
         // ========================================
         JPanel panelCentro = new JPanel(new BorderLayout(5, 5));
         panelCentro.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Panel de control
         JPanel panelControl = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
         seleccionarTodasCheck = new JCheckBox("Seleccionar todas");
         seleccionarTodasCheck.setFont(new Font("Arial", Font.BOLD, 12));
         seleccionarTodasCheck.addItemListener(e -> {
@@ -105,15 +117,17 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
         });
         panelControl.add(seleccionarTodasCheck);
 
-        JLabel lblInfo = new JLabel("  |  Marca las solicitudes que deseas aprobar o rechazar");
+        JLabel lblInfo = new JLabel("  |  Marca las solicitudes de venue que deseas aprobar o rechazar");
         lblInfo.setFont(new Font("Arial", Font.ITALIC, 11));
         lblInfo.setForeground(Color.GRAY);
         panelControl.add(lblInfo);
 
         panelCentro.add(panelControl, BorderLayout.NORTH);
 
-        // Tabla
-        String[] columnas = { "☑", "ID Tiquete", "Evento", "Localidad", "Usuario", "Motivo", "Precio" };
+        // ========================================
+        // TABLA DE SOLICITUDES DE VENUE (AHORA 5 COLUMNAS)
+        // ========================================
+        String[] columnas = { "☑", "Ubicación", "Capacidad", "Estado", "Motivo" };
 
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
@@ -123,57 +137,52 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
 
             @Override
             public boolean isCellEditable(int row, int col) {
-                return col == 0; // Solo checkbox es editable
+                return col == 0; // Solo el checkbox
             }
         };
 
         tabla = new JTable(modeloTabla);
         tabla.setFont(new Font("Monospaced", Font.PLAIN, 11));
         tabla.setRowHeight(25);
-        tabla.getColumnModel().getColumn(0).setMaxWidth(40);
-        tabla.getColumnModel().getColumn(1).setPreferredWidth(100);
-        tabla.getColumnModel().getColumn(2).setPreferredWidth(150);
-        tabla.getColumnModel().getColumn(3).setPreferredWidth(100);
-        tabla.getColumnModel().getColumn(4).setPreferredWidth(100);
-        tabla.getColumnModel().getColumn(5).setPreferredWidth(200);
-        tabla.getColumnModel().getColumn(6).setPreferredWidth(80);
 
-        // Listener para mostrar detalle al seleccionar fila
+        // Ajustes de columnas
+        tabla.getColumnModel().getColumn(0).setMaxWidth(40);   // Checkbox
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(200); // Ubicación
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(100); // Capacidad
+        tabla.getColumnModel().getColumn(3).setPreferredWidth(100); // Estado
+        tabla.getColumnModel().getColumn(4).setPreferredWidth(220); // Motivo
+
+        // Listener para mostrar detalle al seleccionar fila (opcional)
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                mostrarDetalleSolicitud();
+                mostrarDetalleSolicitudVenue();
             }
         });
 
+        // Scroll de tabla
         JScrollPane scrollTabla = new JScrollPane(tabla);
         panelCentro.add(scrollTabla, BorderLayout.CENTER);
 
+        // Agregar al frame (centro)
         add(panelCentro, BorderLayout.CENTER);
 
         // ========================================
         // PANEL DERECHO - DETALLE
         // ========================================
-        JPanel panelDerecho = new JPanel(new BorderLayout(5, 5));
-        panelDerecho.setPreferredSize(new Dimension(300, 600));
-        panelDerecho.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 10));
-
-        JLabel lblDetalle = new JLabel("Detalle de la Solicitud:");
-        lblDetalle.setFont(new Font("Arial", Font.BOLD, 13));
+        JPanel panelDerecha = new JPanel(new BorderLayout(5,5));
+        panelDerecha.setPreferredSize(new Dimension(340, 0));
+        panelDerecha.setBorder(BorderFactory.createTitledBorder("Detalle"));
 
         txtDetalle = new JTextArea();
         txtDetalle.setEditable(false);
-        txtDetalle.setFont(new Font("Arial", Font.PLAIN, 12));
+        txtDetalle.setFont(new Font("Arial", Font.BOLD, 13));
         txtDetalle.setLineWrap(true);
         txtDetalle.setWrapStyleWord(true);
-        txtDetalle.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        txtDetalle.setBackground(new Color(245, 245, 245));
 
         JScrollPane scrollDetalle = new JScrollPane(txtDetalle);
+        panelDerecha.add(scrollDetalle, BorderLayout.CENTER);
 
-        panelDerecho.add(lblDetalle, BorderLayout.NORTH);
-        panelDerecho.add(scrollDetalle, BorderLayout.CENTER);
-
-        add(panelDerecho, BorderLayout.EAST);
+        add(panelDerecha, BorderLayout.EAST);
 
         // ========================================
         // PANEL INFERIOR - BOTONES
@@ -214,123 +223,100 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
         add(panelInferior, BorderLayout.SOUTH);
     }
 
-    /**
-     * Carga las solicitudes de reembolso del administrador
-     */
     private void cargarSolicitudes() {
         modeloTabla.setRowCount(0);
         solicitudesLista = new ArrayList<>();
-        txtDetalle.setText("");
+        if (txtDetalle != null) txtDetalle.setText("");
 
         if (admin == null) {
             return;
         }
 
-        Queue<HashMap<Tiquete, String>> cola = admin.getSolicitudes();
-        
+        Queue<HashMap<Venue, String>> cola = admin.getSolicitudesVenue();
+
         if (cola == null || cola.isEmpty()) {
-            modeloTabla.addRow(new Object[] { false, "No hay solicitudes pendientes", "", "", "", "", "" });
+            // 5 columnas: checkbox, ubicacion, capacidad, estado, motivo
+            modeloTabla.addRow(new Object[] { false, "No hay solicitudes pendientes", "", "", "" });
             return;
         }
 
         int contador = 1;
-        
-        for (HashMap<Tiquete, String> solicitud : cola) {
-            for (Map.Entry<Tiquete, String> entry : solicitud.entrySet()) {
-                Tiquete tiquete = entry.getKey();
+
+        for (HashMap<Venue, String> solicitud : cola) {
+            for (Map.Entry<Venue, String> entry : solicitud.entrySet()) {
+
+                Venue venue = entry.getKey();
                 String motivo = entry.getValue();
 
-                // Buscar dueño del tiquete
-                Usuario dueno = buscarDuenoDeTiquete(tiquete);
-                String nombreDueno = dueno != null ? dueno.getLogin() : "Desconocido";
+                // ------------------------------
+                // DATOS DEL VENUE
+                // ------------------------------
+                String ubicacion = venue.getUbicacion();
+                int capacidad = venue.getCapacidadMax();
+                String estado = venue.isAprobado() ? "Aprobado" : "No aprobado";
 
-                // Obtener evento
-                Evento evento = tiquete.getEventoAsociado();
-                String nombreEvento = evento != null ? evento.getNombre() : "Sin evento";
-
-                // Agregar fila a la tabla
+                // ------------------------------
+                // AGREGAR FILA A LA TABLA (5 columnas)
+                // ------------------------------
                 Object[] fila = {
-                    false, // Checkbox
-                    tiquete.getId(),
-                    truncar(nombreEvento, 20),
-                    truncar(tiquete.getLocalidadAsociada().getNombre(), 15),
-                    nombreDueno,
-                    truncar(motivo, 30),
-                    String.format("$%.2f", tiquete.getPrecioBaseSinCalcular())
+                    false,              // Checkbox
+                    ubicacion,
+                    String.valueOf(capacidad),
+                    estado,
+                    truncar(motivo, 35)
                 };
 
                 modeloTabla.addRow(fila);
 
-                // Guardar información completa
+                // ------------------------------
+                // GUARDAR DETALLE COMPLETO
+                // ------------------------------
                 SolicitudInfo info = new SolicitudInfo(
-                    contador++, 
-                    tiquete, 
-                    motivo, 
-                    dueno, 
+                    contador++,
+                    venue,
+                    motivo,
                     solicitud
                 );
+
                 solicitudesLista.add(info);
             }
         }
 
         if (solicitudesLista.isEmpty()) {
-            modeloTabla.addRow(new Object[] { false, "No hay solicitudes pendientes", "", "", "", "", "" });
+            modeloTabla.addRow(new Object[] { false, "No hay solicitudes pendientes", "", "", "" });
         }
     }
 
     /**
      * Muestra el detalle de la solicitud seleccionada
      */
-    private void mostrarDetalleSolicitud() {
-        int filaSeleccionada = tabla.getSelectedRow();
-        
-        if (filaSeleccionada < 0 || filaSeleccionada >= solicitudesLista.size()) {
-            txtDetalle.setText("");
+    private void mostrarDetalleSolicitudVenue() {
+        int fila = tabla.getSelectedRow();
+        if (fila < 0 || fila >= solicitudesLista.size()) {
+            if (txtDetalle != null) txtDetalle.setText("");
             return;
         }
 
-        SolicitudInfo info = solicitudesLista.get(filaSeleccionada);
-        Tiquete tiquete = info.tiquete;
-        Usuario dueno = info.dueno;
-        String motivo = info.motivo;
+        SolicitudInfo info = solicitudesLista.get(fila);
 
-        StringBuilder detalle = new StringBuilder();
-        detalle.append("═══════════════════════════\n");
-        detalle.append("   SOLICITUD #").append(info.numero).append("\n");
-        detalle.append("═══════════════════════════\n\n");
+        Venue v = info.venue;
 
-        detalle.append(" TIQUETE\n");
-        detalle.append("   ID: ").append(tiquete.getId()).append("\n");
-        detalle.append("   Tipo: ").append(tiquete.getTipoTiquete()).append("\n");
-        detalle.append("   Localidad: ").append(tiquete.getLocalidadAsociada().getNombre()).append("\n");
-        detalle.append("   Precio: $").append(String.format("%.2f", tiquete.getPrecioBaseSinCalcular())).append("\n\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("══════════════════════════════\n");
+        sb.append("       DETALLE DEL VENUE\n");
+        sb.append("══════════════════════════════\n\n");
+        sb.append("Ubicación: ").append(v.getUbicacion()).append("\n");
+        sb.append("Capacidad: ").append(v.getCapacidadMax()).append("\n");
+        sb.append("Estado: ").append(v.isAprobado() ? "Aprobado" : "No aprobado").append("\n\n");
+        sb.append("Motivo de la solicitud:\n");
+        sb.append(info.motivo).append("\n");
 
-        Evento evento = tiquete.getEventoAsociado();
-        if (evento != null) {
-            detalle.append(" EVENTO\n");
-            detalle.append("   Nombre: ").append(evento.getNombre()).append("\n");
-            detalle.append("   Fecha: ").append(evento.getFecha()).append("\n");
-            detalle.append("   Lugar: ").append(evento.getVenueAsociado().getUbicacion()).append("\n\n");
+        if (txtDetalle != null) {
+            txtDetalle.setText(sb.toString());
+            txtDetalle.setCaretPosition(0);
         }
-
-        detalle.append(" SOLICITANTE\n");
-        detalle.append("   Usuario: ").append(dueno != null ? dueno.getLogin() : "Desconocido").append("\n");
-
-        detalle.append(" MOTIVO\n");
-        detalle.append("   ").append(motivo).append("\n\n");
-
-        detalle.append("═══════════════════════════\n");
-        detalle.append(" MONTO A REEMBOLSAR:\n");
-        detalle.append("   $").append(String.format("%.2f", tiquete.getPrecioBaseSinCalcular())).append("\n");
-        detalle.append("═══════════════════════════");
-
-        txtDetalle.setText(detalle.toString());
-        txtDetalle.setCaretPosition(0);
     }
 
-    /**
-     * Procesa las solicitudes seleccionadas
-     */
     private void procesarSolicitudes(boolean aprobar) {
         if (solicitudesLista == null || solicitudesLista.isEmpty()) {
             JOptionPane.showMessageDialog(this,
@@ -340,7 +326,7 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
             return;
         }
 
-        // Recopilar solicitudes seleccionadas
+        // 1. Buscar filas seleccionadas
         List<Integer> filasSeleccionadas = new ArrayList<>();
         for (int i = 0; i < tabla.getRowCount(); i++) {
             Object val = tabla.getValueAt(i, 0);
@@ -357,7 +343,7 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
             return;
         }
 
-        // Confirmar acción
+        // 2. Confirmación
         String accion = aprobar ? "aprobar" : "rechazar";
         int confirm = JOptionPane.showConfirmDialog(this,
             String.format("¿Confirmas que deseas %s %d solicitud(es)?",
@@ -375,20 +361,22 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
         // Procesar en orden inverso para no desincronizar índices
         for (int i = filasSeleccionadas.size() - 1; i >= 0; i--) {
             int fila = filasSeleccionadas.get(i);
-            
-            if (fila < 0 || fila >= solicitudesLista.size()) {
-                continue;
-            }
+
+            if (fila < 0 || fila >= solicitudesLista.size()) continue;
 
             SolicitudInfo info = solicitudesLista.get(fila);
-            
+            Venue venue = info.venue;
+            HashMap<Venue, String> solicitudOriginal = info.referencia;
+
             try {
-                admin.verSolicitudReembolso(info.dueno, info.tiquete, sistema, aprobar);
+                // Llamada al método del administrador. Asegúrate que la firma coincida.
+                // En tu implementación previa llamabas: admin.verSolicitudVenue(venue, info.motivo, sistema, aprobar);
+                admin.verSolicitudVenue(venue, info.motivo, sistema, aprobar);
                 procesadas++;
-            } catch (TransferenciaNoPermitidaException ex) {
+            } catch (Exception ex) {
                 errores++;
                 JOptionPane.showMessageDialog(this,
-                    "Error al procesar solicitud #" + info.numero + ":\n" + ex.getMessage(),
+                    "Error al procesar solicitud #" + info.id + ":\n" + ex.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
             }
@@ -414,48 +402,23 @@ public class ventanaVerSolicitudesDeRembolso extends JFrame {
         cargarSolicitudes();
     }
 
-    /**
-     * Busca el dueño de un tiquete
-     */
-    private Usuario buscarDuenoDeTiquete(Tiquete tiquete) {
-        if (sistema == null || tiquete == null) return null;
-
-        for (Usuario u : sistema.getUsuarios()) {
-            if (u instanceof IDuenoTiquetes) {
-                IDuenoTiquetes dueno = (IDuenoTiquetes) u;
-                for (Tiquete t : dueno.getTiquetes()) {
-                    if (t != null && t.getId().equals(tiquete.getId())) {
-                        return u;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     private String truncar(String texto, int maxLength) {
         if (texto == null) return "";
         if (texto.length() <= maxLength) return texto;
         return texto.substring(0, maxLength - 3) + "...";
     }
 
-    /**
-     * Clase auxiliar para almacenar información de solicitudes
-     */
     private static class SolicitudInfo {
-        int numero;
-        Tiquete tiquete;
-        String motivo;
-        Usuario dueno;
-        HashMap<Tiquete, String> solicitudOriginal;
+        public int id;
+        public Venue venue;
+        public String motivo;
+        public HashMap<Venue, String> referencia;
 
-        SolicitudInfo(int numero, Tiquete tiquete, String motivo, Usuario dueno, 
-                     HashMap<Tiquete, String> solicitudOriginal) {
-            this.numero = numero;
-            this.tiquete = tiquete;
+        public SolicitudInfo(int id, Venue venue, String motivo, HashMap<Venue, String> referencia) {
+            this.id = id;
+            this.venue = venue;
             this.motivo = motivo;
-            this.dueno = dueno;
-            this.solicitudOriginal = solicitudOriginal;
+            this.referencia = referencia;
         }
     }
 }

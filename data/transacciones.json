@@ -167,6 +167,20 @@
       "valor": 0.0,
       "dueno": "david1",
       "idTiquete": "TIQ-00000005"
+    },
+    {
+      "tipo": "COMPRA",
+      "fecha": "2025-12-06T17:50:05.542017700",
+      "valor": 210000.0,
+      "dueno": "david1",
+      "idTiquete": "TIQ-00000017"
+    },
+    {
+      "tipo": "PUBLICAR_VENTA",
+      "fecha": "2025-12-06T17:50:22.797837700",
+      "valor": 0.0,
+      "dueno": "david1",
+      "idTiquete": "TIQ-00000018"
     }
   ]
 }

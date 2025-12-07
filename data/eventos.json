@@ -35,7 +35,7 @@
       "fecha": "2025-12-15",
       "hora": "14:00",
       "loginOrganizador": "org",
-      "cancelado": false,
+      "cancelado": true,
       "venueUbicacion": "Neiva",
       "venueCapMax": 10000,
       "venueAprobado": false
