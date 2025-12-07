@@ -1,10 +1,9 @@
 package interfaz;
 
-import java.awt.*;
 import javax.swing.*;
+import javax.swing.text.PlainDocument;
 
 import Persistencia.SistemaPersistencia;
-import usuario.Administrador;
 import usuario.Cliente;
 import usuario.IDuenoTiquetes;
 import usuario.Organizador;
@@ -12,7 +11,6 @@ import usuario.Promotor;
 import usuario.Usuario;
 
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 
@@ -79,6 +77,9 @@ public class ventanaRecargarSaldo extends JFrame {
         textField.setBounds(177, 50, 106, 26);
         getContentPane().add(textField);
         textField.setColumns(10);
+        
+        PlainDocument doc = (PlainDocument) textField.getDocument();
+        doc.setDocumentFilter(new FiltroSoloNumeros());
 
        
         setTitle("BOLETAMASTER: Recargo Saldo");
@@ -89,7 +90,17 @@ public class ventanaRecargarSaldo extends JFrame {
     
     private void recargarSaldo() {
     	String valorRecarga = textField.getText();
-    	int recarga = Integer.parseInt(valorRecarga);
+    	if (valorRecarga.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingresa un valor numérico.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int recarga = Integer.parseInt(valorRecarga);
+
+        if (recarga <= 0) {
+            JOptionPane.showMessageDialog(this, "El valor debe ser mayor a 0.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
     	IDuenoTiquetes usuario = (IDuenoTiquetes) usuarioActual;
     	usuario.actualizarSaldo(usuario.getSaldo() + recarga);
     	sistema.guardarTodo();

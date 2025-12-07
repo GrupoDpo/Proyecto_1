@@ -148,8 +148,8 @@ public class ventanaMenuAdministrador extends JFrame {
         JOptionPane.showMessageDialog(this, "- - En desarrollo");
     }
     private void abrirVentanaFijarCobroEmision() {
-    	// TODO: Implementar ventana 
-        JOptionPane.showMessageDialog(this, "- - En desarrollo");
+    	dispose();
+    	new VentanaFijarCobroEmision(sistema, admin).setVisible(true);;
     }
     
     private void abrirVentanaFijarRecargo() {
